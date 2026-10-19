@@ -1015,3 +1015,18 @@ The brief's Phase 06, Phase 08 and §9 text was re-read (pdftotext) and checked 
 - Also written: the base and trained 0.5B leaderboard rows (`local__qwen2.5-0.5b/eval-single`, `local__qwen2.5-0.5b-grpo-b0.04/eval-single`).
 - RL_REPORT B5 written. B1–B8 complete.
 - **Deviation noticed:** `heldout_eval.sh` ran the eval-split leaderboard rows with `--max-cost 2.00` (the default) and default max tokens, unlike the held-out runs. That is fine: list price is $0 for local models.
+
+---
+
+## Track C running; empty model replies are scored failures, not errors (2026-10-19)
+
+- `scripts/track_c.sh` (3B at S0–S4, then 0.5B at S0/S4). S0 and S1 complete; S2 (tools) running.
+- **Early read:**
+  - S0 (no rule book): the 3B refuses most payable payslips (228/327 rollouts), which is reasonable without rules;
+  - S1 (rules in context): mean −0.62 → −0.49.
+- **Policy fix:** in tool mode the 3B sometimes returns no text and no tool call (verifiers `EmptyModelResponseError`; likely a malformed tool call dropped by vLLM's hermes parser), 17/222 S2 rollouts so far.
+  - **Before:** recorded as errors, so they were *excluded* from the score, which flatters tool mode.
+  - **Now:** the server answered, so this is the model's failure, scored like any unusable answer (−1 under 1.4).
+  - Contrast with an empty *timeout* (our rate-limit queue, no reply at all), which stays an infrastructure error and is retried.
+  - Runner and `rescore` both apply this. Test `test_an_empty_model_reply_is_a_scored_failure_not_an_error`. Suite 233 passed.
+  - S3/S4/0.5B runs pick it up automatically (new processes); the in-flight S2 run is fixed afterwards with `paygym rescore --force`.

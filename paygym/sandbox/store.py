@@ -83,6 +83,11 @@ class RedisStore:
 
 
 def make_store() -> Store:
+    # Vercel's Upstash integration names them KV_REST_API_URL / KV_REST_API_TOKEN; Upstash's own docs use
+    # UPSTASH_REDIS_REST_URL / _TOKEN. Accept either, so no manual renaming is needed on deploy.
+    for a_, b_ in (("UPSTASH_REDIS_REST_URL", "KV_REST_API_URL"), ("UPSTASH_REDIS_REST_TOKEN", "KV_REST_API_TOKEN")):
+        if not os.environ.get(a_) and os.environ.get(b_):
+            os.environ[a_] = os.environ[b_]
     if os.environ.get("UPSTASH_REDIS_REST_URL") and os.environ.get("UPSTASH_REDIS_REST_TOKEN"):
         from upstash_redis import Redis
 

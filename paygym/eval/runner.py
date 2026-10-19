@@ -350,6 +350,15 @@ class EvalRun:
                 out = await self.env.run_rollout(rollout_input, client, self.spec.model_id, sampling)
                 err = _error_text(out.get("error"))
                 usage0 = (out.get("token_usage") or {}).get("output_tokens") or 0
+                if err and "EmptyModelResponseError" in err:
+                    # The server answered and the MODEL produced nothing usable (no text, no tool call; e.g. a
+                    # malformed tool call the parser dropped). That is the model's failure, scored like any
+                    # unusable answer (-1 under rubric 1.4), not excluded as an error: excluding it flatters
+                    # tool mode (2026-10-19: 17/222 Qwen-3B S2 rollouts). Contrast: an empty *timeout* (below).
+                    err = None
+                    out["completion"] = (out.get("completion") or []) + [{"role": "assistant", "content": ""}]
+                    out["reward"] = float(score_answer(self.tasks[_info(row)["task_id"]], "").total)
+                    out["stop_condition"] = out.get("stop_condition") or "empty_model_response"
                 if not err and out.get("stop_condition") == "timeout_reached" and not usage0:
                     # Timed out before the model produced anything: in practice the free-tier pacing queue
                     # (requests wait inside the rollout's clock). Not the model's answer, so it is an
@@ -583,6 +592,10 @@ def rescore(run_dir: Path, force: bool = False) -> dict:
     changed = 0
     for row in rows:
         task = run.tasks.get(row["task_id"])
+        if task is not None and row.get("status") == "error" and "EmptyModelResponseError" in (row.get("error") or ""):
+            # Model produced nothing usable: a scored failure, not an infrastructure error (see _model_rollout).
+            row.update(status="ok", error=None, stop_condition=row.get("stop_condition") or "empty_model_response",
+                       completion=(row.get("completion") or []) + [{"role": "assistant", "content": ""}])
         if row.get("status") != "ok" or task is None:
             continue
         if row.get("stop_condition") == "timeout_reached" and not row.get("output_tokens"):

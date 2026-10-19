@@ -54,6 +54,9 @@ class FakeEnvRollouts:
             return {"error": {"error": "RateLimitError", "message": "429 Too Many Requests"}}
         if kind == "fatal":
             return {"error": {"error": "ModelError", "message": "model not found"}}
+        if kind == "empty_model":
+            return {"error": {"error": "EmptyModelResponseError", "message": "Model returned no content and did not call any tools"},
+                    "completion": [], "token_usage": {"input_tokens": 10, "output_tokens": 3}, "timing": {}}
         if kind == "empty_timeout":
             return {"reward": -1.0, "metrics": {}, "completion": [], "token_usage": {"input_tokens": 10, "output_tokens": 0},
                     "timing": {}, "stop_condition": "timeout_reached"}
@@ -420,3 +423,9 @@ def test_empty_timeout_is_an_infrastructure_error_and_is_retried(tmp_path, monke
     run, fake, code = _model_run(tmp_path, monkeypatch, ["empty_timeout"], "--max-cost", "100", "--limit", "1", "--rollouts", "1")
     row = json.loads(run.transcript.read_text().splitlines()[0])
     assert code == 0 and fake.calls == 2 and row["status"] == "ok" and row["retried"] == 1  # retried, then scored
+
+
+def test_an_empty_model_reply_is_a_scored_failure_not_an_error(tmp_path, monkeypatch):
+    run, fake, code = _model_run(tmp_path, monkeypatch, ["empty_model"], "--max-cost", "100", "--limit", "1", "--rollouts", "1")
+    row = json.loads(run.transcript.read_text().splitlines()[0])
+    assert row["status"] == "ok" and row["reward"] == -1.0 and fake.calls == 1  # scored, not retried or excluded
