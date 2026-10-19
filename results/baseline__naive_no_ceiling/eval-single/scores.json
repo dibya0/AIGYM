@@ -115,7 +115,7 @@
   "taskset_hash": "26e38b81e474ac53",
   "ruleset_version": "1.0",
   "ruleset_fingerprint": "42b009c25d689c46",
-  "rubric_version": "1.0",
+  "rubric_version": "1.1",
   "schema_version": "1.0",
   "summary": {
     "tasks": 109,
@@ -135,6 +135,7 @@
     "format_valid": 1.0,
     "line_accuracy": 0.8429,
     "net_pay_exact": 0.5286,
+    "paygym_reward": 0.5122,
     "trap_decision": -1.0,
     "value_exact": 0.05
   },
@@ -167,7 +168,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -194,7 +196,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -221,7 +224,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -248,7 +252,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -301,7 +306,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -354,7 +360,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.6,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.2
       },
       "mean": 0.2,
       "sd": 0.0
@@ -381,7 +388,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -408,7 +416,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -434,7 +443,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -461,7 +471,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -488,7 +499,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -515,7 +527,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -541,7 +554,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -594,7 +608,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -620,7 +635,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -647,7 +663,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -700,7 +717,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.6,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.2
       },
       "mean": 0.2,
       "sd": 0.0
@@ -727,7 +745,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -753,7 +772,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -779,7 +799,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -806,7 +827,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -859,7 +881,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -886,7 +909,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.6,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.2
       },
       "mean": 0.2,
       "sd": 0.0
@@ -912,7 +936,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -938,7 +963,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -964,7 +990,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -991,7 +1018,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -1018,7 +1046,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -1044,7 +1073,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -1070,7 +1100,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -1123,7 +1154,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.6,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.2
       },
       "mean": 0.2,
       "sd": 0.0
@@ -1150,7 +1182,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.6,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.2
       },
       "mean": 0.2,
       "sd": 0.0
@@ -1177,7 +1210,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -1203,7 +1237,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -1230,7 +1265,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -1283,7 +1319,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -1310,7 +1347,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -1336,7 +1374,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -1363,7 +1402,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -1416,7 +1456,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -1443,7 +1484,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -1470,7 +1512,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.6,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.2
       },
       "mean": 0.2,
       "sd": 0.0
@@ -1523,7 +1566,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.6,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.2
       },
       "mean": 0.2,
       "sd": 0.0
@@ -1549,7 +1593,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -1576,7 +1621,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -1603,7 +1649,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -1630,7 +1677,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -1657,7 +1705,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.6,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.2
       },
       "mean": 0.2,
       "sd": 0.0
@@ -1684,7 +1733,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -1711,7 +1761,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -1738,7 +1789,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -1764,7 +1816,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -1791,7 +1844,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -1818,7 +1872,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -1871,7 +1926,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -1898,7 +1954,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -1951,7 +2008,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -1978,7 +2036,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.6,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.2
       },
       "mean": 0.2,
       "sd": 0.0
@@ -2031,7 +2090,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2084,7 +2144,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2137,7 +2198,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2164,7 +2226,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -2217,7 +2280,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2270,7 +2334,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2296,7 +2361,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -2349,7 +2415,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2375,7 +2442,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -2402,7 +2470,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2429,7 +2498,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2456,7 +2526,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2483,7 +2554,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2510,7 +2582,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.6,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.2
       },
       "mean": 0.2,
       "sd": 0.0
@@ -2537,7 +2610,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2563,7 +2637,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -2616,7 +2691,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2643,7 +2719,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -2670,7 +2747,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -2697,7 +2775,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2723,7 +2802,8 @@
       ],
       "components": {
         "value_exact": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2750,7 +2830,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2803,7 +2884,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2830,7 +2912,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0
@@ -2857,7 +2940,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -2884,7 +2968,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.6,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.2
       },
       "mean": 0.2,
       "sd": 0.0
@@ -2911,7 +2996,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -2937,7 +3023,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -2964,7 +3051,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -2990,7 +3078,8 @@
       ],
       "components": {
         "value_exact": 0.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.05
       },
       "mean": 0.05,
       "sd": 0.0
@@ -3017,7 +3106,8 @@
       "components": {
         "net_pay_exact": 0.0,
         "line_accuracy": 0.7,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 0.225
       },
       "mean": 0.225,
       "sd": 0.0
@@ -3044,7 +3134,8 @@
       "components": {
         "net_pay_exact": 1.0,
         "line_accuracy": 1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": 1.0
       },
       "mean": 1.0,
       "sd": 0.0

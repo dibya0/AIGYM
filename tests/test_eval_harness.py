@@ -362,3 +362,13 @@ def test_rescore_moves_a_run_to_the_current_rubric_without_model_calls(tmp_path)
     assert all(r["reward"] == 0.0 for r in rows if r["gate"] == "refused_determinable")
     assert json.loads((run_dir / "config.json").read_text())["rescored_from"] == "1.0"
     assert json.loads((run_dir / "scores.json").read_text())["rubric_version"] == RUBRIC_VERSION
+
+
+def test_leaderboard_excludes_pilots_and_runs_with_no_successes(tmp_path):
+    main(["--model", "baseline/naive_no_ceiling", "--n-seeds", "12", "--rollouts", "1", "--out", str(tmp_path), "--run-name", "r"])
+    from paygym.eval.leaderboard import is_leaderboard_run
+
+    assert is_leaderboard_run({"split": "eval", "tasks_path": None}, {"rollouts_ok": 3})
+    assert not is_leaderboard_run({"split": "eval", "tasks_path": "tasks/generated/train_easy.jsonl"}, {"rollouts_ok": 120})  # a pilot
+    assert not is_leaderboard_run({"split": "eval", "tasks_path": None}, {"rollouts_ok": 0})  # server was down
+    assert [r["model"] for r in leaderboard.build(tmp_path)["runs"]] == ["baseline/naive_no_ceiling"]

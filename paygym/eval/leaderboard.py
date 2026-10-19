@@ -23,6 +23,13 @@ from statistics import mean
 from paygym.eval.stats import paired_bootstrap, run_summary, task_means
 
 
+def is_leaderboard_run(cfg: dict, metrics: dict) -> bool:
+    """Eval-split runs only (the full split or a fixed --ids subset of it), with at least one scored rollout.
+    Excluded: pilots and training-set runs (--tasks train*.jsonl), held-out RL runs (reported by
+    scripts/rl_summary.py), and runs in which nothing succeeded (e.g. a local server that was down)."""
+    return cfg.get("split") == "eval" and not cfg.get("tasks_path") and (metrics.get("rollouts_ok") or 0) > 0
+
+
 def load_runs(root: Path) -> list[dict]:
     runs = []
     for cfg_path in sorted(root.glob("*/*/config.json")):
@@ -33,6 +40,8 @@ def load_runs(root: Path) -> list[dict]:
         cfg = json.loads(cfg_path.read_text())
         scores = json.loads(scores_path.read_text())
         metrics = json.loads(metrics_path.read_text())
+        if not is_leaderboard_run(cfg, metrics):
+            continue
         rows = [json.loads(line) for line in (run_dir / "transcript.jsonl").read_text().splitlines() if line.strip()]
         runs.append({
             "run": str(run_dir.relative_to(root)),

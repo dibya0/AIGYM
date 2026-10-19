@@ -6,11 +6,7 @@
       "baseline/gross_as_net": -0.0273,
       "baseline/modal_answer": -0.0945,
       "baseline/naive_no_ceiling": 0.2486,
-      "gemini/gemini-3.5-flash-lite": 0.3939,
-      "gemini/gemini-3.8-flash": 0.3889,
-      "groq/openai/gpt-oss-120b": 0.405,
-      "local/qwen2.5-0.5b": -0.079,
-      "local/qwen2.5-3b": null
+      "gemini/gemini-3.5-flash-lite": 0.3939
     },
     "net-heavy (0.85/0.10/0.05)": {
       "baseline/always_abstain": 0.1211,
@@ -18,11 +14,7 @@
       "baseline/gross_as_net": -0.0855,
       "baseline/modal_answer": -0.1124,
       "baseline/naive_no_ceiling": 0.2183,
-      "gemini/gemini-3.5-flash-lite": 0.3512,
-      "gemini/gemini-3.8-flash": 0.3889,
-      "groq/openai/gpt-oss-120b": 0.405,
-      "local/qwen2.5-0.5b": -0.0928,
-      "local/qwen2.5-3b": null
+      "gemini/gemini-3.5-flash-lite": 0.3512
     },
     "lines-heavy (0.50/0.45/0.05)": {
       "baseline/always_abstain": 0.1211,
@@ -30,11 +22,7 @@
       "baseline/gross_as_net": 0.0041,
       "baseline/modal_answer": -0.0706,
       "baseline/naive_no_ceiling": 0.2587,
-      "gemini/gemini-3.5-flash-lite": 0.417,
-      "gemini/gemini-3.8-flash": 0.3889,
-      "groq/openai/gpt-oss-120b": 0.405,
-      "local/qwen2.5-0.5b": -0.063,
-      "local/qwen2.5-3b": null
+      "gemini/gemini-3.5-flash-lite": 0.417
     },
     "no format (0.72/0.28/0.00)": {
       "baseline/always_abstain": 0.089,
@@ -42,67 +30,47 @@
       "baseline/gross_as_net": -0.0478,
       "baseline/modal_answer": -0.123,
       "baseline/naive_no_ceiling": 0.2395,
-      "gemini/gemini-3.5-flash-lite": 0.3718,
-      "gemini/gemini-3.8-flash": 0.3889,
-      "groq/openai/gpt-oss-120b": 0.4,
-      "local/qwen2.5-0.5b": -0.1008,
-      "local/qwen2.5-3b": null
+      "gemini/gemini-3.5-flash-lite": 0.3718
     }
   },
   "ranking_by_weighting": {
     "shipped (0.70/0.25/0.05)": [
-      "groq/openai/gpt-oss-120b",
       "gemini/gemini-3.5-flash-lite",
-      "gemini/gemini-3.8-flash",
       "baseline/naive_no_ceiling",
       "baseline/always_abstain",
       "baseline/gross_as_net",
-      "local/qwen2.5-0.5b",
       "baseline/modal_answer",
-      "baseline/format_only",
-      "local/qwen2.5-3b"
+      "baseline/format_only"
     ],
     "net-heavy (0.85/0.10/0.05)": [
-      "groq/openai/gpt-oss-120b",
-      "gemini/gemini-3.8-flash",
       "gemini/gemini-3.5-flash-lite",
       "baseline/naive_no_ceiling",
       "baseline/always_abstain",
       "baseline/gross_as_net",
-      "local/qwen2.5-0.5b",
       "baseline/modal_answer",
-      "baseline/format_only",
-      "local/qwen2.5-3b"
+      "baseline/format_only"
     ],
     "lines-heavy (0.50/0.45/0.05)": [
       "gemini/gemini-3.5-flash-lite",
-      "groq/openai/gpt-oss-120b",
-      "gemini/gemini-3.8-flash",
       "baseline/naive_no_ceiling",
       "baseline/always_abstain",
       "baseline/gross_as_net",
-      "local/qwen2.5-0.5b",
       "baseline/modal_answer",
-      "baseline/format_only",
-      "local/qwen2.5-3b"
+      "baseline/format_only"
     ],
     "no format (0.72/0.28/0.00)": [
-      "groq/openai/gpt-oss-120b",
-      "gemini/gemini-3.8-flash",
       "gemini/gemini-3.5-flash-lite",
       "baseline/naive_no_ceiling",
       "baseline/always_abstain",
       "baseline/gross_as_net",
-      "local/qwen2.5-0.5b",
       "baseline/modal_answer",
-      "baseline/format_only",
-      "local/qwen2.5-3b"
+      "baseline/format_only"
     ]
   },
   "kendall_tau_vs_shipped": {
     "shipped (0.70/0.25/0.05)": 1.0,
-    "net-heavy (0.85/0.10/0.05)": 0.9556,
-    "lines-heavy (0.50/0.45/0.05)": 0.9556,
-    "no format (0.72/0.28/0.00)": 0.9556
+    "net-heavy (0.85/0.10/0.05)": 1.0,
+    "lines-heavy (0.50/0.45/0.05)": 1.0,
+    "no format (0.72/0.28/0.00)": 1.0
   }
 }

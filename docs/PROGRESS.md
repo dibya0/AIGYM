@@ -834,3 +834,17 @@ Every GRPO setting was checked against the code and the observed logs.
   - more prompts per step (less noisy advantages, slower);
   - Qwen2.5-1.5B (A11).
 - Suite 224 passed; `paygym validate tasks/` → 1202 tasks OK.
+
+---
+
+## Sweep day 1 finished; two aggregation bugs found in its output (2026-10-19)
+
+- **Hosted results:**
+  - full eval: Gemini 3.5 Flash-Lite **0.394**, against baselines naive_no_ceiling 0.249, always_abstain 0.121, gross_as_net −0.027, modal_answer −0.095, format_only −0.104;
+  - subsets: Groq gpt-oss-120b core10 0.405 (partial), Gemini 3.8 Flash core6 0.389, Gemini 3.1 Flash-Lite tool mode core6 0.287;
+  - 33 indistinguishable pairs (paired bootstrap).
+  - The local Qwen rows were unavailable (the GPU is training) and are run after training.
+- **Bug 1, the leaderboard included non-eval runs:** the three Step 17 pilots (run on *training* tasks) and runs with zero successes (`mean=None`) were listed and ranked. **Fix:** `is_leaderboard_run()`, eval split only (full or a fixed `--ids` subset), ≥ 1 scored rollout. Pilots, held-out RL runs (they belong to `rl_summary.py`) and empty runs are excluded. Test: `test_leaderboard_excludes_pilots_and_runs_with_no_successes`.
+- **Bug 2, the weight-sensitivity table compared models on different tasks:** it kept the *last* run per model, so Gemini 3.8 Flash (core6), Groq (core10) and Flash-Lite (core6 tool / full) were ranked against each other on different task sets. **Fix:** sensitivity uses only full-eval, single-turn, default-scaffold runs, so every model is scored on the same 109 tasks; two such runs for one model is an error.
+  - **Result:** ranking unchanged under all four weightings (Kendall τ = 1.0), over Flash-Lite + 5 baselines so far.
+- **Still to do today:** `paygym rescore` brings the Flash-Lite and baseline runs, scored under rubric 1.0, to 1.1 ($0). Suite 225 passed.

@@ -48,12 +48,20 @@ def kendall_tau(a: list[str], b: list[str]) -> float:
 
 
 def analyse(results: Path) -> dict:
+    from paygym.eval.leaderboard import is_leaderboard_run
+
+    # Same tasks for every model: full eval-split, single-turn, default-scaffold runs only. (The first version
+    # kept the last run per model, so models were compared on different task sets: core6 vs the full split.)
     runs = {}
     for t in sorted(results.glob("*/*/transcript.jsonl")):
         cfg = json.loads((t.parent / "config.json").read_text())
-        if cfg["mode"] != "single":
+        metrics_path = t.parent / "metrics.json"
+        metrics = json.loads(metrics_path.read_text()) if metrics_path.exists() else {}
+        if cfg["mode"] != "single" or cfg.get("ids") or cfg.get("scaffold") or not is_leaderboard_run(cfg, metrics):
             continue
         rows = [json.loads(line) for line in t.read_text().splitlines() if line.strip()]
+        if cfg["model"] in runs:
+            raise SystemExit(f"two full-eval runs for {cfg['model']}: keep one (sensitivity needs one row per model)")
         runs[cfg["model"]] = rows
     table = {}
     for label, w in WEIGHTINGS.items():
