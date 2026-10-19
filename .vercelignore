@@ -1,0 +1,16 @@
+# Vercel deploys the static dashboard (public/) and the sandbox function (api/index.py), nothing else.
+# pyproject.toml + uv.lock are excluded on purpose: when they are present, Vercel's Python runtime installs from
+# them (core dependencies only) and ignores requirements.txt, so the function failed with
+# "ModuleNotFoundError: No module named 'fastapi'" (2026-10-19). Without them it installs requirements.txt,
+# the function's own dependency list. The function imports paygym from the repo folder, not as an installed package.
+pyproject.toml
+uv.lock
+.python-version
+# Not used by the function or the dashboard (keeps the upload and the function bundle small).
+results/
+train/
+tests/
+scripts/
+docker/
+tasks/
+.github/

@@ -1030,3 +1030,14 @@ The brief's Phase 06, Phase 08 and §9 text was re-read (pdftotext) and checked 
   - Contrast with an empty *timeout* (our rate-limit queue, no reply at all), which stays an infrastructure error and is retried.
   - Runner and `rescore` both apply this. Test `test_an_empty_model_reply_is_a_scored_failure_not_an_error`. Suite 233 passed.
   - S3/S4/0.5B runs pick it up automatically (new processes); the in-flight S2 run is fixed afterwards with `paygym rescore --force`.
+
+---
+
+## Vercel deploy (2026-10-19): https://aigym-alpha.vercel.app
+
+- **Dashboard (static `public/`):** live, 200.
+- **Sandbox function: `FUNCTION_INVOCATION_FAILED`.** Vercel runtime log: `ModuleNotFoundError: No module named 'fastapi'`. With `pyproject.toml` + `uv.lock` in the repo, Vercel's Python runtime installs from them (core deps only) and ignores `requirements.txt`.
+- **Fix:** `.vercelignore` excludes `pyproject.toml`, `uv.lock`, `.python-version` (and unused folders: results/, train/, tests/, scripts/, docker/, tasks/, .github/). Vercel then installs `requirements.txt`; the function imports `paygym` from the repo folder.
+- **Verified before redeploying:** a copy of the repo minus the ignored paths (5.1 MB), in a clean venv with only `requirements.txt`, gives `/health` 200 (rubric 1.4), `/tasks` (no ground truth), `/submit` (score + breakdown + clause), and `/api/docs` Swagger 200 with 6 endpoints.
+- Added a `/docs` → `/api/docs` redirect (`vercel.json`) so reviewers find the interactive API docs.
+- Sandbox env vars: `SANDBOX_SECRET` (≥ 32 chars), `GEMINI_API_KEY`, `PAYGYM_JUDGE_MODEL`. The store accepts Vercel's `KV_REST_API_*` names as well as `UPSTASH_REDIS_REST_*`.
