@@ -31,6 +31,7 @@ KL̂       = per-token k3 estimator:  exp(log π_ref − log π_θ) − (log π_
 | Prompts / step | 4 (32 completions per step) |
 | Max completion | 384 tokens |
 | LR | 2e-5 |
+| LR schedule | constant, no warmup (amended 2026-10-19, before any training run; see A9) |
 | Steps | ≤ 150 (≈ 3 passes over ~200 tasks) |
 | Checkpoints | every 25 steps |
 | Reward | Phase 04 rubric, programmatic components; judge weight 0 |
@@ -86,6 +87,10 @@ If one is found: transcript evidence → rubric fix (version bump) → rerun →
 - **Use:** the chosen LR is used for both β runs.
 - **Discipline:** selection uses the validation split only; held-out stays untouched. The probe is reported in full (B1b), including the losing settings.
 - **Not tuned, and why:** with a ~1–2 h GPU budget, tuning everything would mean many short noisy runs, and choosing the best of many noisy runs is itself a form of overfitting. We tune the one knob that most often breaks small-model GRPO (LR), the one the brief requires (β), and the data difficulty. Everything else is set by the reasoning in A2b.
+
+### A9. Amendments before training (logged, not hidden)
+- **2026-10-19, after the smoke test (reward = format only, so not a result):** the LR schedule is now **constant** with no warmup. The smoke run showed TRL's default linear decay (2e-5 → 2e-6 over 10 steps). With decay, the effective LR depends on `max_steps`, so a 30-step probe (A8) would not transfer to a 150-step run, and a plateau stop would compare checkpoints trained at different LRs. No training result had been seen when this was changed.
+- **Measured cost:** smoke config (2 prompts × G = 4 = 8 completions/step, HF generation) ran at ≈ 24 s/step on the RTX 5070 Ti. The real config is 32 completions/step; Step 17 measures it before the runs are sized.
 
 ---
 

@@ -548,3 +548,23 @@ Re-read the PDF (pp.7–14 phase specs, plus §§9–11) line by line against th
 - **Genuine evidence (expected; this *is* the trap):** `NO_APPLICABLE_TABLE` → 2027 / 2024 / 2020 (period outside every table); `UNSUPPORTED_CURRENCY` → jpy, gbp.
 - **Not leakage:** `MISSING_INPUT` → names / employee IDs ("greta", "9099"). Each appears in the trap's determined twin too (greta: 3 trap, 6 ANSWER; 9099: 1 / 1), so this is the CV memorising 16 examples, not a cue a model could use. `CONFLICTING_RECORDS` → "currency not stated" (paraphrase text), which appears in 5 CONFLICTING, 5 ANSWER and 2 MISSING prompts, so it does not determine the label.
 - **Conclusion:** no template wording gives away the label; the eval split's classifier is at chance. This goes in EVAL_REPORT as "what the leakage check caught" (one audit false positive, one degenerate classifier, both fixed).
+
+---
+
+## Step 7: CI (2026-10-19)
+
+- Repo: https://github.com/dibya0/AIGYM (public). First push `0ca29f4`.
+- The brief PDF is excluded from git (`*.docx.pdf` in `.gitignore`): it is Niural's document, not ours to republish.
+- GitHub Actions `ci` run [39207551122](https://github.com/dibya0/AIGYM/actions/runs/39207551122): **success**. All steps green: `uv sync --extra cpu --locked` (the lockfile is consistent), `paygym validate` over every taskset, `pytest`. So a clean checkout on a fresh Ubuntu runner installs and passes, an early check for §9 #1 (clean-clone setup).
+- Checklist: P01.5 ☑.
+
+---
+
+## Step 8: RL smoke test on the RTX 5070 Ti (2026-10-19)
+
+- **Driver:** 595.91.07 open kernel module, CUDA 13.2, kernel 7.0.0-38. `check_gpu.py`: torch 2.13.0+cu129, sm_120, 15.5 GiB, bf16 OK, matmul OK. The driver install ended the desktop session (display stack restart); the shell profiles were checked and are intact.
+- **Run:** `--reward smoke` (format-only), 20 tasks, 10 steps, G = 4, 2 prompts/step, β = 0.04. Completed in 298 s (**≈ 24 s/step** for 8 completions, HF generation, no vLLM).
+- **Logged per step, as required:** `kl` (0 at step 1, since the policy equals the reference, then rising to 0.0015: the reference loads and KL is measured), `entropy` (0.38–0.96), completion length (mean 183–276, clipped ratio up to 0.25 at the 384-token cap), `frac_reward_zero_std` (0–0.5), `reward`. Files: `metrics.csv`, `validation.csv`, `val_samples.jsonl`, `config.json`, `final_adapter/`.
+- **The step-0 validation is an early pilot signal** (real rubric, greedy, 44 val tasks): base Qwen-0.5B scores **−0.15** overall: Tier 2 **0.09** (near-zero exact net pay), Tier 3 **−0.875** (it answers almost every trap). This is consistent with the pre-registered expectation that the training tasks will need the `easy`/`easier` preset (A4), and it means the main thing RL can learn is when to refuse. The refusal-collapse monitor (twin refusal rate) is what guards that.
+- **Fix found by the smoke run:** TRL's default linear LR decay (2e-5 → 2e-6 in the log). Changed to a constant LR and logged as pre-registration amendment A9 (before any real training).
+- Checklist: P07.4 ◐ (KL per step shown; real runs pending). Anti-goal "training that didn't finish" de-risked.

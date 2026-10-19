@@ -104,19 +104,19 @@ Paste the two `audit` summary lines. Expected:
 - `exact dup cases: 0`
 - classifier accuracy: anything is fine. If it is well above majority, Claude reads the top n-grams in the JSON to check they are genuine evidence (e.g. `gbp`, `2027`) and not template words, and writes the finding into the eval report.
 
-### Step 7: CI ⏳
+### Step 7: CI ✅ (2026-10-19: repo github.com/dibya0/AIGYM, first run green)
 The folder is not a git repo yet. Create an **empty** GitHub repo first (no README/licence, e.g. `paygym`), then:
 ```bash
 uv lock                                       # CI uses --locked
 git init -b main
 git status --short | grep -E '\.env$' && echo "STOP: .env would be committed"   # must print nothing
 git add -A && git commit -m "PayGym: rule set, reference, tasks, generator, audits"
-git remote add origin git@github.com:<your-user>/paygym.git   # or the https URL
+git remote add origin git@github.com:dibya0/AIGYM.git   # or the https URL
 git push -u origin main
 ```
 Expect: the GitHub Actions run `ci` is green. It runs `paygym validate tasks/` and `pytest`. It needs `tasks/seed_v1.jsonl` and `tasks/generated/*.jsonl` committed (Steps 5–6).
 
-### Step 8: RL smoke test on the RTX 5070 Ti ⏳ (needs the NVIDIA driver)
+### Step 8: RL smoke test on the RTX 5070 Ti ✅ (2026-10-19: 10 steps, ≈24 s/step, KL logged)
 ```bash
 uv sync --extra cpu --extra train
 uv run python scripts/check_gpu.py
@@ -150,7 +150,7 @@ uv run pytest -q tests/test_judge.py       # expect: 5 passed (no API key needed
 ```
 Then, with `GEMINI_API_KEY` in `.env`, check that your free tier can reach the judge model:
 ```bash
-uv run python -c "from openai import OpenAI; import os; c=OpenAI(api_key=os.environ['GEMINI_API_KEY'], base_url='https://generativelanguage.googleapis.com/v1beta/openai/'); print([m.id for m in c.models.list()][:40])"
+uv run --env-file .env python -c "from openai import OpenAI; import os; c=OpenAI(api_key=os.environ['GEMINI_API_KEY'], base_url='https://generativelanguage.googleapis.com/v1beta/openai/'); print([m.id for m in c.models.list()][:40])"
 ```
 Paste the model list. Claude sets `PAYGYM_JUDGE_MODEL` to the best free Flash model in it (default `gemini-flash-latest`). The reliability runs (3 repeats + your 15 hand labels) happen after the eval sweep (Step 15), because they need real model refusals to judge.
 
@@ -163,17 +163,18 @@ uv run python -c "import verifiers as vf; e = vf.load_environment('paygym', mode
 ```
 Smoke eval on a free model (5 tasks, both modes), once `GROQ_API_KEY` is set. Uses verifiers' own runner, to prove portability:
 ```bash
-uv run python - <<'PY'
-import os, asyncio, verifiers as vf
-from openai import AsyncOpenAI
-client = AsyncOpenAI(api_key=os.environ["GROQ_API_KEY"], base_url="https://api.groq.com/openai/v1")
+uv run --env-file .env python - <<'PY'
+import verifiers as vf
+from verifiers.types import ClientConfig
+# verifiers 0.2.1 takes a ClientConfig (it builds its own client), not an AsyncOpenAI object
+client = ClientConfig(api_key_var="GROQ_API_KEY", api_base_url="https://api.groq.com/openai/v1", max_retries=3, timeout=120)
 for mode in ("single", "tool"):
     env = vf.load_environment("paygym", mode=mode, n_seeds=5)
-    out = env.evaluate_sync(client=client, model="openai/gpt-oss-120b", num_examples=5, rollouts_per_example=1)
+    out = env.evaluate_sync(client=client, model="openai/gpt-oss-120b", num_examples=5, rollouts_per_example=1, max_concurrent=2)
     print(mode, "OK", type(out).__name__)
 PY
 ```
-Paste the output or the traceback. The exact `evaluate_sync` keyword names are checked against verifiers 0.2.1 when Claude builds the eval harness (Step 14); if this snippet's call signature errors, paste the error.
+Paste the output or the traceback. The `evaluate_sync` / `ClientConfig` signature was checked against the installed verifiers 0.2.1 on 2026-10-19.
 
 ### Step 13: fidelity audit worksheet ⏳
 ```bash
@@ -219,7 +220,7 @@ docker compose --profile dashboard up dashboard             # preview at http://
 ```
 Deploy: commit `public/` and push; Vercel (linked to the repo) serves it as-is. The API config lands in Step 19. Send Claude the live URL to verify each P06 item on the deployed page.
 
-### Step 17: RL difficulty pilot + two β runs ⏳ (GPU; ~1–2 h total)
+### Step 17: RL difficulty pilot + two β runs ⏳ (GPU; smoke ran ≈24 s/step at 8 completions, so plan for ≈3–6 h total; the first LR-probe run gives the real figure)
 **Before training, commit `docs/RL_REPORT.md` Part A as it is.** It is the pre-registration; its git timestamp shows it predates the runs.
 
 1. Pilot (base 0.5B, 8 samples per task, ~50 training tasks):

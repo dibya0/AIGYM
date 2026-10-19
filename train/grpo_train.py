@@ -282,6 +282,10 @@ def main() -> None:
         seed=args.seed,
         max_steps=args.max_steps,
         learning_rate=args.learning_rate,
+        # Constant LR: TRL's default linear decay would tie the effective LR to max_steps, so the 30-step LR
+        # probe (RL_REPORT A8) would not transfer to the 150-step runs, and plateau stops would land at different LRs.
+        lr_scheduler_type="constant",
+        warmup_steps=0,
         # One prompt group (G completions) per micro-batch; accumulate `prompts_per_step` groups per step.
         per_device_train_batch_size=args.num_generations,
         gradient_accumulation_steps=args.prompts_per_step,

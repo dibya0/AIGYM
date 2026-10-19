@@ -1,4 +1,4 @@
-# AI usage disclosure (brief §9 #12)
+54.l;,.l# AI usage disclosure (brief §9 #12)
 
 The brief says this role is AI-native and asks for specific, honest disclosure. This is it.
 
