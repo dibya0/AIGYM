@@ -78,14 +78,14 @@ Status: ☐ not started · ◐ partly met · ☑ met (with evidence). Every row 
 
 | ID | Requirement | Step | Status | Evidence |
 |---|---|---|---|---|
-| P06.1 | Live URL, readable in 90 seconds without cloning | 16 | ◐ (run/deploy pending) | `paygym/dashboard/`: static `public/` (Vercel); live URL after deploy |
-| P06.2 | Leaderboard: model × mean reward with error bars / ± SD | 16 | ◐ (run/deploy pending) | `paygym/dashboard/`: leaderboard bar + error bars (run SD) + table |
-| P06.3 | Breakdown by difficulty tier and by reward function | 16 | ◐ (run/deploy pending) | `paygym/dashboard/`: tier + reward-function charts |
-| P06.4 | Failure heatmap, task × model | 16 | ◐ (run/deploy pending) | `paygym/dashboard/`: task × model heatmap (click → transcript) |
-| P06.5 | Transcript viewer | 16 | ◐ (run/deploy pending) | `paygym/dashboard/`: transcript viewer (tool calls, results, gate, clauses) |
-| P06.6 | Adversarial baselines on the same leaderboard | 16 | ◐ (run/deploy pending) | `paygym/dashboard/`: baselines on the same leaderboard (grey) |
-| P06.7 | Cost and latency per model | 16 | ◐ (run/deploy pending) | `paygym/dashboard/`: cost & latency table |
-| P06.8 | Answers: which model, for which tasks, where will it hurt us | 16, 21 | ◐ (run/deploy pending) | `paygym/dashboard/`: verdict panel (best per tier, cost/correct payslip, top failure clauses, trap/twin rates) |
+| P06.1 | Live URL, readable in 90 seconds without cloning | 16 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | `paygym/dashboard/`: static `public/` (Vercel); live URL after deploy |
+| P06.2 | Leaderboard: model × mean reward with error bars / ± SD | 16 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | `paygym/dashboard/`: leaderboard bar + error bars (run SD) + table |
+| P06.3 | Breakdown by difficulty tier and by reward function | 16 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | `paygym/dashboard/`: tier + reward-function charts |
+| P06.4 | Failure heatmap, task × model | 16 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | `paygym/dashboard/`: task × model heatmap (click → transcript) |
+| P06.5 | Transcript viewer | 16 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | `paygym/dashboard/`: transcript viewer (tool calls, results, gate, clauses) |
+| P06.6 | Adversarial baselines on the same leaderboard | 16 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | `paygym/dashboard/`: baselines on the same leaderboard (grey) |
+| P06.7 | Cost and latency per model | 16 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | `paygym/dashboard/`: cost & latency table |
+| P06.8 | Answers: which model, for which tasks, where will it hurt us | 16, 21 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | `paygym/dashboard/`: verdict panel (best per tier, cost/correct payslip, top failure clauses, trap/twin rates) |
 
 ## Phase 07: RL training loop (p.11–13)
 
@@ -106,19 +106,19 @@ Status: ☐ not started · ◐ partly met · ☑ met (with evidence). Every row 
 
 | ID | Requirement | Step | Status | Evidence |
 |---|---|---|---|---|
-| P08.1 | Live URL that stays up without the laptop (free tier OK) | 19 | ◐ (run/deploy pending) | Vercel (`api/index.py`, `vercel.json`); live URL after deploy |
-| P08.2 | Agent-facing API: fetch a batch of tasks; submit answers for scoring | 19 | ☑ (tests pass; live/deploy pending where noted) | `GET /api/tasks`, `POST /api/submit` |
-| P08.3 | Ground truth never crosses the wire | 19 | ☑ (tests pass; live/deploy pending where noted) | HMAC-derived seeds, opaque ids; leak fuzz test |
-| P08.4 | Scoring reuses the Phase 04 rubric and pinned rule set (no second scoring path) | 19 | ☑ (tests pass; live/deploy pending where noted) | `score_answer` + parity test (API == rubric == env) |
-| P08.5 | Response: per-task score, per-reward-function breakdown, driving clause | 19 | ☑ (tests pass; live/deploy pending where noted) | `per_task[].score/breakdown/clause` |
-| P08.6 | `run_id` recording rule-set version, taskset seed, tier mix | 19 | ☑ (tests pass; live/deploy pending where noted) | signed `run_id` (seed, tiers, n, ruleset version); response echoes seed/tier_mix/ruleset_version |
-| P08.7 | README quickstart completable in two minutes (fetch, submit trivial answer, print score) | 19 | ◐ (run/deploy pending) | `scripts/quickstart.py` (stdlib only) |
-| P08.8 | Guardrails: task cap per run, per-caller rate limit, no storage of others' API keys; abuse/cost paragraph | 19 | ◐ (run/deploy pending) | n ≤ 50, per-caller rate limits, no key storage; abuse paragraph in README (Step 22) |
-| P08.9 | Optional: sandbox runs on the leaderboard, labelled external | 19, 21 | ◐ (run/deploy pending) | `/api/leaderboard` → dashboard external section |
-| P08.E1 | Edge: GT leakage test (no expected value in any response), with what it caught | 19 | ☑ (tests pass; live/deploy pending where noted) | `test_no_ground_truth_in_any_response` |
-| P08.E2 | Edge: caller asks for 10,000 tasks / submits in a tight loop | 19 | ☑ (tests pass; live/deploy pending where noted) | cap + rate limit tests |
-| P08.E3 | Edge: two runs writing to the same store at once | 19 | ☑ (tests pass; live/deploy pending where noted) | atomic set-if-absent per run_id; idempotent resubmission |
-| P08.E4 | Edge: version skew, never silently compared across rule-set versions | 19 | ☑ (tests pass; live/deploy pending where noted) | 409 on rule-set mismatch (test) |
+| P08.1 | Live URL that stays up without the laptop (free tier OK) | 19 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | Vercel (`api/index.py`, `vercel.json`); live URL after deploy |
+| P08.2 | Agent-facing API: fetch a batch of tasks; submit answers for scoring | 19 | ☑ (tests pass; verified live 2026-10-19) | `GET /api/tasks`, `POST /api/submit` |
+| P08.3 | Ground truth never crosses the wire | 19 | ☑ (tests pass; verified live 2026-10-19) | HMAC-derived seeds, opaque ids; leak fuzz test |
+| P08.4 | Scoring reuses the Phase 04 rubric and pinned rule set (no second scoring path) | 19 | ☑ (tests pass; verified live 2026-10-19) | `score_answer` + parity test (API == rubric == env) |
+| P08.5 | Response: per-task score, per-reward-function breakdown, driving clause | 19 | ☑ (tests pass; verified live 2026-10-19) | `per_task[].score/breakdown/clause` |
+| P08.6 | `run_id` recording rule-set version, taskset seed, tier mix | 19 | ☑ (tests pass; verified live 2026-10-19) | signed `run_id` (seed, tiers, n, ruleset version); response echoes seed/tier_mix/ruleset_version |
+| P08.7 | README quickstart completable in two minutes (fetch, submit trivial answer, print score) | 19 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | `scripts/quickstart.py` (stdlib only) |
+| P08.8 | Guardrails: task cap per run, per-caller rate limit, no storage of others' API keys; abuse/cost paragraph | 19 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | n ≤ 50, per-caller rate limits, no key storage; abuse paragraph in README (Step 22) |
+| P08.9 | Optional: sandbox runs on the leaderboard, labelled external | 19, 21 | ☑ (live 2026-10-19: external submissions listed by /api/leaderboard, external: true; shown on the dashboard) | `/api/leaderboard` → dashboard external section |
+| P08.E1 | Edge: GT leakage test (no expected value in any response), with what it caught | 19 | ☑ (tests pass; verified live 2026-10-19) | `test_no_ground_truth_in_any_response` |
+| P08.E2 | Edge: caller asks for 10,000 tasks / submits in a tight loop | 19 | ☑ (tests pass; verified live 2026-10-19) | cap + rate limit tests |
+| P08.E3 | Edge: two runs writing to the same store at once | 19 | ☑ (tests pass; verified live 2026-10-19) | atomic set-if-absent per run_id; idempotent resubmission |
+| P08.E4 | Edge: version skew, never silently compared across rule-set versions | 19 | ☑ (tests pass; verified live 2026-10-19) | 409 on rule-set mismatch (test) |
 | P08.E5 | Edge: cold start documented in README | 19 | ◐ (run/deploy pending) | `/api/health` wait in quickstart; README note (Step 22) |
 
 ## §7 Advanced track C: scaffold comparison (p.15)

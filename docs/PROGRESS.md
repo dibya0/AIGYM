@@ -1066,3 +1066,10 @@ The brief's Phase 06, Phase 08 and §9 text was re-read (pdftotext) and checked 
   - commercial reading and limits.
 - **Dashboard rebuilt** with `--sandbox-url https://aigym-alpha.vercel.app`: 12 models/baselines, Track C rows, both held-out tables, RL curves, external-runs section.
   - Fix: subset-view rows reused a duplicate transcript file each (46 files, 4.7 MB). They now point to the full run's file, and stale data is cleared on each build: `public/` 15 MB → 9.6 MB.
+- **Upstash Redis connected (serverless Redis via Vercel Marketplace, region bom1, default env names), redeployed. Live checks on https://aigym-alpha.vercel.app:**
+  - `/health` → `"store": "RedisStore"`;
+  - submit, then `GET /runs/<id>` ×5 → all 200 (persistent across instances);
+  - resubmitting the same run → "already scored; returning the stored result" (idempotent);
+  - **rate limit:** 34 rapid `/tasks` calls → 29 × 200 then 429 (30/min per caller, shared through Redis; one request from the previous test was in the same minute);
+  - dashboard serves the held-out tables, the 7 Track C rows and the live sandbox link.
+- **Phase 08 is now met live** (URL up without the laptop, fetch/submit/runs, no ground truth, same rubric, score + breakdown + clause, run_id with version/seed/tier mix, task cap, rate limit, quickstart, Swagger docs). **Phase 06 is live.**
