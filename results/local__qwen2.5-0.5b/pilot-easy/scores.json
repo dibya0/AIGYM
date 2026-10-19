@@ -1,0 +1,1218 @@
+{
+  "model": "local/qwen2.5-0.5b",
+  "seed": 7,
+  "task_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    4,
+    5,
+    5,
+    6,
+    7,
+    8,
+    9,
+    9,
+    10,
+    10,
+    11,
+    12,
+    13,
+    13,
+    14,
+    14,
+    15,
+    15,
+    16,
+    17,
+    17,
+    18,
+    19,
+    20,
+    21
+  ],
+  "taskset_hash": "b4e0bf9cdbf6dac6",
+  "ruleset_version": "1.0",
+  "ruleset_fingerprint": "42b009c25d689c46",
+  "rubric_version": "1.0",
+  "schema_version": "1.0",
+  "summary": {
+    "tasks": 30,
+    "rollouts_ok": 120,
+    "rollouts_failed": 0,
+    "mean_reward": -0.079,
+    "run_sd": 0.0052,
+    "rollout_sd": 0.009,
+    "disagreement_rate": 0.3
+  },
+  "by_tier": {
+    "1": null,
+    "2": 0.0682,
+    "3": -0.4222
+  },
+  "by_component": {
+    "format_valid": 0.7583,
+    "judge_flag_quality": 0.0,
+    "line_accuracy": 0.0925,
+    "net_pay_exact": 0.0,
+    "num_turns": 1.0,
+    "parse_failed": 0.2417,
+    "paygym_reward": -0.079,
+    "refused": 0.3167,
+    "tool_errors": 0.0,
+    "trap_decision": -0.1267,
+    "value_exact": 0.0
+  },
+  "gates": {
+    "wrong_net_capped": 43,
+    "answered_trap": 20,
+    "refused_determinable": 22,
+    "unparseable": 19,
+    "wrong_reason": 16
+  },
+  "per_task": {
+    "gen-easy-0000009-twin": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 9,
+      "rewards": [
+        0.1,
+        0.1,
+        0.0,
+        0.1
+      ],
+      "gates": [
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "unparseable",
+        "wrong_net_capped"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.075,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.15,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.75,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.25,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.075,
+      "sd": 0.0433
+    },
+    "gen-easy-0000004-trap": {
+      "difficulty": 3,
+      "kind": "refusal",
+      "task_seed": 4,
+      "rewards": [
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "gates": [
+        "answered_trap",
+        "answered_trap",
+        "answered_trap",
+        "answered_trap"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": -1.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": -1.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": -1.0,
+      "sd": 0.0
+    },
+    "gen-easy-0000004-twin": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 4,
+      "rewards": [
+        0.175,
+        0.175,
+        0.175,
+        0.175
+      ],
+      "gates": [
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.175,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.5,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.175,
+      "sd": 0.0
+    },
+    "gen-easy-0000002": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 2,
+      "rewards": [
+        0.175,
+        0.175,
+        0.175,
+        0.175
+      ],
+      "gates": [
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.175,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.5,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.175,
+      "sd": 0.0
+    },
+    "gen-easy-0000010-trap": {
+      "difficulty": 3,
+      "kind": "refusal",
+      "task_seed": 10,
+      "rewards": [
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "gates": [
+        "answered_trap",
+        "answered_trap",
+        "answered_trap",
+        "answered_trap"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": -1.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": -1.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": -1.0,
+      "sd": 0.0
+    },
+    "gen-easy-0000006": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 6,
+      "rewards": [
+        0.175,
+        0.175,
+        0.175,
+        0.175
+      ],
+      "gates": [
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.175,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.5,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.175,
+      "sd": 0.0
+    },
+    "gen-easy-0000011": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 11,
+      "rewards": [
+        0.075,
+        0.075,
+        0.075,
+        0.075
+      ],
+      "gates": [
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.075,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.1,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.075,
+      "sd": 0.0
+    },
+    "gen-easy-0000005-twin": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 5,
+      "rewards": [
+        0.1,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "gates": [
+        "wrong_net_capped",
+        "unparseable",
+        "wrong_net_capped",
+        "unparseable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.025,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.05,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.25,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.75,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.025,
+      "sd": 0.0433
+    },
+    "gen-easy-0000003": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 3,
+      "rewards": [
+        0.05,
+        0.05,
+        0.0,
+        0.05
+      ],
+      "gates": [
+        "refused_determinable",
+        "refused_determinable",
+        "unparseable",
+        "refused_determinable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.0375,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.75,
+        "judge_flag_quality": 0.0,
+        "refused": 0.75,
+        "parse_failed": 0.25,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.0375,
+      "sd": 0.0217
+    },
+    "gen-easy-0000008": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 8,
+      "rewards": [
+        0.1,
+        0.1,
+        0.1,
+        0.05
+      ],
+      "gates": [
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.0875,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.2,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.75,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.25,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.0875,
+      "sd": 0.0217
+    },
+    "gen-easy-0000007": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 7,
+      "rewards": [
+        0.075,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "gates": [
+        "wrong_net_capped",
+        "unparseable",
+        "unparseable",
+        "unparseable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.0187,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.025,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.25,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.75,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.0187,
+      "sd": 0.0325
+    },
+    "gen-easy-0000001": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 1,
+      "rewards": [
+        0.125,
+        0.125,
+        0.125,
+        0.125
+      ],
+      "gates": [
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.125,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.3,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.125,
+      "sd": 0.0
+    },
+    "gen-easy-0000009-trap": {
+      "difficulty": 3,
+      "kind": "refusal",
+      "task_seed": 9,
+      "rewards": [
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "gates": [
+        "answered_trap",
+        "answered_trap",
+        "answered_trap",
+        "answered_trap"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": -1.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": -1.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": -1.0,
+      "sd": 0.0
+    },
+    "gen-easy-0000000": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 0,
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "gates": [
+        "unparseable",
+        "unparseable",
+        "unparseable",
+        "unparseable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 1.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.0,
+      "sd": 0.0
+    },
+    "gen-easy-0000005-trap": {
+      "difficulty": 3,
+      "kind": "refusal",
+      "task_seed": 5,
+      "rewards": [
+        0.3,
+        0.3,
+        0.3,
+        0.3
+      ],
+      "gates": [
+        "wrong_reason",
+        "wrong_reason",
+        "wrong_reason",
+        "wrong_reason"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.3,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.3,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 1.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.3,
+      "sd": 0.0
+    },
+    "gen-easy-0000010-twin": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 10,
+      "rewards": [
+        0.1,
+        0.1,
+        0.1,
+        0.1
+      ],
+      "gates": [
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.1,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.2,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.1,
+      "sd": 0.0
+    },
+    "gen-easy-0000014-trap": {
+      "difficulty": 3,
+      "kind": "refusal",
+      "task_seed": 14,
+      "rewards": [
+        0.3,
+        0.3,
+        0.3,
+        0.3
+      ],
+      "gates": [
+        "wrong_reason",
+        "wrong_reason",
+        "wrong_reason",
+        "wrong_reason"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.3,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.3,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 1.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.3,
+      "sd": 0.0
+    },
+    "gen-easy-0000013-trap": {
+      "difficulty": 3,
+      "kind": "refusal",
+      "task_seed": 13,
+      "rewards": [
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "gates": [
+        "answered_trap",
+        "answered_trap",
+        "answered_trap",
+        "answered_trap"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": -1.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": -1.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": -1.0,
+      "sd": 0.0
+    },
+    "gen-easy-0000015-trap": {
+      "difficulty": 3,
+      "kind": "refusal",
+      "task_seed": 15,
+      "rewards": [
+        0.3,
+        0.3,
+        0.3,
+        0.3
+      ],
+      "gates": [
+        "wrong_reason",
+        "wrong_reason",
+        "wrong_reason",
+        "wrong_reason"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.3,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.3,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 1.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.3,
+      "sd": 0.0
+    },
+    "gen-easy-0000014-twin": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 14,
+      "rewards": [
+        0.05,
+        0.05,
+        0.05,
+        0.05
+      ],
+      "gates": [
+        "refused_determinable",
+        "refused_determinable",
+        "refused_determinable",
+        "refused_determinable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.05,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 1.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.05,
+      "sd": 0.0
+    },
+    "gen-easy-0000012": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 12,
+      "rewards": [
+        0.05,
+        0.05,
+        0.05,
+        0.0
+      ],
+      "gates": [
+        "refused_determinable",
+        "refused_determinable",
+        "refused_determinable",
+        "unparseable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.0375,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.75,
+        "judge_flag_quality": 0.0,
+        "refused": 0.75,
+        "parse_failed": 0.25,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.0375,
+      "sd": 0.0217
+    },
+    "gen-easy-0000013-twin": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 13,
+      "rewards": [
+        0.1,
+        0.1,
+        0.1,
+        0.1
+      ],
+      "gates": [
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.1,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.2,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.1,
+      "sd": 0.0
+    },
+    "gen-easy-0000018": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 18,
+      "rewards": [
+        0.0,
+        0.0,
+        0.05,
+        0.0
+      ],
+      "gates": [
+        "unparseable",
+        "unparseable",
+        "refused_determinable",
+        "unparseable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.0125,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.25,
+        "judge_flag_quality": 0.0,
+        "refused": 0.25,
+        "parse_failed": 0.75,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.0125,
+      "sd": 0.0217
+    },
+    "gen-easy-0000015-twin": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 15,
+      "rewards": [
+        0.05,
+        0.05,
+        0.05,
+        0.05
+      ],
+      "gates": [
+        "refused_determinable",
+        "refused_determinable",
+        "refused_determinable",
+        "refused_determinable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.05,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 1.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.05,
+      "sd": 0.0
+    },
+    "gen-easy-0000019": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 19,
+      "rewards": [
+        0.05,
+        0.05,
+        0.05,
+        0.05
+      ],
+      "gates": [
+        "refused_determinable",
+        "refused_determinable",
+        "refused_determinable",
+        "refused_determinable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.05,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 1.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.05,
+      "sd": 0.0
+    },
+    "gen-easy-0000017-trap": {
+      "difficulty": 3,
+      "kind": "refusal",
+      "task_seed": 17,
+      "rewards": [
+        0.3,
+        0.3,
+        0.3,
+        0.3
+      ],
+      "gates": [
+        "wrong_reason",
+        "wrong_reason",
+        "wrong_reason",
+        "wrong_reason"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.3,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.3,
+        "value_exact": 0.0,
+        "format_valid": 0.0,
+        "judge_flag_quality": 0.0,
+        "refused": 1.0,
+        "parse_failed": 1.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.3,
+      "sd": 0.0
+    },
+    "gen-easy-0000017-twin": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 17,
+      "rewards": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "gates": [
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped",
+        "wrong_net_capped"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 1.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.0,
+      "sd": 0.0
+    },
+    "gen-easy-0000021-trap": {
+      "difficulty": 3,
+      "kind": "refusal",
+      "task_seed": 21,
+      "rewards": [
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "gates": [
+        "answered_trap",
+        "answered_trap",
+        "answered_trap",
+        "answered_trap"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": -1.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": -1.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": -1.0,
+      "sd": 0.0
+    },
+    "gen-easy-0000020": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 20,
+      "rewards": [
+        0.1,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "gates": [
+        "wrong_net_capped",
+        "unparseable",
+        "unparseable",
+        "unparseable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.025,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.05,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.25,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.75,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.025,
+      "sd": 0.0433
+    },
+    "gen-easy-0000016": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 16,
+      "rewards": [
+        0.05,
+        0.0,
+        0.05,
+        0.05
+      ],
+      "gates": [
+        "refused_determinable",
+        "unparseable",
+        "refused_determinable",
+        "refused_determinable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.0375,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.75,
+        "judge_flag_quality": 0.0,
+        "refused": 0.75,
+        "parse_failed": 0.25,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.0375,
+      "sd": 0.0217
+    }
+  },
+  "twins": 0.0719
+}

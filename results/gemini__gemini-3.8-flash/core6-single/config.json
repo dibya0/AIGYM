@@ -1,0 +1,51 @@
+{
+  "model": "gemini/gemini-3.8-flash",
+  "provider": "gemini",
+  "model_id": "gemini-3.8-flash",
+  "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
+  "free_tier": true,
+  "list_price_usd_per_mtok": [
+    0.3,
+    2.5
+  ],
+  "mode": "single",
+  "scaffold": null,
+  "split": "eval",
+  "tasks_path": null,
+  "n_seeds": 95,
+  "tier": "all",
+  "limit": null,
+  "ids": "tasks/subsets/eval_core6.txt",
+  "n_tasks": 6,
+  "rollouts": 3,
+  "seed": 7,
+  "sampling": {
+    "temperature": 1.0,
+    "max_tokens": 4096
+  },
+  "max_turns": 8,
+  "timeout_s": 180.0,
+  "max_cost_usd": 25.0,
+  "concurrency": 4,
+  "judge": true,
+  "taskset_hash": "5df8dbfb884dd4cb",
+  "task_seeds": [
+    2000025,
+    2000048,
+    2000049,
+    2000065,
+    2000065,
+    2000090
+  ],
+  "schema_version": "1.0",
+  "ruleset_version": "1.0",
+  "ruleset_fingerprint": "42b009c25d689c46",
+  "rubric_version": "1.0",
+  "prompt_hash": "fabc772e366e3762",
+  "paygym_version": "0.1.0",
+  "verifiers_version": "0.2.1",
+  "git_sha": "e3263fc9471f039656608bf21c7f5eada8ce3d51",
+  "python": "3.12.3",
+  "judge_model": "gemini-3.1-flash-lite",
+  "judge_prompt_hash": "d0691c1328f8ba86"
+}

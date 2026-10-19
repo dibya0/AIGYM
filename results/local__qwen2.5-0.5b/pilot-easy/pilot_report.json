@@ -1,0 +1,10 @@
+{
+  "run": "results/local__qwen2.5-0.5b/pilot-easy",
+  "tasks": 30,
+  "rollouts_per_task": 4,
+  "mean_reward": -0.079,
+  "frac_groups_all_identical": 0.7,
+  "tier2_pass_rate": 0,
+  "tier3_pass_rate": 0,
+  "recommendation": "too hard for a gradient: regenerate train with an easier preset (--knobs easy, then easier)"
+}

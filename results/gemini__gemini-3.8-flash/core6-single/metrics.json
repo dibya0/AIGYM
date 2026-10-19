@@ -1,0 +1,44 @@
+{
+  "model": "gemini/gemini-3.8-flash",
+  "seed": 7,
+  "task_seeds": [
+    2000025,
+    2000048,
+    2000049,
+    2000065,
+    2000065,
+    2000090
+  ],
+  "taskset_hash": "5df8dbfb884dd4cb",
+  "ruleset_version": "1.0",
+  "ruleset_fingerprint": "42b009c25d689c46",
+  "rubric_version": "1.0",
+  "schema_version": "1.0",
+  "status": "completed",
+  "rollouts_planned": 18,
+  "rollouts_recorded": 18,
+  "rollouts_ok": 16,
+  "rollouts_error": 2,
+  "retried_rollouts": 0,
+  "errors_sample": [
+    "ModelError: ModelError",
+    "ModelError: ModelError"
+  ],
+  "input_tokens": 27786.0,
+  "output_tokens": 779.0,
+  "cost_list_usd": 0.0103,
+  "cost_actual_usd": 0.0,
+  "latency_s": {
+    "mean": 164.025,
+    "p50": 180.00549999999998,
+    "p95": 180.97925
+  },
+  "tool_calls_total": 0,
+  "tool_calls_mean": 0,
+  "stop_conditions": {
+    "max_turns_reached": 6,
+    "timeout_reached": 10
+  },
+  "parse_fail_rate": 0.625,
+  "wall_clock_s": 697.7
+}

@@ -749,3 +749,27 @@ Re-read the PDF (pp.7–14 phase specs, plus §§9–11) line by line against th
 - **Runner bug 2:** that error path skipped the consecutive-error counter, so a run with **0/400 successful rollouts reported `completed`**, the "silently fails" pattern the brief warns about. **Fix:** every error path counts; a non-baseline run with zero successes is never `completed` (status `unavailable`, exit 3).
 - `pilot_report.py` now explains a run with no successes instead of `ZeroDivisionError`.
 - **Guards:** `test_small_max_tokens_is_allowed_without_a_tpm_limit`, `test_a_run_where_nothing_succeeded_is_never_completed`. Suite **222 passed**.
+
+**Local model server (2026-10-19):** the first `docker compose --profile gpu up llm` failed with `could not select device driver "nvidia" with capabilities: [[gpu]]`.
+- **Cause:** the NVIDIA Container Toolkit package was gone (likely removed with the old NVIDIA packages during the driver reinstall). Docker's `daemon.json` still named `nvidia-container-runtime`, but `nvidia-ctk` was missing.
+- **Also in the way:**
+  - a broken third-party PPA (`thopiekar/openrgb`, 404 on noble) made `apt-get update && install` stop before installing;
+  - the user was not in the `docker` group (`permission denied … docker.sock`);
+  - a uv-installer line in `~/.bashrc` / `~/.profile` sourced a path under the VS Code snap `$HOME`, which errored in every new shell. Commented out with backups; `PATH` already covers uv.
+- **Fixed:** removed the PPA, installed `nvidia-container-toolkit` 1.20.1, ran `nvidia-ctk runtime configure --runtime=docker`, restarted Docker, `usermod -aG docker`.
+- **Result:** **vLLM 0.30.0 serves Qwen2.5-0.5B on the RTX 5070 Ti (sm_120)**, startup ≈ 3 min including the model download, `/v1/models` 200. This settles the plan's open question of whether the pinned vLLM supports Blackwell; no HF-generate fallback is needed for serving. Settings: 32K context, hermes tool parser.
+
+---
+
+## Step 17 pilot (2026-10-19): base 0.5B gets 0 % exact payslips on every preset
+
+- **Pilots** (30 train tasks × 4 samples; local vLLM): default, easy, easier all at **Tier-2 exact 0 %**, all-identical groups 70–80 %, mean reward −0.08 to −0.14. `pilot_report.py` says "too hard" for all three.
+- **Diagnosis from transcripts (not just the summary):**
+  - **not** truncation (5/120 truncated, mean 216 output tokens);
+  - wrong arithmetic (`wrong_net_capped` 56/120);
+  - broken JSON such as `"rate": 8%` (28/120 unparseable);
+  - traps answered (20/120);
+  - nested or non-numeric line values.
+- **Decision, logged as pre-registration amendment A11 before training:** A4's rule assumed some preset reaches a 20–60 % pass rate; none does with a fixed 0.5B. So we pick the preset with the most within-group reward spread, which is **`easy`** (30 % of G = 4 groups; trap refusal 44 %; valid JSON 76 %).
+- **Stated in advance:** RL is expected to improve format and refuse/compute decisions, not exact arithmetic. The documented fallback is Qwen2.5-1.5B (brief band 0.5–2B), only with the user's go-ahead.
+- New train files `train_easy.jsonl` / `train_easier.jsonl` validate: `paygym validate tasks/` → **1031 tasks OK** (ids prefixed per preset, so no collisions).

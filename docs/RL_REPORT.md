@@ -100,11 +100,24 @@ If one is found: transcript evidence → rubric fix (version bump) → rerun →
   - **Pilot:** 30 train tasks × 4 samples (brief's G minimum), same rule as A4.
   - **Unchanged:** algorithm, loss, β ∈ {0.001, 0.04}, stop rules, model selection on validation only, held-out scored once (109 tasks × 3 rollouts).
 
+- **2026-10-19, A11 (after the pilot, before any training run): preset choice when no preset meets the A4 target.**
+  - **Pilot** (base Qwen-0.5B, 30 train tasks × 4 samples, temperature 1.0, 384 tokens): **Tier-2 exact pass rate 0 % on every preset** (default / easy / easier). A4's target (≈ 0.2–0.6) is unreachable without changing the model, and the model is fixed at 0.5B by the user's scope.
+  - **Signal measured per preset:**
+
+    | Preset | Groups with reward spread | Trap refused | Twin refused | Valid JSON | Line accuracy |
+    |---|---|---|---|---|---|
+    | default | 20% | 22% | 12% | 62% | 0.12 |
+    | easy | **30%** | **44%** | 25% | **76%** | 0.13 |
+    | easier | 20% | 3% | 25% | 63% | 0.14 |
+  - **Rule applied (set now, before training):** choose the preset with the highest fraction of groups with reward spread, i.e. the most non-zero advantages. That is **`easy`** (`tasks/generated/train_easy.jsonl`, first 30 tasks).
+  - **Expectation, stated in advance:** the policy can learn **format** (unparseable 16 % → lower), **trap decisions and reason codes** (answered traps → refusals with the right code), and partial line credit. It is **not** expected to learn exact payroll arithmetic (exact net pay stays ≈ 0). If trap refusals rise, the twins' refusal rate and `monitor/twin_refusal_rate` are the check against learning "refuse everything".
+  - **If validation does not improve by step 40 on either β run,** the documented next step (not run without the user's decision) is Qwen2.5-1.5B-Instruct, inside the brief's 0.5–2B band.
+
 ---
 
 ## Part B: results (filled after training from committed files)
 
-- B1. Pilot result and preset chosen:
+- B1. Pilot result and preset chosen: see A11 (all presets 0 % Tier-2 exact; `easy` chosen for the most within-group reward spread).
 - B2. Curves (reward, KL, entropy, completion length, per-tier pass rate): dashboard §RL; `results/train/<run>/metrics.csv`
 - B3. KL sweep: what happened at β = 0.001 vs 0.04, and where we would set β and why:
 - B4. Stop reasons (`stop_reason.json`) and best checkpoints (`best_checkpoint.json`):

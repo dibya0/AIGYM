@@ -10,3 +10,27 @@ completed: results in results/baseline__naive_no_ceiling/eval-single
 baseline/gross_as_net: 109 tasks x 3 rollouts = 327 (0 already done, 327 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
 completed: results in results/baseline__gross_as_net/eval-single
 == Gemini Flash-Lite (frontier lab, highest free quota): full eval, single-turn
+== adversarial baselines (no model calls)
+baseline/format_only: 109 tasks x 3 rollouts = 327 (327 already done, 0 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
+completed: results in results/baseline__format_only/eval-single
+baseline/always_abstain: 109 tasks x 3 rollouts = 327 (327 already done, 0 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
+completed: results in results/baseline__always_abstain/eval-single
+baseline/modal_answer: 109 tasks x 3 rollouts = 327 (327 already done, 0 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
+completed: results in results/baseline__modal_answer/eval-single
+baseline/naive_no_ceiling: 109 tasks x 3 rollouts = 327 (327 already done, 0 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
+completed: results in results/baseline__naive_no_ceiling/eval-single
+baseline/gross_as_net: 109 tasks x 3 rollouts = 327 (327 already done, 0 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
+completed: results in results/baseline__gross_as_net/eval-single
+== Gemini 3.5 Flash-Lite (frontier lab, highest free quota): full eval, single-turn
+daily budget gemini/gemini-3.5-flash-lite: requests 255/450 today (US Pacific)
+daily budget gemini/gemini-3.1-flash-lite: requests 87/450 today (US Pacific)
+gemini/gemini-3.5-flash-lite: 109 tasks x 3 rollouts = 327 (237 already done, 90 to run); list-price estimate $0.39, cap $25.00
+completed: results in results/gemini__gemini-3.5-flash-lite/eval-single
+== Gemini 3.8 Flash (strongest Gemini on the free tier, 20 req/day): core6
+Aborted rollout due to ModelError() -> RateLimitError("Error code: 429 - [{'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash\\nPlease retry in 21h38m9.94944334s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.8-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '77889s'}]}}]")
+Aborted rollout due to ModelError() -> RateLimitError("Error code: 429 - [{'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.8-flash\\nPlease retry in 21h37m58.99362491s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-3.8-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '77878s'}]}}]")
+daily budget gemini/gemini-3.8-flash: requests 1/19 today (US Pacific)
+daily budget gemini/gemini-3.1-flash-lite: requests 114/450 today (US Pacific)
+gemini/gemini-3.8-flash: 6 tasks x 3 rollouts = 18 (0 already done, 18 to run); list-price estimate $0.08, cap $25.00
+completed: results in results/gemini__gemini-3.8-flash/core6-single
+== Groq gpt-oss-120b (large open-weight; 200K tokens/day): core10
