@@ -12,33 +12,35 @@
   "taskset_hash": "5df8dbfb884dd4cb",
   "ruleset_version": "1.0",
   "ruleset_fingerprint": "42b009c25d689c46",
-  "rubric_version": "1.1",
+  "rubric_version": "1.3",
   "schema_version": "1.0",
   "status": "completed",
   "rollouts_planned": 18,
   "rollouts_recorded": 18,
-  "rollouts_ok": 16,
-  "rollouts_error": 2,
+  "rollouts_ok": 6,
+  "rollouts_error": 12,
   "retried_rollouts": 0,
   "errors_sample": [
-    "ModelError: ModelError",
-    "ModelError: ModelError"
+    "rollout timeout with no model output (reclassified)",
+    "rollout timeout with no model output (reclassified)",
+    "rollout timeout with no model output (reclassified)",
+    "rollout timeout with no model output (reclassified)",
+    "rollout timeout with no model output (reclassified)"
   ],
   "input_tokens": 27786.0,
   "output_tokens": 779.0,
   "cost_list_usd": 0.0103,
   "cost_actual_usd": 0.0,
   "latency_s": {
-    "mean": 164.025,
-    "p50": 180.00549999999998,
-    "p95": 180.97925
+    "mean": 137.023,
+    "p50": 136.4365,
+    "p95": 158.7165
   },
   "tool_calls_total": 0,
   "tool_calls_mean": 0,
   "stop_conditions": {
-    "max_turns_reached": 6,
-    "timeout_reached": 10
+    "max_turns_reached": 6
   },
-  "parse_fail_rate": 0.625,
+  "parse_fail_rate": 0.0,
   "wall_clock_s": 0.0
 }

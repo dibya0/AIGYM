@@ -115,7 +115,7 @@
   "taskset_hash": "26e38b81e474ac53",
   "ruleset_version": "1.0",
   "ruleset_fingerprint": "42b009c25d689c46",
-  "rubric_version": "1.1",
+  "rubric_version": "1.3",
   "schema_version": "1.0",
   "summary": {
     "tasks": 109,
@@ -135,7 +135,7 @@
     "format_valid": 1.0,
     "line_accuracy": 0.1814,
     "net_pay_exact": 0.0,
-    "paygym_reward": 0.0853,
+    "paygym_reward": -0.1039,
     "trap_decision": -1.0,
     "value_exact": 0.0
   },
@@ -278,7 +278,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -332,7 +333,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -580,7 +582,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -689,7 +692,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -853,7 +857,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -1126,7 +1131,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -1291,7 +1297,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -1428,7 +1435,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -1538,7 +1546,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -1898,7 +1907,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -1980,7 +1990,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2062,7 +2073,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2116,7 +2128,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2170,7 +2183,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2252,7 +2266,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2306,7 +2321,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2387,7 +2403,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2663,7 +2680,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2856,7 +2874,8 @@
       ],
       "components": {
         "trap_decision": -1.0,
-        "format_valid": 1.0
+        "format_valid": 1.0,
+        "paygym_reward": -1.0
       },
       "mean": -1.0,
       "sd": 0.0

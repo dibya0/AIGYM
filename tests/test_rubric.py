@@ -71,9 +71,11 @@ def test_refusing_a_determinable_payslip_scores_like_a_wrong_answer():
     t = SEED["seed-t2-07"]  # twin
     refusal = "```json\n" + json.dumps({"decision": "refuse", "reason_code": "CONFLICTING_RECORDS", "lines": None}) + "\n```"
     s = score_answer(t, refusal)
-    assert s.gate == "refused_determinable" and s.total == 0.0
-    # v1.1: strictly below any valid-format wrong answer, so refusing is never a low-variance harbour
-    # (the exploit GRPO found in v1.0, where a refusal kept the 0.05 format credit).
+    assert s.gate == "refused_determinable" and s.total == -1.0
+    # v1.2: the compute/refuse decision is symmetric. Refusing a payable payslip costs exactly what computing
+    # a trap costs, so blanket refusal is never a harbour (v1.0: 0.05 and v1.1: 0.00 both were, the second
+    # one learned by GRPO: refuse 47/47 at validation step 20).
+    assert s.total == score_answer(SEED["seed-t3-02"], perfect(t)).total  # = answering a trap
     assert s.total < score_answer(t, answer_with(t, net_pay=1.0)).total
 
 
@@ -101,10 +103,14 @@ def test_judge_adds_up_to_point_two_and_failures_are_not_silent():
         score_answer(t, perfect(t), judge=broken)
 
 
-def test_unparseable_scores_zero():
+def test_unparseable_is_as_bad_as_a_wrong_decision():
+    """v1.3: an unparseable answer scores -1 on every tier, so broken output is never a harbour (v1.2: 0,
+    and GRPO learned to write broken JSON for 47/47 validation tasks)."""
     for t in (SEED["seed-t2-01"], SEED["seed-t3-01"], SEED["seed-t1-01"]):
         s = score_answer(t, "I think the answer is about 7000.")
-        assert s.total == 0.0 and s.parse_error == "no_json"
+        assert s.total == -1.0 and s.parse_error == "no_json"
+    t = SEED["seed-t2-01"]
+    assert score_answer(t, "nonsense").total < score_answer(t, answer_with(t, net_pay=1.0)).total  # any valid attempt beats it
 
 
 def test_retrieval_is_exact():
@@ -163,7 +169,7 @@ def test_training_reward_matches_rubric_and_logs_monitors():
     logged = {}
     infos = [json.dumps({"task_json": t.model_dump_json()}) for t in tasks]  # the environment's info column
     rewards = rubric_reward(completions, infos, log_metric=lambda k, v: logged.__setitem__(k, v))
-    assert rewards == pytest.approx([-1.0, 0.0, 1.0])
+    assert rewards == pytest.approx([-1.0, -1.0, 1.0])
     assert logged["monitor/trap_answer_rate"] == 1.0
     assert logged["monitor/twin_refusal_rate"] == 1.0
     assert logged["monitor/pass_rate_tier2"] == pytest.approx(0.5)

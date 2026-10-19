@@ -886,3 +886,62 @@ Every GRPO setting was checked against the code and the observed logs.
   - **Fix that does not depend on knowing why:** `install_sdpa_fallback()` wraps `F.scaled_dot_product_attention`. It tries the fused kernels first. If they refuse, it logs the call's exact shapes/dtypes/strides once to `results/train/<run>/sdpa_fallback.json`, then computes that call exactly in 256-row query chunks (float32 softmax; memory O(B·H·256·L), not O(B·H·L²)).
   - **Checked:** equal to the math kernel to bf16 precision (max |Δ| 0.001 masked, 0.008 causal), including fully masked padding rows; the forced-rejection path writes the log; Transformers calls the patched attribute.
   - **Lesson recorded:** the first two "fixes" were verified on reconstructed inputs, not on the failing call. The fallback log makes the next diagnosis evidence-based.
+- **Root cause of the step-14 crashes, confirmed by test** (user asked "why step 14?"):
+  - Prompts are 4,447–4,742 tokens (all 30 train tasks, Qwen tokenizer), so step 14's batch is not unusually large.
+  - Each step generates for 2 prompts in a fixed (seeded) order. When the two prompts differ in length, the batch is padded → a mask → Transformers repeats KV heads → fused kernels accept it.
+  - At step 14 the pair has **equal token length** → no padding → **no mask** → Transformers' GQA path (`enable_gqa=True`, mask None). In **float32**, the dtype generation runs in here, no fused kernel supports that call.
+    - Test: fp32 + no mask + GQA → `Invalid backend`, the exact error; bf16 variants and fp32 with mask are fine.
+    - Memory check: the math kernel's 16 × 14 × ~4,450² × 4 B ≈ 16.5 GiB matches the reported allocation.
+  - The chunked fallback handles exactly this (GQA expanded, fp32). The run's `sdpa_fallback.json` should record `mask: null`, `dtype: float32`.
+  - Why my earlier reconstructions passed: they used bf16 and/or a mask.
+- **Confirmed on the real call** (`results/train/grpo-b0.001/sdpa_fallback.json`): q float32 [16, 14, 4450, 64], k/v [16, 2, 4450, 64], `mask: null`, `is_causal: true`, `enable_gqa: true`, no grad (generation prefill), exactly as predicted. The chunked fallback computed it and the run passed step 14 (now at step 15+).
+
+---
+
+## Step-20 validation: a real, learned reward-gaming instance, "refuse everything" (2026-10-19)
+
+`grpo-b0.001` (rubric v1.1, A12 + A13), validation on `val_easy` (47 never-trained tasks, greedy):
+
+| | step 0 | step 20 |
+|---|---|---|
+| val reward | −0.063 | **+0.081** |
+| Tier 2 (36 payable payslips incl. 11 twins) | 0.112: 28 `wrong_net_capped`, 8 unparseable | **0.000: 36/36 `refused_determinable`** |
+| Tier 3 (11 traps) | −0.636: 7 answered, 4 unparseable | **+0.345: 11/11 refused** (10 wrong reason code, 1 right) |
+
+- **Learned, not an artifact:** step 0 refused 0/47; step 20 refuses 47/47 at KL ≈ 0.02, under the sampler-parity fix (A12).
+- **Example (step 20, `gen-easy-0500000`, a payable payslip):** `"decision": "refuse", "reason_code": "NO_APPLICABLE_TABLE"` with the salary copied into the lines.
+- **The validation reward rose while competence fell.** This is the brief's "reward climbs while the policy drifts into degenerate output", and the reason validation-reward-based checkpoint selection alone is not safe.
+- **Why the rubric pays for it:** the compute/refuse decision is asymmetric. Answering a trap costs −1, refusing a payable payslip costs 0 (v1.1). For a policy that earns ~0.1 by attempting payslips, blanket refusal (+0.08 on val, ≈ the `always_abstain` baseline's 0.089 on eval) beats honest attempts (−0.06). The baseline-floor test (always_abstain < 0.20) passed because the floor is relative to strong models, so a weak trained policy found what the hand-written test could not.
+- **Plan (pending the user's OK):** let both β runs finish (the β-sweep evidence), then rubric v1.2 with a symmetric decision (refusing a payable payslip = −1, like answering a trap), rescore all eval runs at $0, and rerun one β for the before/after.
+- **Rubric 1.2 implemented (user agreed):**
+  - refusing any determinable task scores **−1** (payslips and Tier-1 retrieval alike, for consistency); the rationale is in the rubric docstring;
+  - tests updated: a refusal now equals the trap-answer penalty; baseline floors still pass;
+  - training configs now record `rubric_version`;
+  - pre-registration **A14** sets the rerun's success criteria *before* it runs (must: payslip refusals ≤ 25 % at every validation; hope: best `val_easy` > −0.063).
+- **The running v1.1 β = 0.001 process is unaffected** (it loaded v1.1 at start). The loop's next run (β = 0.04) is a new process and trains under **v1.2**. A v1.2 β = 0.001 run follows, so the β sweep is within one rubric.
+- **Rescored eval runs to 1.2 ($0):**
+  - `always_abstain` 270 rows changed, **0.089 → −0.737** (last);
+  - **Gemini 3.5 Flash-Lite 22 rows changed, 0.391 → 0.323.** It wrongly refused 22 payable payslips, a real model finding now visible;
+  - Groq 2 rows changed.
+- **Bug found by the change:** `paygym.eval.sensitivity` re-implements the payslip weighting and rebuilt a refusal from its zero components as 0.0, silently disagreeing with rubric 1.2's −1 (it ranked `always_abstain` 4th instead of last). **Fix:** decision-level scores are kept as recorded. **Guard:** `test_sensitivity_reproduces_the_rubric_under_the_shipped_weights` (under the shipped weights every row must equal its recorded reward). Ranking now stable under all four weightings (τ = 1.0). Suite **228 passed**.
+- **v1.1 β = 0.001 run finished** (renamed `results/train/v1.1-grpo-b0.001`): refuse-everything stable at validation steps 20/40/60 (36/36 payslips, 11/11 traps refused); val reward +0.081 throughout; entropy 0.49 → 0.16 (collapse) at KL ≈ 0.02–0.03. Written into RL_REPORT B6. The loop's next run, `grpo-b0.04`, is confirmed as rubric 1.2 (`config.json`).
+
+---
+
+## Second learned exploit → rubric 1.3; two eval-harness bugs found while re-scoring (2026-10-19)
+
+- **v1.2 run (β = 0.04) collapsed into broken JSON:** 47/47 unparseable at validation step 20 (arithmetic inside JSON values), `parse_fail_rate` 1.0 for 6 steps, entropy 0.17–0.32. Stopped and kept as `results/train/v1.2-grpo-b0.04`. **Cause:** unparseable (0) was the only outcome never at −1 once both wrong decisions cost −1.
+- **Rubric 1.3:** unparseable = −1 on all tiers (`UNPARSEABLE`).
+  - Checked offline on all three runs' real outputs first: broken −1.000 < refuse-all −0.685 < base −0.319 < base-with-valid-JSON −0.140 < refuse-only-traps −0.004. That ordering is monotone in competence.
+  - Tests: `test_unparseable_is_as_bad_as_a_wrong_decision`, environment test updated. Pre-registered as **A15** with success criteria.
+- `rescore` now also re-scores judge-free trap rows (unparseable / answered / wrong reason); judged correct refusals keep their recorded score. Plus `--force` for parser/scorer fixes within one rubric version.
+- **Eval bug 1, parser:**
+  - an unfenced JSON answer was extracted from `text.rfind("{")`, i.e. the nested `"lines"` object, so **10/20 valid Groq gpt-oss answers were scored unparseable**;
+  - **fix:** decode complete top-level objects left to right (`json.JSONDecoder.raw_decode`) and keep the last; test `test_unfenced_object_with_nested_lines_is_parsed`;
+  - **Groq core10 0.400 → 0.566**, now the top model on its subset.
+- **Eval bug 2, harness:**
+  - 10/18 Gemini 3.8 Flash rollouts were **empty timeouts** (0 output tokens, `timeout_reached`): free-tier pacing waits inside the rollout clock (4 req/min, concurrency 4). They were scored as unparseable answers;
+  - **fix:** an empty timeout is an infrastructure error, retried, never scored (`test_empty_timeout_is_an_infrastructure_error_and_is_retried`). `rescore` reclassified the 10 rows, so tomorrow's top-up re-runs them;
+  - `sweep.sh` now runs Gemini 3.8 Flash with `--concurrency 1 --timeout 600`.
+- Flash-Lite's 3 unparseable answers and the tool-mode run's empty final answers after 8 turns (tool loops) are genuine model failures and stay scored.
+- **Leaderboard (rubric 1.3):** Flash-Lite full eval 0.314; baselines naive_no_ceiling 0.249 … always_abstain −0.737; sensitivity τ = 1.0. Suite **230 passed**.

@@ -115,3 +115,14 @@ def test_calc_is_exact_and_safe():
     assert json.loads(calc("6000"))["result"] == "6000"
     for bad in ("__import__('os')", "2 ** 999999", "1/0", "x + 1", "", "1" * 600):
         assert "error" in json.loads(calc(bad)), bad
+
+
+def test_unfenced_object_with_nested_lines_is_parsed():
+    """gpt-oss answers with a bare JSON object; the old extractor started at the last "{" (the nested
+    "lines" object) and scored a valid answer unparseable (10 of 20 Groq rollouts, 2026-10-19)."""
+    from paygym.parser import parse_answer
+
+    text = 'Here is the payslip.\n{\n  "decision": "answer",\n  "reason_code": null,\n  "lines": {"net_pay": 6934.0, "income_tax": 1.5},\n  "explanation": "ok"\n}'
+    p = parse_answer(text, "payslip")
+    assert p.error is None and p.decision == "answer" and float(p.lines["net_pay"]) == 6934.0
+    assert parse_answer('{"decision": "answer", "lines": {"net_pay": 1', "payslip").error == "truncated"

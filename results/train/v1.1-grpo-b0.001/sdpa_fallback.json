@@ -1,0 +1,56 @@
+{
+  "error": "Invalid backend",
+  "q": {
+    "shape": [
+      16,
+      14,
+      4450,
+      64
+    ],
+    "dtype": "torch.float32",
+    "stride": [
+      3987200,
+      64,
+      896,
+      1
+    ],
+    "contiguous": false
+  },
+  "k": {
+    "shape": [
+      16,
+      2,
+      4450,
+      64
+    ],
+    "dtype": "torch.float32",
+    "stride": [
+      569600,
+      284800,
+      64,
+      1
+    ],
+    "contiguous": true
+  },
+  "v": {
+    "shape": [
+      16,
+      2,
+      4450,
+      64
+    ],
+    "dtype": "torch.float32",
+    "stride": [
+      569600,
+      284800,
+      64,
+      1
+    ],
+    "contiguous": true
+  },
+  "mask": null,
+  "is_causal": true,
+  "enable_gqa": true,
+  "dropout_p": 0.0,
+  "grad": false
+}

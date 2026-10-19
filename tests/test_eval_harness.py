@@ -54,6 +54,9 @@ class FakeEnvRollouts:
             return {"error": {"error": "RateLimitError", "message": "429 Too Many Requests"}}
         if kind == "fatal":
             return {"error": {"error": "ModelError", "message": "model not found"}}
+        if kind == "empty_timeout":
+            return {"reward": -1.0, "metrics": {}, "completion": [], "token_usage": {"input_tokens": 10, "output_tokens": 0},
+                    "timing": {}, "stop_condition": "timeout_reached"}
         return {"reward": 0.5, "metrics": {"net_pay_exact": 0.0, "total_tool_calls": 0},
                 "completion": [{"role": "assistant", "content": "no json"}],
                 "token_usage": {"input_tokens": 1_000_000, "output_tokens": 0},
@@ -359,7 +362,7 @@ def test_rescore_moves_a_run_to_the_current_rubric_without_model_calls(tmp_path)
     out = rescore(run_dir)
     assert out["changed"] > 0 and out["rubric_version"] == RUBRIC_VERSION
     rows = [json.loads(l) for l in (run_dir / "transcript.jsonl").read_text().splitlines()]
-    assert all(r["reward"] == 0.0 for r in rows if r["gate"] == "refused_determinable")
+    assert all(r["reward"] == -1.0 for r in rows if r["gate"] == "refused_determinable")  # v1.2
     assert json.loads((run_dir / "config.json").read_text())["rescored_from"] == "1.0"
     assert json.loads((run_dir / "scores.json").read_text())["rubric_version"] == RUBRIC_VERSION
 
@@ -398,3 +401,22 @@ def test_track_c_s1_s2_are_the_default_configurations():
     assert effective_scaffold({"scaffold": "S1", "mode": "single"}) is None
     assert effective_scaffold({"scaffold": "S2", "mode": "tool"}) is None
     assert effective_scaffold({"scaffold": "S4", "mode": "tool"}) == "S4"
+
+
+def test_sensitivity_reproduces_the_rubric_under_the_shipped_weights(tmp_path):
+    """The sensitivity table re-implements the payslip weighting; under the shipped weights it must give
+    exactly the recorded reward for every row, or it has drifted from the rubric (it had, at rubric 1.2)."""
+    from paygym.eval.sensitivity import WEIGHTINGS, rescore
+
+    for name in ("always_abstain", "naive_no_ceiling", "format_only", "gross_as_net"):
+        main(["--model", f"baseline/{name}", "--n-seeds", "12", "--rollouts", "1", "--out", str(tmp_path), "--run-name", "r"])
+        rows = [json.loads(l) for l in (tmp_path / f"baseline__{name}" / "r" / "transcript.jsonl").read_text().splitlines()]
+        shipped = next(iter(WEIGHTINGS.values()))
+        for r in rows:
+            assert rescore(r, shipped) == pytest.approx(r["reward"]), (name, r["task_id"], r["gate"])
+
+
+def test_empty_timeout_is_an_infrastructure_error_and_is_retried(tmp_path, monkeypatch):
+    run, fake, code = _model_run(tmp_path, monkeypatch, ["empty_timeout"], "--max-cost", "100", "--limit", "1", "--rollouts", "1")
+    row = json.loads(run.transcript.read_text().splitlines()[0])
+    assert code == 0 and fake.calls == 2 and row["status"] == "ok" and row["retried"] == 1  # retried, then scored

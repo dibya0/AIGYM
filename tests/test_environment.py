@@ -74,7 +74,7 @@ def test_rubric_reward_is_the_paygym_total_and_components_are_metrics():
     info = json.loads(row["info"])
     state = {}
     reward = funcs[0](completion=[{"role": "assistant", "content": "no json"}], info=info, state=state)
-    assert reward == 0.0 and state["paygym_score"].parse_error == "no_json"
+    assert reward == -1.0 and state["paygym_score"].parse_error == "no_json"  # rubric 1.3: unparseable = -1
 
 
 def test_completion_text_handles_message_shapes():

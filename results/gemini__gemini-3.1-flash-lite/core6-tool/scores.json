@@ -12,20 +12,20 @@
   "taskset_hash": "5df8dbfb884dd4cb",
   "ruleset_version": "1.0",
   "ruleset_fingerprint": "42b009c25d689c46",
-  "rubric_version": "1.1",
+  "rubric_version": "1.3",
   "schema_version": "1.0",
   "summary": {
     "tasks": 6,
     "rollouts_ok": 18,
     "rollouts_failed": 0,
-    "mean_reward": 0.287,
+    "mean_reward": -0.3796,
     "run_sd": 0.0498,
     "rollout_sd": 0.0498,
     "disagreement_rate": 0.1667
   },
   "by_tier": {
     "1": 1.0,
-    "2": 0.0,
+    "2": -1.0,
     "3": 0.7222
   },
   "by_component": {
@@ -39,7 +39,7 @@
     "net_pay_exact": 0.0,
     "num_turns": 6.1667,
     "parse_failed": 0.6667,
-    "paygym_reward": 0.287,
+    "paygym_reward": -0.3796,
     "refused": 0.1667,
     "tool_errors": 0.0556,
     "total_tool_calls": 6.0556,
@@ -137,9 +137,9 @@
       "kind": "payslip",
       "task_seed": 2000048,
       "rewards": [
-        0.0,
-        0.0,
-        0.0
+        -1.0,
+        -1.0,
+        -1.0
       ],
       "gates": [
         "unparseable",
@@ -152,7 +152,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.0,
+        "paygym_reward": -1.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -169,7 +169,7 @@
         "get_fx_rate_calls": 0.0,
         "calc_calls": 6.3333
       },
-      "mean": 0.0,
+      "mean": -1.0,
       "sd": 0.0
     },
     "gen-2000049": {
@@ -177,9 +177,9 @@
       "kind": "payslip",
       "task_seed": 2000049,
       "rewards": [
-        0.0,
-        0.0,
-        0.0
+        -1.0,
+        -1.0,
+        -1.0
       ],
       "gates": [
         "unparseable",
@@ -192,7 +192,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.0,
+        "paygym_reward": -1.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -209,7 +209,7 @@
         "get_fx_rate_calls": 1.0,
         "calc_calls": 5.0
       },
-      "mean": 0.0,
+      "mean": -1.0,
       "sd": 0.0
     },
     "gen-2000090": {
@@ -217,9 +217,9 @@
       "kind": "payslip",
       "task_seed": 2000090,
       "rewards": [
-        0.0,
-        0.0,
-        0.0
+        -1.0,
+        -1.0,
+        -1.0
       ],
       "gates": [
         "unparseable",
@@ -232,7 +232,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.0,
+        "paygym_reward": -1.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -249,7 +249,7 @@
         "get_fx_rate_calls": 0.0,
         "calc_calls": 6.0
       },
-      "mean": 0.0,
+      "mean": -1.0,
       "sd": 0.0
     },
     "gen-2000065-twin": {
@@ -257,9 +257,9 @@
       "kind": "payslip",
       "task_seed": 2000065,
       "rewards": [
-        0.0,
-        0.0,
-        0.0
+        -1.0,
+        -1.0,
+        -1.0
       ],
       "gates": [
         "unparseable",
@@ -272,7 +272,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.0,
+        "paygym_reward": -1.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -289,9 +289,9 @@
         "get_fx_rate_calls": 1.0,
         "calc_calls": 5.3333
       },
-      "mean": 0.0,
+      "mean": -1.0,
       "sd": 0.0
     }
   },
-  "twins": 0.0
+  "twins": -1.0
 }

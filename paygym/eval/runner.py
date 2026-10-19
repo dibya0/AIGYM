@@ -349,6 +349,13 @@ class EvalRun:
             try:
                 out = await self.env.run_rollout(rollout_input, client, self.spec.model_id, sampling)
                 err = _error_text(out.get("error"))
+                usage0 = (out.get("token_usage") or {}).get("output_tokens") or 0
+                if not err and out.get("stop_condition") == "timeout_reached" and not usage0:
+                    # Timed out before the model produced anything: in practice the free-tier pacing queue
+                    # (requests wait inside the rollout's clock). Not the model's answer, so it is an
+                    # infrastructure error, retried, never scored (2026-10-19: 10/18 Gemini 3.8 Flash
+                    # rollouts were empty timeouts scored as unparseable).
+                    err = "rollout timeout with no model output (rate-limit queue); retrying"
             except Exception as exc:  # the environment raised instead of recording the error
                 out, err = None, f"{type(exc).__name__}: {exc}"
             usage = (out or {}).get("token_usage") or {}
@@ -542,18 +549,20 @@ class EvalRun:
 # --------------------------------------------------------------------------- rescoring
 
 
-def rescore(run_dir: Path) -> dict:
+def rescore(run_dir: Path, force: bool = False) -> dict:
     """Re-score a finished run's saved completions under the *current* rubric, with no model calls.
 
     Used when the rubric version changes (1.0 -> 1.1, 2026-10-19), so every run on the leaderboard is
     scored under one rubric version instead of silently mixing versions or paying for the calls again.
-    Only payslip and retrieval rows are re-scored: 1.1 changed the payslip refusal branch only, and trap
-    rows carry judge results that must not be re-requested. The config records ``rescored_from``.
+    Every row is re-scored except a *correctly refused trap*, whose score includes a judge result that must
+    not be re-requested (and that no rubric change so far has touched); its recorded score is kept. Trap
+    rows that are unparseable, answered, or refused for the wrong reason do not involve the judge and are
+    re-scored (rubric 1.3 changed unparseable traps). The config records ``rescored_from``.
     """
     run_dir = Path(run_dir)
     cfg = json.loads((run_dir / "config.json").read_text())
     old_metrics = json.loads((run_dir / "metrics.json").read_text()) if (run_dir / "metrics.json").exists() else {}
-    if cfg.get("rubric_version") == RUBRIC_VERSION:
+    if cfg.get("rubric_version") == RUBRIC_VERSION and not force:  # force: the parser/scorer changed, not the version
         return {"run": str(run_dir), "changed": 0, "note": f"already rubric {RUBRIC_VERSION}"}
     args = build_parser().parse_args(["--model", cfg["model"]])
     for key, attr in (("mode", "mode"), ("scaffold", "scaffold"), ("split", "split"), ("n_seeds", "n_seeds"),
@@ -574,9 +583,17 @@ def rescore(run_dir: Path) -> dict:
     changed = 0
     for row in rows:
         task = run.tasks.get(row["task_id"])
-        if row.get("status") != "ok" or task is None or task.ground_truth.kind == "refusal":
+        if row.get("status") != "ok" or task is None:
+            continue
+        if row.get("stop_condition") == "timeout_reached" and not row.get("output_tokens"):
+            # An empty timeout is an infrastructure error (see _model_rollout), not an answer: excluded from
+            # scores and re-run on the next resume.
+            row["status"], row["error"], row["reward"] = "error", "rollout timeout with no model output (reclassified)", None
+            changed += 1
             continue
         score = score_answer(task, completion_text(row.get("completion")))
+        if task.ground_truth.kind == "refusal" and score.gate is None:
+            continue  # correct refusal: its recorded score carries the judge's verdict
         if abs((row.get("reward") or 0.0) - score.total) > 1e-9:
             changed += 1
         row["reward"], row["gate"], row["driving_clauses"] = score.total, score.gate, score.driving_clauses
@@ -585,7 +602,7 @@ def rescore(run_dir: Path) -> dict:
         metrics["paygym_reward"] = score.total
         row["metrics"] = metrics
     run.transcript.write_text("".join(json.dumps(r, default=str) + "\n" for r in rows))
-    cfg["rescored_from"] = cfg.get("rubric_version")
+    cfg["rescored_from"] = cfg.get("rescored_from") if force and cfg.get("rubric_version") == RUBRIC_VERSION else cfg.get("rubric_version")
     cfg["rubric_version"] = RUBRIC_VERSION
     cfg["judge"] = json.loads((run_dir / "config.json").read_text()).get("judge")
     (run_dir / "config.json").write_text(json.dumps(cfg, indent=2, default=str))

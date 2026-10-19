@@ -31,8 +31,11 @@ def rescore(row: dict, w: tuple[float, float, float]) -> float | None:
     if row.get("kind") != "payslip":
         return row["reward"]
     m = row.get("metrics") or {}
-    if row.get("gate") in ("unparseable",):
-        return 0.0
+    if row.get("gate") in ("unparseable", "refused_determinable"):
+        # Decision-level scores (0 for no answer, -1 for refusing a payable payslip in rubric 1.2) do not
+        # depend on the line weights: keep the rubric's recorded value. (Before this, a refusal was rebuilt
+        # from its zero components as 0.0, which silently disagreed with rubric 1.2's -1.)
+        return row["reward"]
     net, lines, fmt = m.get("net_pay_exact", 0.0), m.get("line_accuracy", 0.0), m.get("format_valid", 0.0)
     total = w[0] * net + w[1] * lines + w[2] * fmt
     return total if net >= 1.0 else min(total, CAP)

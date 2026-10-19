@@ -61,7 +61,10 @@ echo "== Gemini 3.5 Flash-Lite (frontier lab, highest free quota): full eval, si
 ev --model "gemini/$LITE" $COMMON --run-name eval-single --judge $(resume "gemini/$LITE" eval-single)
 
 echo "== Gemini 3.8 Flash (strongest Gemini on the free tier, 20 req/day): core6"
-ev --model "gemini/$FLASH" $COMMON --ids tasks/subsets/eval_core6.txt --daily-request-cap 19 --run-name core6-single --judge $(resume "gemini/$FLASH" core6-single)
+# One request at a time and a long timeout: at 4 req/min, queued requests wait inside the rollout's clock, and
+# with concurrency 4 that turned 10 of 18 rollouts into empty timeouts (2026-10-19).
+ev --model "gemini/$FLASH" $COMMON --ids tasks/subsets/eval_core6.txt --daily-request-cap 19 --concurrency 1 --timeout 600 \
+   --run-name core6-single --judge $(resume "gemini/$FLASH" core6-single)
 
 echo "== Groq gpt-oss-120b (large open-weight; 200K tokens/day): core10"
 ev --model "groq/$GROQ" $COMMON --ids tasks/subsets/eval_core10.txt --run-name core10-single --judge $(resume "groq/$GROQ" core10-single)

@@ -115,20 +115,20 @@
   "taskset_hash": "26e38b81e474ac53",
   "ruleset_version": "1.0",
   "ruleset_fingerprint": "42b009c25d689c46",
-  "rubric_version": "1.1",
+  "rubric_version": "1.3",
   "schema_version": "1.0",
   "summary": {
     "tasks": 109,
     "rollouts_ok": 327,
     "rollouts_failed": 0,
-    "mean_reward": 0.3906,
-    "run_sd": 0.0071,
-    "rollout_sd": 0.0294,
+    "mean_reward": 0.3141,
+    "run_sd": 0.0243,
+    "rollout_sd": 0.0466,
     "disagreement_rate": 0.2202
   },
   "by_tier": {
     "1": 1.0,
-    "2": 0.1821,
+    "2": 0.0631,
     "3": 0.517
   },
   "by_component": {
@@ -138,7 +138,7 @@
     "net_pay_exact": 0.0183,
     "num_turns": 1.0,
     "parse_failed": 0.0092,
-    "paygym_reward": 0.3906,
+    "paygym_reward": 0.3141,
     "refused": 0.2049,
     "tool_errors": 0.0,
     "trap_decision": 0.0924,
@@ -333,9 +333,9 @@
       "kind": "payslip",
       "task_seed": 2000005,
       "rewards": [
-        0.0,
-        0.0,
-        0.0
+        -1.0,
+        -1.0,
+        -1.0
       ],
       "gates": [
         "refused_determinable",
@@ -348,7 +348,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.0,
+        "paygym_reward": -1.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -360,7 +360,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.0,
+      "mean": -1.0,
       "sd": 0.0
     },
     "gen-2000005-trap": {
@@ -1068,9 +1068,9 @@
       "kind": "payslip",
       "task_seed": 2000021,
       "rewards": [
-        0.0,
-        0.0,
-        0.0
+        -1.0,
+        -1.0,
+        -1.0
       ],
       "gates": [
         "refused_determinable",
@@ -1083,7 +1083,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.0,
+        "paygym_reward": -1.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -1095,7 +1095,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.0,
+      "mean": -1.0,
       "sd": 0.0
     },
     "gen-2000022": {
@@ -1103,9 +1103,9 @@
       "kind": "payslip",
       "task_seed": 2000022,
       "rewards": [
-        0.0,
-        0.0,
-        0.0
+        -1.0,
+        -1.0,
+        -1.0
       ],
       "gates": [
         "refused_determinable",
@@ -1118,7 +1118,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.0,
+        "paygym_reward": -1.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -1130,7 +1130,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.0,
+      "mean": -1.0,
       "sd": 0.0
     },
     "gen-2000023": {
@@ -1734,7 +1734,7 @@
       "task_seed": 2000038,
       "rewards": [
         0.125,
-        0.0,
+        -1.0,
         0.125
       ],
       "gates": [
@@ -1748,7 +1748,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.0833,
+        "paygym_reward": -0.25,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "trap_decision": 0.0,
@@ -1760,8 +1760,8 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.0833,
-      "sd": 0.0589
+      "mean": -0.25,
+      "sd": 0.5303
     },
     "gen-2000039-trap": {
       "difficulty": 3,
@@ -2188,9 +2188,9 @@
       "kind": "payslip",
       "task_seed": 2000049,
       "rewards": [
-        0.0,
-        0.0,
-        0.0
+        -1.0,
+        -1.0,
+        -1.0
       ],
       "gates": [
         "refused_determinable",
@@ -2203,7 +2203,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.0,
+        "paygym_reward": -1.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -2215,7 +2215,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.0,
+      "mean": -1.0,
       "sd": 0.0
     },
     "gen-2000052": {
@@ -2293,9 +2293,9 @@
       "kind": "payslip",
       "task_seed": 2000054,
       "rewards": [
-        0.0,
-        0.0,
-        0.0
+        -1.0,
+        -1.0,
+        -1.0
       ],
       "gates": [
         "refused_determinable",
@@ -2308,7 +2308,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.0,
+        "paygym_reward": -1.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -2320,7 +2320,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.0,
+      "mean": -1.0,
       "sd": 0.0
     },
     "gen-2000056": {
@@ -2539,7 +2539,7 @@
       "task_seed": 2000060,
       "rewards": [
         0.175,
-        0.0,
+        -1.0,
         0.125
       ],
       "gates": [
@@ -2553,7 +2553,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.1,
+        "paygym_reward": -0.2333,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2667,
         "trap_decision": 0.0,
@@ -2565,8 +2565,8 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.1,
-      "sd": 0.0736
+      "mean": -0.2333,
+      "sd": 0.5425
     },
     "gen-2000061-trap": {
       "difficulty": 3,
@@ -2608,9 +2608,9 @@
       "kind": "payslip",
       "task_seed": 2000061,
       "rewards": [
-        0.0,
-        0.0,
-        0.0
+        -1.0,
+        -1.0,
+        -1.0
       ],
       "gates": [
         "refused_determinable",
@@ -2623,7 +2623,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.0,
+        "paygym_reward": -1.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -2635,7 +2635,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.0,
+      "mean": -1.0,
       "sd": 0.0
     },
     "gen-2000062-trap": {
@@ -2749,7 +2749,7 @@
       "task_seed": 2000064,
       "rewards": [
         0.125,
-        0.0,
+        -1.0,
         0.125
       ],
       "gates": [
@@ -2763,7 +2763,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.0833,
+        "paygym_reward": -0.25,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "trap_decision": 0.0,
@@ -2775,8 +2775,8 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.0833,
-      "sd": 0.0589
+      "mean": -0.25,
+      "sd": 0.5303
     },
     "gen-2000063-twin": {
       "difficulty": 2,
@@ -3413,9 +3413,9 @@
       "kind": "payslip",
       "task_seed": 2000078,
       "rewards": [
-        0.0,
-        0.0,
-        0.0
+        -1.0,
+        -1.0,
+        -1.0
       ],
       "gates": [
         "refused_determinable",
@@ -3428,7 +3428,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.0,
+        "paygym_reward": -1.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -3440,7 +3440,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.0,
+      "mean": -1.0,
       "sd": 0.0
     },
     "gen-2000081": {
@@ -3764,7 +3764,7 @@
       "task_seed": 2000088,
       "rewards": [
         0.25,
-        0.0,
+        -1.0,
         0.2
       ],
       "gates": [
@@ -3778,7 +3778,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.15,
+        "paygym_reward": -0.1833,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.4667,
         "trap_decision": 0.0,
@@ -3790,8 +3790,8 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.15,
-      "sd": 0.108
+      "mean": -0.1833,
+      "sd": 0.5778
     },
     "gen-2000089": {
       "difficulty": 1,
@@ -3969,5 +3969,5 @@
       "sd": 0.0
     }
   },
-  "twins": 0.1417
+  "twins": -0.0689
 }

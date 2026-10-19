@@ -64,9 +64,24 @@ def _extract_object(text: str) -> tuple[dict | None, str | None]:
     if candidate is None:
         if "```json" in text.lower() or text.rstrip().endswith(("{", ",", ":")):
             return None, "truncated"
-        start = text.rfind("{")  # tolerate a bare object at the end
-        if start == -1:
+        # A bare (unfenced) object: decode complete top-level objects left to right and keep the last one.
+        # (Before 2026-10-19 this took text.rfind("{"), i.e. the start of the *nested* "lines" object, so a
+        # perfectly valid unfenced answer, as gpt-oss writes them, was scored unparseable.)
+        if "{" not in text:
             return None, "no_json"
+        decoder, i, found = json.JSONDecoder(), text.find("{"), None
+        while i != -1:
+            try:
+                obj, end = decoder.raw_decode(text, i)
+            except json.JSONDecodeError:
+                i = text.find("{", i + 1)
+                continue
+            if isinstance(obj, dict):
+                found = obj
+            i = text.find("{", end)
+        if found is not None:
+            return found, None
+        start = text.find("{")
         candidate = text[start:]
         if candidate.count("{") > candidate.count("}"):
             return None, "truncated"

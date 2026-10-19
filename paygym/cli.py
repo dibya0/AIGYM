@@ -116,7 +116,7 @@ def _cmd_rescore(args: argparse.Namespace) -> int:
         p.parent for p in Path(args.results).glob("*/*/config.json")
         if (p.parent / "transcript.jsonl").exists() and "taskset_hash" in json.loads(p.read_text()))
     for d in dirs:
-        print(json.dumps(rescore(d)))
+        print(json.dumps(rescore(d, force=args.force)))
     return 0
 
 
@@ -157,6 +157,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("rescore", help="re-score saved runs under the current rubric version (no model calls)")
     p.add_argument("runs", nargs="*", help="run directories (default: every run under --results)")
     p.add_argument("--results", default="results")
+    p.add_argument("--force", action="store_true", help="re-score even if already on the current rubric (parser/scorer fix)")
     p.set_defaults(func=_cmd_rescore)
 
     p = sub.add_parser("schema", help="print the task JSON Schema")

@@ -355,6 +355,7 @@ def main() -> None:
     ruleset = load_ruleset()
     (run_dir / "config.json").write_text(json.dumps({
         **vars(args), "n_train_prompts": len(dataset), "ruleset_version": ruleset.version,
+        "rubric_version": __import__("paygym.rubric", fromlist=["RUBRIC_VERSION"]).RUBRIC_VERSION,
         "ruleset_fingerprint": ruleset.fingerprint, "prompt_hash": prompt_hash(),
         "loss_type": "dr_grpo", "scale_rewards": "none", "kl_estimator": "k3 (TRL)",
         "reference_model": "base model with LoRA adapter disabled",

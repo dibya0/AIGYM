@@ -138,6 +138,34 @@ If one is found: transcript evidence → rubric fix (version bump) → rerun →
      - **Range:** 5e-5 is the top of the range A2b / A8 named as normal for LoRA GRPO; the KL safety stop (1.0) still applies. The LR remains untuned (A10) and is reported as such.
   - **Unchanged:** everything else (β sweep, G, steps, rubric v1.1, sampler, stop rules).
 
+- **2026-10-19, A14 (before the v1.2 runs): rubric v1.2 and success criteria for the rerun.**
+  - **Trigger:** the v1.1 run `grpo-b0.001` learned to refuse everything (validation step 20: 47/47 refused, val reward −0.063 → +0.081; B6).
+  - **Change (rubric 1.2):** refusing a determinable task scores −1, exactly like computing a trap, so both wrong compute/refuse decisions cost the same.
+  - **Checked offline first, on that run's real outputs:** refuse-everything −0.685 (worst), base −0.063, refuse-only-traps +0.166 (best).
+  - **Runs under v1.2:** `grpo-b0.04` (starts automatically after the v1.1 run) and a v1.2 β = 0.001 run (`v12-grpo-b0.001`), so the β sweep is within one rubric. The v1.1 run is kept as the gaming evidence and is not used for held-out results.
+  - **Selection:** checkpoints are chosen on `val_easy` scored under v1.2, so a refuse-all checkpoint can no longer win selection.
+  - **Success criteria, fixed now:**
+    1. **Must:** no refuse-everything collapse. At every validation step, refusals of payable payslips on `val_easy` stay ≤ 25 % (base: 0/36).
+    2. **Hope:** best `val_easy` reward > base (−0.063), via fewer broken JSONs and more correct trap refusals.
+    3. **Report either way:** if (1) holds but (2) does not, the result is "exploit closed; a 0.5B gains little skill in 60 steps", stated as such.
+
+- **2026-10-19, A15 (before the v1.3 run): the second learned exploit, and rubric v1.3.**
+  - **Trigger:** the first v1.2 run (`results/train/v1.2-grpo-b0.04`) learned to write **unparseable JSON for 47/47 validation tasks** by step 20 (arithmetic inside JSON values, e.g. `"net_pay": 4950.0 + 60.0 - 0 …`). `parse_fail_rate` was 1.0 for six training steps.
+  - **Why it paid:** with both wrong decisions at −1, "no usable answer" (0) was the only option that never hit −1.
+  - **Rubric 1.3:** an unparseable answer scores −1 on every tier.
+  - **Checked offline first,** on the real outputs of all three runs:
+    - broken-everywhere −1.000 and refuse-everything −0.685 are the two worst policies, both below the base model (−0.319);
+    - fixing the base model's JSON alone gives −0.140; refusing only traps gives −0.004;
+    - the score is monotone in competence.
+  - **Run:** one v1.3 run at β = 0.04, and, if time allows, β = 0.001 for the sweep within v1.3.
+  - **Success criteria, fixed now:**
+    1. **Must:** no collapse at any validation step: unparseable ≤ 25 % and refused payable payslips ≤ 25 % (base: 12/47 unparseable, 0/36 refused).
+    2. **Hope:** best `val_easy` > the base under v1.3 (−0.319).
+  - **Also fixed today, eval side (not training):**
+    - the bare-JSON parser bug, which had scored valid unfenced gpt-oss answers unparseable;
+    - empty timeouts are now infrastructure errors, not answers.
+  - **Method lesson for the report:** each rubric fix closed one harbour and the optimiser found the next cheapest one within 20 steps. Hand-written baselines (5) found neither. The fixes were verified offline against real policy outputs, not by retraining blindly.
+
 ---
 
 ## Part B: results (filled after training from committed files)
@@ -180,6 +208,18 @@ If one is found: transcript evidence → rubric fix (version bump) → rerun →
     - for a policy that cannot compute payslips, v1.1 still costs little for over-refusal (twin: refuse 0.00 vs broken JSON 0.00 vs wrong answer ≈ 0.05), while under-refusal on a trap costs −1;
     - the calibration reward only deters blanket refusal once the policy can earn credit by answering;
     - this is why A11's fallback (a 1.5B policy) exists.
-  - **Rerun under v1.1 with A12:** see B3–B5.
+  - **Rerun under v1.1 with A12 + A13: the exploit is learned for real** (`results/train/v1.1-grpo-b0.001`, β = 0.001, 60 steps):
+
+    | `val_easy` step | 0 | 20 | 40 | 60 |
+    |---|---|---|---|---|
+    | val reward | −0.063 | **+0.081** | +0.081 | +0.081 |
+    | payable payslips refused | 0/36 | **36/36** | 36/36 | 36/36 |
+    | traps refused (right reason) | 0/11 | 11/11 (1) | 11/11 (1) | 11/11 (1) |
+    | training entropy | 0.49 | 0.37 | 0.45 | **0.16** |
+
+    - **The policy locked into "refuse everything" by step 20.** The validation reward rose by refusing, while competence fell to nothing, which matches the `always_abstain` baseline (0.089 on eval under v1.1). Entropy then collapsed (0.49 → 0.16) at low KL (0.02–0.03): small drift, all of it in the wrong direction.
+    - **Model selection by validation reward would have picked this checkpoint** (best_step 20). This is why selection is now scored under v1.2 (A14).
+    - **Response:** rubric 1.2 (A14), a symmetric compute/refuse decision. Checked offline on these exact outputs: refuse-all −0.685 under 1.2.
+    - This run is evidence only; it is not scored on held-out.
 - B7. Degenerate groups (`frac_reward_zero_std`) and what we would change about the taskset:
 - B8. What we would do with two more days:

@@ -36,7 +36,7 @@
   "taskset_hash": "b4e0bf9cdbf6dac6",
   "ruleset_version": "1.0",
   "ruleset_fingerprint": "42b009c25d689c46",
-  "rubric_version": "1.1",
+  "rubric_version": "1.3",
   "schema_version": "1.0",
   "status": "completed",
   "rollouts_planned": 120,
