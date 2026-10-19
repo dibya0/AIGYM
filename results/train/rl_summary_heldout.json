@@ -1,0 +1,38 @@
+{
+  "heldout_taskset_hash": "d10f7f913e18e2aa",
+  "before": {
+    "run": "results/local__qwen2.5-0.5b/heldout-base",
+    "mean_reward": -0.6161,
+    "run_sd": 0.0134,
+    "by_tier": {
+      "1": -1.0,
+      "2": -0.4627,
+      "3": -0.7984
+    },
+    "twins": -0.4802,
+    "trap_answered_rate": 0.4921
+  },
+  "after": {
+    "grpo-b0.04": {
+      "run": "results/local__qwen2.5-0.5b-grpo-b0.04/heldout",
+      "mean_reward": -0.3124,
+      "run_sd": 0.0002,
+      "by_tier": {
+        "1": -1.0,
+        "2": 0.0707,
+        "3": -1.0
+      },
+      "twins": -0.0091,
+      "trap_answered_rate": 1.0,
+      "diff_vs_before": {
+        "tasks": 109,
+        "mean_diff": 0.3037,
+        "ci95": [
+          0.2014,
+          0.4109
+        ],
+        "distinguishable": true
+      }
+    }
+  }
+}

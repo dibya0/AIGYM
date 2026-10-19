@@ -166,15 +166,77 @@ If one is found: transcript evidence → rubric fix (version bump) → rerun →
     - empty timeouts are now infrastructure errors, not answers.
   - **Method lesson for the report:** each rubric fix closed one harbour and the optimiser found the next cheapest one within 20 steps. Hand-written baselines (5) found neither. The fixes were verified offline against real policy outputs, not by retraining blindly.
 
+- **2026-10-19, A16 (during the v1.3 β = 0.001 run, before any held-out scoring): third learned exploit, rubric v1.4.**
+  - **Found by the β = 0.001 run:** `"decision": "reject"` (neither answer nor refuse) with a payslip attached. On traps it fell into the refusal branch (+0.3); on payslips it scored 0.0 instead of −1. It was in 197/272 (72 %) of saved training samples and 47/47 validation tasks at step 20, val +0.070.
+  - **Rubric 1.4:** no valid decision = unparseable (−1) on every tier.
+  - **Verified offline:**
+    - β = 0.001 step 20: +0.070 → **−1.000**;
+    - β = 0.04 unchanged at every step: it never produced a bad decision on validation (0/188, 5/480 training samples);
+    - no eval run changed.
+  - **Consequences:**
+    - the β = 0.04 v1.3 run is the selected policy (best `checkpoint-60`), and its training signal differed from v1.4 on ~1 % of samples;
+    - β = 0.001 is reported as the deliberately-too-low setting that found the exploit;
+    - it is not retrained under v1.4 (time; stated as a limitation).
+
 ---
 
 ## Part B: results (filled after training from committed files)
 
 - B1. Pilot result and preset chosen: see A11 (all presets 0 % Tier-2 exact; `easy` chosen for the most within-group reward spread).
-- B2. Curves (reward, KL, entropy, completion length, per-tier pass rate): dashboard §RL; `results/train/<run>/metrics.csv`
+- B2. Curves (reward, KL, entropy, completion length, per-tier pass rate, plus degenerate-group fraction and the collapse monitors):
+  - every step, in `results/train/<run>/metrics.csv`; plotted on the dashboard §RL for the four reported runs;
+  - the validation curve (`validation.csv`, `val_easy`, greedy) is plotted alongside, because that is what checkpoint selection sees.
+
+  | run (rubric) | steps | KL max / final | entropy first → last | mean length first → last | s/step |
+  |---|---|---|---|---|---|
+  | `grpo-b0.04` (1.3) | 60 | 0.022 / 0.008 | 0.49 → 0.36 | 189 → 179 | 34 |
+  | `grpo-b0.001` (1.3) | 60 | **0.151 / 0.111** | 0.49 → 0.39 | 189 → 186 | 33 |
+
+  No length hacking: mean length is flat, and the length–reward correlation is weak and mostly negative.
 - B3. KL sweep: what happened at β = 0.001 vs 0.04, and where we would set β and why:
+  - **Same rubric (1.3 for training; validation re-scored under 1.4), same data, seed, LR, steps.**
+
+    | | β = 0.001 (deliberately too low) | β = 0.04 |
+    |---|---|---|
+    | KL drift from the reference | **0.15 max, 7× higher** | 0.02 max |
+    | what the policy learned | the invalid-decision exploit (`"decision": "reject"`) in 72 % of training samples, 47/47 validation tasks from step 20 | valid payslip JSON (unparseable 8/36 → 0/36 on validation); no exploit (0/188 validation outputs) |
+    | `val_easy` (v1.4) | −0.319 → **−1.000** | −0.319 → **−0.129** |
+  - **Shape:** this is the shape the brief predicts. The low-β policy walked away from the reference into degenerate output that the reward (until 1.4) paid for; the higher β kept it close to the base model and it improved only by doing the task better.
+  - **Where we would set β: 0.04,** or somewhat higher. At 0.04 KL stayed under 0.03 and learning was still visible within 20 steps. We did not test above 0.04, so "barely learns at high β" is not demonstrated here; a third value (e.g. 0.1) is the first thing we would add.
+  - **Caveats:** one seed per β; both trained under 1.3 and compared under 1.4 (they differ on ~1 % of β = 0.04's training samples and on none of its validation outputs).
 - B4. Stop reasons (`stop_reason.json`) and best checkpoints (`best_checkpoint.json`):
-- B5. Held-out before/after (`results/train/rl_summary.json`):
+  - **Reported runs:** both ran the full 60 steps (no safety or plateau stop).
+    - β = 0.04: best `checkpoint-60` (val −0.129), the selected policy.
+    - β = 0.001: best `checkpoint-20` under 1.3 (+0.070), which is the exploit and is −1.000 under 1.4. Not taken to held-out.
+  - **Stops along the way, each documented in PROGRESS.md:**
+    - v1.0 β = 0.001, step 6: false-positive `modal_net_share` stop, a monitor bug, fixed;
+    - v1.1 (TRL sampler) β = 0.001, step 7: twin-refusal stop on noise, which led to the relative stops (A12);
+    - three crashes at step 14 from an attention-kernel fallback (equal-length prompts, float32, grouped heads, no mask), fixed with an exact chunked fallback, and resumed from `checkpoint-10`.
+- B5. Held-out before/after (`results/train/rl_summary_heldout_easy.json`, `rl_summary_heldout.json`):
+  - **Setup:** each set scored **once**, never used for any choice. Base Qwen2.5-0.5B vs the selected policy (β = 0.04, `checkpoint-60`), with the same harness, sampler (model `generation_config` via vLLM), 384 max tokens, 3 rollouts, rubric 1.4.
+
+    | held-out set | base | trained | Δ [95 % paired-bootstrap CI] |
+    |---|---|---|---|
+    | `heldout_easy` (124 tasks, training preset, seeds 1M+) | −0.514 | **−0.176** | **+0.338 [+0.232, +0.442]** |
+    | `heldout` (109 tasks, full difficulty) | −0.616 | **−0.312** | **+0.304 [+0.201, +0.411]** |
+
+    | component (easy / full) | base | trained |
+    |---|---|---|
+    | Tier 2 payslips | −0.416 / −0.463 | **+0.075 / +0.071** |
+    | twins (payable look-alikes of traps) | −0.332 / −0.480 | **+0.068 / −0.009** |
+    | Tier 3 traps | −0.836 / −0.798 | **−1.000 / −1.000** |
+    | traps answered | 56 % / 49 % | **100 % / 100 %** |
+    | Tier 1 retrieval (full only; never trained) | −1.000 | −1.000 |
+    | run SD | 0.031 / 0.013 | 0.0002 / 0.0002 |
+  - **What was learned, and that it transfers:**
+    - RL taught the 0.5B to emit **valid, usable payslips and to stop refusing payable work**;
+    - the gain holds on full-difficulty tasks it never saw (+0.30, CI excludes 0), so it is not memorisation of the 30 training tasks.
+  - **What got worse:**
+    - it now **answers every trap** (56 % → 100 %), so Tier 3 went from −0.84 to −1.00;
+    - the policy traded its occasional (mostly accidental) trap refusals for always computing, which the rubric pays for overall because payslips are ~3/4 of tasks;
+    - this is the limit stated in advance (A11, A14): with almost no within-group variation in the refuse/answer decision, a 0.5B gets little gradient for trap discrimination.
+  - **Determinism:** run-to-run SD fell from 0.01–0.03 to 0.0002, so the trained policy is nearly deterministic at temperature 1 with the model's top-p/top-k. That is consistent with the entropy drop (0.49 → 0.36), but not a collapse: answers still differ across tasks and parse fine.
+  - **Verdict against A15 / A16:** *must* (no collapse) and *hope* (beat the base) are both met on held-out as on validation. The trap-discrimination gap is the main open finding.
 - B6. Reward gaming found (transcripts, fix, rerun) or what was searched:
 
   **Found: an exploitable incentive in rubric v1.0 (the abstention harbour); corrected after verification, see the note at the end of this item.**
@@ -222,4 +284,16 @@ If one is found: transcript evidence → rubric fix (version bump) → rerun →
     - **Response:** rubric 1.2 (A14), a symmetric compute/refuse decision. Checked offline on these exact outputs: refuse-all −0.685 under 1.2.
     - This run is evidence only; it is not scored on held-out.
 - B7. Degenerate groups (`frac_reward_zero_std`) and what we would change about the taskset:
+  - **Mean fraction of groups with identical rewards** (no gradient): **0.68** (β = 0.04), **0.74** (β = 0.001); G = 8, 2 prompts per step. Two thirds of each batch carried no learning signal.
+  - **Why:** the 0.5B's refuse/answer decision rarely varies *within* a task's group, and exact payslips are ~0 %, so most groups are uniformly wrong. This is also why trap refusal was not learned (A11, A14).
+  - **What we would change:**
+    1. a stronger base policy (Qwen2.5-1.5B, inside the brief's band), so that some samples in a group get payslips right;
+    2. more prompts per step (4–8), so each step has some groups with spread;
+    3. curriculum: start from single-rule payslips (no ceilings, one jurisdiction) and add rules as pass rates rise;
+    4. over-sample trap/twin pairs, the only tasks where the decision itself varies.
 - B8. What we would do with two more days:
+  1. **Qwen2.5-1.5B under rubric 1.4,** β ∈ {0.001, 0.04, 0.1}, 2 seeds each. This tests whether trap discrimination becomes learnable once some answers in a group are right, and completes the β sweep's high end.
+  2. **Rerun β = 0.001 under 1.4,** to see whether the too-low β finds a fourth harbour. Every rubric fix so far closed one and exposed the next.
+  3. **Put the exploits into the adversarial baselines:** "refuse everything" exists; add "broken JSON everywhere" and "invalid decision word", so future rubric changes are tested against what the optimiser found, not only what we guessed.
+  4. **Group construction for GRPO:** sample trap and twin in the same step, and more prompts per step, to cut the 68–74 % degenerate groups.
+  5. **Multi-turn tool RL,** the gym supports it in eval but training was single-turn only (TRADEOFFS #3).

@@ -1,0 +1,7 @@
+{
+  "base": "Qwen/Qwen2.5-0.5B-Instruct",
+  "adapter": "results/train/grpo-b0.04/checkpoints/checkpoint-60",
+  "best_val_reward": -0.1293,
+  "best_step": 60,
+  "checkpoint": "checkpoints/checkpoint-60"
+}

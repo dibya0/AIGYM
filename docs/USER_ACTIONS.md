@@ -320,23 +320,18 @@ Paste for each run:
 - `tail -5 results/train/<run>/validation.csv`
 
 
-### Step 18: held-out before/after ⏳ (after Step 17)
+### Step 18: held-out before/after ✅ (2026-10-19: +0.338 [0.232, 0.442] easy, +0.304 [0.201, 0.411] full)
+After training has finished (no `grpo_train.py` running), in a terminal where `docker ps` works:
 ```bash
-# base policy on held-out (scored once)
-LLM_MODEL=Qwen/Qwen2.5-0.5B-Instruct LLM_SERVED_NAME=qwen2.5-0.5b docker compose --profile gpu up -d llm
-uv run python -m paygym.eval --model local/qwen2.5-0.5b --tasks tasks/generated/heldout.jsonl --rollouts 3 --max-tokens 384 --concurrency 16 --run-name heldout-base
-docker compose --profile gpu down
-# each trained run: merge its best-validation checkpoint, serve it, score it on the same held-out file
-for RUN in grpo-b0.001 grpo-b0.04; do
-  uv run python scripts/merge_adapter.py results/train/$RUN
-  LLM_MODEL=/results/train/$RUN/merged LLM_SERVED_NAME=qwen2.5-0.5b-$RUN docker compose --profile gpu up -d llm
-  uv run python -m paygym.eval --model local/qwen2.5-0.5b-$RUN --tasks tasks/generated/heldout.jsonl --rollouts 3 --max-tokens 384 --concurrency 16 --run-name heldout
-  docker compose --profile gpu down
-done
-uv run python scripts/rl_summary.py --before results/local__qwen2.5-0.5b/heldout-base \
-  --after b0.001=results/local__qwen2.5-0.5b-grpo-b0.001/heldout --after b0.04=results/local__qwen2.5-0.5b-grpo-b0.04/heldout
+./scripts/heldout_eval.sh            # selected policy: grpo-b0.04, best checkpoint-60 (RL_REPORT A16)
 ```
-If `merge_adapter.py` says best_step=0 for a run, skip its eval: no checkpoint beat the base on validation, which is itself a result. Then tell Claude "RL results ready". Claude reads the samples, hunts for reward gaming, and writes Part B of `docs/RL_REPORT.md`.
+It does everything in order:
+1. merges the best checkpoint;
+2. serves the **base** 0.5B and scores it on `heldout_easy` (124 tasks) and the full `heldout` (109), plus its leaderboard row;
+3. serves the **trained** model and scores it on the same sets;
+4. writes `results/train/rl_summary_heldout_easy.json` and `rl_summary_heldout.json` (paired bootstrap CIs).
+
+Each held-out set is scored once, with the same sampler and 384 max tokens as training. Paste the two summaries it prints.
 
 ### Step 19: sandbox ⏳
 ```bash
@@ -358,16 +353,7 @@ These runs are also **Qwen-3B's leaderboard rows**. S1 and S2 send exactly the d
 - the scaffold effect: 3B from S0 to S4;
 - the model effect: 0.5B → 3B → the hosted models, at the default scaffold (the sweep's paired rows).
 ```bash
-LLM_MODEL=Qwen/Qwen2.5-3B-Instruct LLM_SERVED_NAME=qwen2.5-3b docker compose --profile gpu up -d llm
-for S in S0 S1 S2 S3 S4; do
-  uv run python -m paygym.eval --model local/qwen2.5-3b --scaffold $S --split eval --n-seeds 95 --rollouts 3 --concurrency 8 --run-name trackc-$S
-done
-docker compose --profile gpu down
-LLM_MODEL=Qwen/Qwen2.5-0.5B-Instruct LLM_SERVED_NAME=qwen2.5-0.5b docker compose --profile gpu up -d llm
-for S in S0 S4; do   # the comparison model at matched scaffolds
-  uv run python -m paygym.eval --model local/qwen2.5-0.5b --scaffold $S --split eval --n-seeds 95 --rollouts 3 --concurrency 16 --run-name trackc-$S
-done
-uv run python scripts/track_c.py --small local/qwen2.5-3b --compare local/qwen2.5-0.5b
+sg docker -c ./scripts/track_c.sh      # ≈ 1-1.5 h: 3B at S0-S4, then 0.5B at S0/S4, then the finding (resumable)
 ```
 Paste the printed finding. Claude writes `docs/TRACK_C.md` from `results/track_c/summary.json`.
 

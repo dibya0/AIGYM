@@ -187,3 +187,13 @@ def test_modal_net_monitor_counts_distinct_tasks_only():
     infos = [json.dumps({"task_json": t.model_dump_json()}) for t in (t1, t2)]
     rubric_reward(one_answer_for_both, infos, log_metric=lambda k, v: logged.__setitem__(k, v))
     assert logged["monitor/modal_net_share"] == 1.0
+
+
+def test_an_invalid_decision_is_unparseable_on_every_tier():
+    """v1.4: "decision": "reject" scored +0.3 on traps (refusal branch) and 0.0 on payslips (no lines, but not
+    the -1 of a refusal). GRPO at beta=0.001 learned it (72 % of samples). Now it is a contract violation."""
+    payload = {"decision": "reject", "reason_code": "NO_APPLICABLE_TABLE", "lines": {"net_pay": 1.0}, "value": 1.0}
+    text = "```json\n" + json.dumps(payload) + "\n```"
+    for t in (SEED["seed-t2-01"], SEED["seed-t3-01"], SEED["seed-t1-01"]):
+        s = score_answer(t, text)
+        assert s.total == -1.0 and s.gate == "unparseable" and s.parse_error == "bad_decision", t.id

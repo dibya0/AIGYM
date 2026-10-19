@@ -36,11 +36,20 @@ def _rows(run_dir: Path) -> list[dict]:
 def _last_assistant(completion) -> dict:
     """Compact view of a rollout for the transcript viewer: tool calls and the final answer."""
     steps = []
+    if isinstance(completion, str):
+        completion = [{"role": "assistant", "content": completion}]
     for msg in completion or []:
+        if not isinstance(msg, dict):
+            continue
         role = msg.get("role")
         if role == "assistant":
             calls = msg.get("tool_calls") or []
             for c in calls:
+                if isinstance(c, str):  # verifiers serialises each ToolCall as a JSON string in real transcripts
+                    try:
+                        c = json.loads(c)
+                    except ValueError:
+                        c = {"name": "?", "arguments": c}
                 fn = c.get("function", c) if isinstance(c, dict) else {}
                 steps.append({"type": "tool_call", "name": fn.get("name") or c.get("name"), "arguments": fn.get("arguments") or c.get("arguments")})
             if msg.get("content"):
@@ -151,10 +160,23 @@ def _expected(run_dir: Path) -> dict:
     return expected
 
 
+# The runs the RL report discusses (docs/RL_REPORT.md B3-B6), with what each shows. Other folders under
+# results/train (smoke test, crashed or mis-configured runs) are listed as excluded, not plotted.
+REPORTED_RL_RUNS = {
+    "grpo-b0.04": "rubric 1.3, beta 0.04: selected policy (no exploit; format learned)",
+    "grpo-b0.001": "rubric 1.3, beta 0.001: too low, learned the invalid-decision exploit",
+    "v1.2-grpo-b0.04": "rubric 1.2, beta 0.04: learned broken JSON (exploit 2)",
+    "v1.1-grpo-b0.001": "rubric 1.1, beta 0.001: learned refuse-everything (exploit 1)",
+}
+
+
 def _rl(results: Path) -> dict:
-    """RL curves from results/train/<run>/metrics.csv (Phase 07), if present."""
-    runs = []
+    """RL curves from results/train/<run>/metrics.csv and validation.csv (Phase 07), for the reported runs."""
+    runs, excluded = [], []
     for path in sorted(results.glob("train/*/metrics.csv")):
+        if path.parent.name not in REPORTED_RL_RUNS:
+            excluded.append(path.parent.name)
+            continue
         with path.open() as fh:
             rows = [r for r in csv.DictReader(fh) if r.get("reward") not in (None, "")]
         cfg_path = path.parent / "config.json"
@@ -163,9 +185,21 @@ def _rl(results: Path) -> dict:
                 "monitor/pass_rate_tier2", "monitor/pass_rate_tier3", "monitor/twin_refusal_rate",
                 "monitor/trap_answer_rate", "monitor/modal_net_share", "monitor/len_reward_corr"]
         series = {k: [float(r[k]) if r.get(k) not in (None, "") else None for r in rows] for k in keys}
-        runs.append({"run": path.parent.name, "beta": cfg.get("beta"), "reward": cfg.get("reward"), "series": series})
-    summary_path = results / "train" / "rl_summary.json"
-    return {"runs": runs, "summary": json.loads(summary_path.read_text()) if summary_path.exists() else None}
+        val = {}
+        vpath = path.parent / "validation.csv"
+        if vpath.exists():
+            with vpath.open() as fh:
+                vrows = list(csv.DictReader(fh))
+            val = {k: [float(r[k]) if r.get(k) not in (None, "") else None for r in vrows]
+                   for k in ("step", "val_reward", "val_tier2", "val_tier3")}
+        runs.append({"run": path.parent.name, "label": REPORTED_RL_RUNS[path.parent.name], "beta": cfg.get("beta"),
+                     "rubric_version": cfg.get("rubric_version"), "reward": cfg.get("reward"), "series": series, "validation": val})
+    order = list(REPORTED_RL_RUNS)
+    runs.sort(key=lambda r: order.index(r["run"]))
+    summaries = {name: json.loads(p.read_text()) for name, p in
+                 (("held-out (training preset)", results / "train" / "rl_summary_heldout_easy.json"),
+                  ("held-out (full difficulty)", results / "train" / "rl_summary_heldout.json")) if p.exists()}
+    return {"runs": runs, "excluded": excluded, "summary": summaries or None}
 
 
 def _optional_json(path: Path):

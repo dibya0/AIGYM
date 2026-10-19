@@ -145,14 +145,25 @@ document.getElementById('meta').textContent = `Rule set v${D.ruleset.version} ($
 (() => {
   const box = document.getElementById('rl-body'), rl = D.rl;
   if (!rl || !rl.runs.length) { box.append(el('div', { class: 'card muted' }, 'No training runs yet.')); return; }
-  if (rl.summary) box.append(el('div', { class: 'card' }, el('h3', {}, 'Held-out before / after (scored once, never trained on)'), el('pre', {}, JSON.stringify(rl.summary, null, 2))));
+  if (rl.summary) for (const [name, sm] of Object.entries(rl.summary)) {
+    const rowsS = [['base (before)', sm.before]].concat(Object.entries(sm.after).map(([k, v]) => [k + ' (after)', v]));
+    const head = ['policy', 'mean reward', 'Tier 2', 'Tier 3', 'traps answered', 'Δ vs base [95% CI]'];
+    box.append(el('div', { class: 'card' }, el('h3', {}, `Held-out before / after: ${name} (scored once, never trained on)`),
+      table(head, rowsS.map(([label, v]) => [label, fmt(v.mean_reward), fmt((v.by_tier || {})['2']), fmt((v.by_tier || {})['3']), fmt(v.trap_answered_rate),
+        v.diff_vs_before ? `${fmt(v.diff_vs_before.mean_diff)} [${fmt(v.diff_vs_before.ci95[0])}, ${fmt(v.diff_vs_before.ci95[1])}]` : '']))));
+  }
+  const vdiv = el('div', { style: 'height:260px' });
+  box.append(el('div', { class: 'card' }, el('h3', {}, 'Validation reward (val_easy, greedy, never trained on): what model selection sees'), vdiv));
+  Plotly.newPlot(vdiv, rl.runs.filter(r => r.validation && r.validation.step).map(r => ({ type: 'scatter', mode: 'lines+markers', name: r.label, x: r.validation.step, y: r.validation.val_reward })),
+    layout({ margin: { l: 45, r: 10, t: 5, b: 30 }, showlegend: true }), { displayModeBar: false, responsive: true });
+  if (rl.excluded && rl.excluded.length) box.append(el('p', { class: 'muted' }, 'Not plotted (smoke test, crashed or mis-configured runs, kept as evidence in results/train): ' + rl.excluded.join(', ')));
   const plots = [['reward', 'Mean reward'], ['kl', 'KL(π_θ‖π_ref), k3 estimator'], ['entropy', 'Policy entropy'], ['completions/mean_length', 'Mean completion length (tokens)'],
     ['monitor/pass_rate_tier2', 'Pass rate, Tier 2'], ['monitor/pass_rate_tier3', 'Pass rate, Tier 3 (traps)'], ['frac_reward_zero_std', 'Groups with identical rewards (no gradient)'],
     ['monitor/twin_refusal_rate', 'Refusing determinable twins (collapse alarm)'], ['monitor/trap_answer_rate', 'Answering traps'], ['monitor/modal_net_share', 'Modal net-pay share (mode collapse)']];
   const grid = el('div', { class: 'grid' }); box.append(grid);
   for (const [key, title] of plots) {
     const div = el('div', { style: 'height:240px' }); grid.append(el('div', { class: 'card' }, el('h3', {}, title), div));
-    Plotly.newPlot(div, rl.runs.map(r => ({ type: 'scatter', mode: 'lines', name: `${r.run} (β=${r.beta})`, x: r.series.step, y: r.series[key] })), layout({ margin: { l: 45, r: 10, t: 5, b: 30 }, showlegend: key === 'reward' }), { displayModeBar: false, responsive: true });
+    Plotly.newPlot(div, rl.runs.map(r => ({ type: 'scatter', mode: 'lines', name: r.label || `${r.run} (β=${r.beta})`, x: r.series.step, y: r.series[key] })), layout({ margin: { l: 45, r: 10, t: 5, b: 30 }, showlegend: key === 'reward' }), { displayModeBar: false, responsive: true });
   }
 })();
 

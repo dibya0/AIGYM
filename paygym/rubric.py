@@ -35,7 +35,15 @@ Determinable payslip (Tier 2):
   six training steps. Checked offline on the real outputs of all three runs before changing anything: under
   v1.3 broken-everywhere -1.000 and refuse-everything -0.685 are the two worst policies, below the base model
   (-0.319); fixing the base model's JSON alone gives -0.140, and refusing only traps -0.004. The score is now
-  monotone in competence: no cheap strategy beats an honest attempt. Format credit is for a payslip; a refusal of a payable payslip is not one.
+  monotone in competence: no cheap strategy beats an honest attempt.
+
+  Why v1.4 (2026-10-19, the third learned exploit, found only at the too-low beta = 0.001): a "decision" other
+  than "answer"/"refuse" (the parser's bad_decision) was not treated as a contract violation. On a trap it fell
+  into the refusal branch (+0.3, or +0.8 with the right code); on a payslip it read no lines and scored 0.0
+  instead of -1. The policy learned to write "decision": "reject" with a payslip attached: 72 % of training
+  samples, 47/47 validation tasks at step 20, validation +0.070 (above the honest beta = 0.04 policy's -0.129).
+  Now any output without a valid decision scores as unparseable (-1) on every tier. The beta = 0.04 run never
+  used it on validation (0/188), so its numbers are unchanged. Format credit is for a payslip; a refusal of a payable payslip is not one.
 
 Trap (Tier 3, the rules do not determine the payslip, GEN-§9):
   1.00         refused with the correct reason code and a useful explanation (judge).
@@ -66,7 +74,7 @@ from paygym.parser import ParsedAnswer, parse_answer
 from paygym.reference.calculator import LINES
 from paygym.schema import Task
 
-RUBRIC_VERSION = "1.3"  # 1.3: unparseable = -1 (was 0); 1.2: refusing a determinable task = -1; 1.1: 0.00; 1.0: 0.05
+RUBRIC_VERSION = "1.4"  # 1.4: a decision other than answer/refuse = unparseable; 1.3: unparseable = -1; 1.2: refusing a determinable task = -1
 UNPARSEABLE = -1.0  # v1.3: no usable output is as bad as a wrong decision (see "Why v1.3" in the docstring)
 
 W_NET, W_LINES, W_FORMAT = Decimal("0.70"), Decimal("0.25"), Decimal("0.05")
@@ -120,7 +128,7 @@ def _format_result(parsed: ParsedAnswer) -> RewardResult:
 def _score_payslip(task: Task, parsed: ParsedAnswer) -> Score:
     gt = task.ground_truth
     fmt = _format_result(parsed)
-    if parsed.raw is None:
+    if parsed.raw is None or parsed.decision is None:  # no object, or no valid decision (v1.4)
         comps = [RewardResult("net_pay_exact", 0.0, list(gt.line_clauses["net_pay"]), f"unparseable ({parsed.error})"),
                  RewardResult("line_accuracy", 0.0, ["GEN-§10.1"], "unparseable"), fmt]
         return Score(UNPARSEABLE, comps, "unparseable", ["GEN-§10.1"], None, parsed.error)
@@ -159,7 +167,7 @@ def _score_payslip(task: Task, parsed: ParsedAnswer) -> Score:
 def _score_trap(task: Task, parsed: ParsedAnswer, judge: Judge | None) -> Score:
     gt = task.ground_truth
     fmt = _format_result(parsed)
-    if parsed.raw is None:
+    if parsed.raw is None or parsed.decision is None:  # no object, or no valid decision (v1.4)
         comps = [RewardResult("trap_decision", 0.0, [gt.clause], f"unparseable ({parsed.error})"), fmt]
         return Score(UNPARSEABLE, comps, "unparseable", [gt.clause], None, parsed.error)
     if parsed.decision == "answer":
@@ -192,7 +200,7 @@ def _score_value(task: Task, parsed: ParsedAnswer) -> Score:
     ok = parsed.decision == "answer" and parsed.value is not None and _within(parsed.value, gt.value, gt.tolerance)
     exact = RewardResult("value_exact", 1.0 if ok else 0.0, list(gt.clauses),
                          f"value {parsed.value} vs {gt.value} (tolerance {gt.tolerance})")
-    if parsed.raw is None:
+    if parsed.raw is None or parsed.decision is None:  # no object, or no valid decision (v1.4)
         return Score(UNPARSEABLE, [exact, fmt], "unparseable", list(gt.clauses), parsed.decision, parsed.error)
     if parsed.decision == "refuse":  # the wrong decision on a determinable task (v1.2), as for payslips
         return Score(-1.0, [exact, fmt], "refused_determinable", list(gt.clauses), parsed.decision, parsed.error)

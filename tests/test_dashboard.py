@@ -30,3 +30,17 @@ def test_dashboard_builds_from_result_files(tmp_path):
     assert "</script" not in raw  # embedded data cannot close its script tag
     assert set(data["distribution"]) == {r["model"] for r in data["main_runs"]}  # P02: score distribution shown
     assert (public / "quickstart.py").exists()  # P08: one-command quickstart, no clone
+
+
+def test_transcript_view_handles_real_tool_call_shapes():
+    """Real verifiers transcripts store each tool call as a JSON string; the first build on real results
+    crashed on it (synthetic test transcripts used dicts)."""
+    from paygym.dashboard.build import _last_assistant
+
+    completion = [{"role": "assistant", "content": "", "tool_calls": ['{"id": "c1", "name": "lookup_rules", "arguments": "{}"}',
+                                                                      {"function": {"name": "calc", "arguments": "{}"}}]},
+                  {"role": "tool", "content": "rates"}, {"role": "assistant", "content": "final"}]
+    steps = _last_assistant(completion)["steps"]
+    assert [s.get("name") for s in steps if s["type"] == "tool_call"] == ["lookup_rules", "calc"]
+    assert steps[-1] == {"type": "assistant", "text": "final"}
+    assert _last_assistant("plain text")["steps"][0]["text"] == "plain text"

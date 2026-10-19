@@ -945,3 +945,73 @@ Every GRPO setting was checked against the code and the observed logs.
   - `sweep.sh` now runs Gemini 3.8 Flash with `--concurrency 1 --timeout 600`.
 - Flash-Lite's 3 unparseable answers and the tool-mode run's empty final answers after 8 turns (tool loops) are genuine model failures and stay scored.
 - **Leaderboard (rubric 1.3):** Flash-Lite full eval 0.314; baselines naive_no_ceiling 0.249 … always_abstain −0.737; sensitivity τ = 1.0. Suite **230 passed**.
+
+**v1.3 run `grpo-b0.04`, validation step 20 (first genuine learning, no collapse):**
+- `val_easy` reward **−0.319 → −0.152**; payslips −0.110 → **+0.107**;
+- **unparseable payslips 8/36 → 1/36**; refused payslips 0/36 → 0/36;
+- traps still −1.000 (10/11 answered, 1 broken).
+- **A15 criteria:** "must" met (unparseable 2/47 = 4 %, refusals 0 %), and "hope" met (> −0.319).
+- **What was learned:** output-format discipline on never-seen tasks; not yet trap refusal (the predicted weak within-group signal for the decision). Steps 40/60 pending; β = 0.001 v1.3 queued.
+
+**v1.3 run `grpo-b0.04`, final (step 60, best checkpoint = step 60):**
+- `val_easy` reward −0.319 → −0.152 (s20) → −0.152 (s40) → **−0.129 (s60)**; payslips −0.110 → **+0.137**.
+- **Unparseable 12/47 → 0/47**; refused payslips 0/36 throughout (no collapse).
+- Traps stay −1.000: **11/11 answered** at s60. The skill RL taught the 0.5B is output-format discipline, not trap discrimination.
+- β = 0.001 v1.3 (`grpo-b0.001`) started automatically after it finished.
+
+**v1.3 `grpo-b0.04` finished (60 steps, no stop):**
+- `val_easy` −0.319 → −0.152 (20) → −0.152 (40) → **−0.129 (60, best)**; payslips −0.110 → **+0.137**;
+- **unparseable payslips 8 → 1 → 1 → 0**; refused payslips 0 throughout;
+- traps −1.0 throughout (0 refused; answered 7 → 11 as the broken ones became valid answers);
+- KL ≤ 0.016; entropy 0.25–0.55.
+- **Learned:** format discipline on never-seen tasks, and no exploit for 60 steps under v1.3.
+- **Not learned:** trap refusal (weak within-group decision signal for a 0.5B; the 1.5B fallback from A11 is the documented next step).
+- Best checkpoint: `checkpoint-60` (validation only), the one scored on held-out.
+- `grpo-b0.001` (v1.3) started automatically from the queued command.
+
+---
+
+## Third learned exploit, at the too-low β → rubric 1.4 (2026-10-19)
+
+- **v1.3 `grpo-b0.001`, validation step 20:** +0.070 (vs β = 0.04's −0.152 at the same step), 36/36 payslips `wrong_net_capped` with reward 0.0, and 11/11 traps `wrong_reason`. The transcripts show `"decision": "reject"` with a full payslip attached.
+- **Cause:** the parser flags `bad_decision`, but the scorers did not treat it as a violation. A trap's non-"answer" path is the refusal branch (+0.3), and a payslip with no valid decision read no lines and scored 0.0, not −1.
+- **Measured:** bad decisions in **197/272 (72 %)** of β = 0.001 training samples and 47/94 validation outputs, vs **5/480 and 0/188** for β = 0.04. That is the brief's expected β-sweep shape: low β drifts into the degenerate exploit; higher β stays near the reference and improves honestly.
+- **Rubric 1.4:** no valid decision = unparseable (−1), all tiers. Test `test_an_invalid_decision_is_unparseable_on_every_tier`. Offline: β = 0.001 step 20 → −1.000 under 1.4; β = 0.04 identical at every step; no eval run changed. Suite **231 passed**.
+- **Decision:** no retraining. β = 0.04 (`checkpoint-60`) goes to held-out; β = 0.001 is kept running to step 60 as the too-low-β evidence.
+- **Tally:** three exploits learned (refuse-all, broken JSON, invalid decision), each closed with an offline check on real outputs; none was found by the 5 hand-written baselines.
+
+---
+
+## Requirement check against the brief: dashboard + sandbox (2026-10-19, user: "we need the APIs and UI")
+
+The brief's Phase 06, Phase 08 and §9 text was re-read (pdftotext) and checked against the code **by running it on today's real results**, not only the unit tests.
+- **Dashboard build crashed on real transcripts:** verifiers stores each tool call as a JSON *string*, and the synthetic test data used dicts. **Fix:** both shapes are parsed, plus a plain-string completion. Test: `test_transcript_view_handles_real_tool_call_shapes`.
+- **RL section plotted every folder** under `results/train` (smoke test, crashed and wrong-sampler runs). **Fix:**
+  - `REPORTED_RL_RUNS` plots only the 4 runs the report discusses, each labelled with what it shows (selected β = 0.04; β = 0.001 exploit; v1.2 broken JSON; v1.1 refuse-all);
+  - excluded folders are listed by name;
+  - added the **validation-reward curve** (what checkpoint selection sees) and **held-out before/after tables** with paired-bootstrap CIs, read from Step 18's two summary files.
+- **Dashboard rebuilt from real results:** `public/index.html`, 4.2 MB with data. Sections: verdict, leaderboard, breakdown, failure heatmap, cost and latency, RL, Track C, external sandbox runs, transcript viewer.
+- **Sandbox round trip** (TestClient, rubric 1.4):
+  - `GET /tasks` → run_id, ruleset_version, seed, tier_mix, tasks (no ground truth);
+  - `POST /submit` → per-task score, per-reward-function breakdown, driving clause;
+  - `GET /runs/<id>` 200; `/health` reports rubric 1.4.
+  - The leak fuzz test and the parity test pass.
+- **Still to do for these two deliverables:**
+  - **deploy** both (Vercel + Upstash, user accounts);
+  - run the quickstart against the live URL;
+  - pass the deployed sandbox URL to the dashboard build (`--sandbox-url`).
+- **Training finished.** v1.3 β = 0.001: the invalid-decision exploit was stable at validation steps 20/40/60 (+0.070 under 1.3; −1.000 under 1.4). It is the too-low-β evidence and is not taken to held-out. Selected policy: **β = 0.04 `checkpoint-60`**. The GPU is free for Step 18.
+
+---
+
+## Step 18: held-out before/after (2026-10-19)
+
+`./scripts/heldout_eval.sh` (merged `grpo-b0.04/checkpoint-60`; vLLM; each set scored once, rubric 1.4):
+- **`heldout_easy` (124):** base −0.514 → trained **−0.176**, Δ **+0.338 [+0.232, +0.442]**.
+- **`heldout` full (109):** base −0.616 → trained **−0.312**, Δ **+0.304 [+0.201, +0.411]**. Both CIs exclude 0.
+- **Gains:** Tier 2 −0.42 → +0.08 (easy), −0.46 → +0.07 (full); twins −0.33 → +0.07 / −0.48 → −0.01.
+- **Loss:** traps answered 56 % → 100 % (Tier 3 −0.84 → −1.00). Tier 1 retrieval −1.00 both (never trained).
+- Trained run SD 0.0002 (base 0.01–0.03): near-deterministic.
+- Also written: the base and trained 0.5B leaderboard rows (`local__qwen2.5-0.5b/eval-single`, `local__qwen2.5-0.5b-grpo-b0.04/eval-single`).
+- RL_REPORT B5 written. B1–B8 complete.
+- **Deviation noticed:** `heldout_eval.sh` ran the eval-split leaderboard rows with `--max-cost 2.00` (the default) and default max tokens, unlike the held-out runs. That is fine: list price is $0 for local models.
