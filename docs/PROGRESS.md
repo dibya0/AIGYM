@@ -855,3 +855,22 @@ Every GRPO setting was checked against the code and the observed logs.
   1. it built the Gemini judge for runs recorded with `--judge`, and crashed without `GEMINI_API_KEY`. Re-scoring never re-judges (trap rows are untouched), so it now runs with no API key (`test_rescore_needs_no_api_key_for_a_judged_run`);
   2. it also picked up training run folders (`results/train/*`, which have no transcript). It now picks only eval runs (transcript + taskset hash).
 - Suite 226 passed.
+
+---
+
+## Training crash at step 14: attention kernel fallback, not Terminal 1 (2026-10-19)
+
+- **Error:** `torch.OutOfMemoryError: Tried to allocate 16.53 GiB` inside `scaled_dot_product_attention … _fallback`, during generation prefill at step 14 of the A13 run (β = 0.001).
+- **Not caused by the sweep/rescore terminal:** those are CPU only.
+- **Root cause** (tested on the GPU with small tensors):
+  - Qwen2.5 uses grouped-query attention (14 query heads, 2 KV heads);
+  - with a padding mask, PyTorch's flash and memory-efficient kernels reject that shape ("No available kernel"; "both fused kernels require … same num_heads"), so SDPA silently falls back to the math kernel, which materialises the full attention matrix;
+  - 16 sequences × 14 heads × 6,075² × 2 B ≈ 16.5 GB, for one long ~6k-token prompt.
+  - Steps 1–13 fit only because their prompts were shorter.
+- **Fix:** run training inside `sdpa_kernel([CUDNN, FLASH, EFFICIENT, MATH], set_priority=True)`. cuDNN handles GQA with a mask; on this GPU it matched the math kernel to bf16 precision (max |Δ| 0.016) at ~48 MB peak on the test batch.
+- The β = 0.04 run (same data order, so it would crash at the same step) was stopped at once. The crashed run is kept as `results/train/a13-oom-step14-grpo-b0.001`.
+- **Observed in its 14 steps:**
+  - traps answered fell to 0 on the later trap steps, and correct refusals reached 0.75;
+  - broken JSON 6–19 % on later steps; KL rose steadily to 0.03;
+  - **but** the step-14 twin was refused by 15/16 completions, the over-refusal pressure predicted for a policy that cannot compute payslips (RL_REPORT B6). It is watched on `val_easy` twins.
+- Checkpoints every 10 steps from now on (was 20), so a crash loses ≤ 10 steps.

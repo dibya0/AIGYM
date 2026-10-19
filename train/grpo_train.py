@@ -342,7 +342,16 @@ def main() -> None:
         peft_config=peft_config,
         callbacks=[CsvMetrics(run_dir / "metrics.csv"), guard],
     )
-    trainer.train(resume_from_checkpoint=args.resume or None)
+    # Attention kernel: Qwen2.5 uses grouped-query attention (14 query / 2 KV heads). With a padding mask, PyTorch's
+    # flash and memory-efficient kernels reject that shape and SDPA silently falls back to the math kernel, which
+    # materialises the full attention matrix: 16 sequences x 14 heads x ~6k^2 tokens tried to allocate 16.5 GB and
+    # crashed step 14 (2026-10-19). cuDNN attention handles GQA + mask (checked on this RTX 5070 Ti: matches the
+    # math kernel to bf16 precision, ~48 MB peak on a test batch), so it goes first; math stays as a last resort.
+    from torch.nn.attention import SDPBackend, sdpa_kernel
+
+    with sdpa_kernel([SDPBackend.CUDNN_ATTENTION, SDPBackend.FLASH_ATTENTION, SDPBackend.EFFICIENT_ATTENTION,
+                      SDPBackend.MATH], set_priority=True):
+        trainer.train(resume_from_checkpoint=args.resume or None)
     trainer.save_model(str(run_dir / "final_adapter"))
     print(f"done: {run_dir}")
 
