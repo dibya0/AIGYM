@@ -97,7 +97,8 @@ class GeminiJudge:
     """Callable judge for ``paygym.rubric.score_answer(judge=...)``."""
 
     def __init__(self, model: str = DEFAULT_MODEL, base_url: str = DEFAULT_BASE_URL, api_key: str | None = None,
-                 cache_path: str | Path | None = "results/judge_cache.jsonl", use_cache: bool = True, max_retries: int = 4):
+                 cache_path: str | Path | None = "results/judge_cache.jsonl", use_cache: bool = True, max_retries: int = 4,
+                 ledger: bool = True):
         from openai import OpenAI
 
         key = api_key or os.environ.get("GEMINI_API_KEY")
@@ -107,6 +108,11 @@ class GeminiJudge:
         self.model, self.max_retries, self.use_cache = model, max_retries, use_cache
         self.json_mode = True  # switched off if the endpoint rejects response_format
         self.calls = 0
+        self.ledger = None
+        if ledger:  # local runs: count judge calls against the same daily free-tier budget (not the sandbox)
+            from paygym.eval.budget import RequestLedger, cap_for
+
+            self.ledger = RequestLedger(f"gemini/{model}", cap_for("gemini"))
         self.cache_path = Path(cache_path) if cache_path else None
         self.cache: dict[str, dict] = {}
         if self.cache_path and self.cache_path.exists():
@@ -126,6 +132,8 @@ class GeminiJudge:
         messages = build_messages(task, criterion, explanation)
         last_error: Exception | None = None
         for attempt in range(self.max_retries):
+            if self.ledger and not self.ledger.reserve(1):
+                raise JudgeError(f"daily request budget for gemini/{self.model} reached ({self.ledger.cap}/day)")
             try:
                 self.calls += 1
                 extra = {"response_format": {"type": "json_object"}} if self.json_mode else {}

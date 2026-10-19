@@ -100,7 +100,7 @@ def _judge_for(request: Request):
         return None
     from paygym.judge import GeminiJudge
 
-    return GeminiJudge(cache_path=None)
+    return GeminiJudge(cache_path=None, ledger=False)  # the sandbox budgets judge calls per caller IP instead
 
 
 def _public_task(task) -> dict:

@@ -26,3 +26,6 @@ wandb/
 
 # The assignment brief (Niural's document; not ours to republish)
 *.docx.pdf
+
+# Local free-tier request ledger (per machine, per day)
+results/.request_ledger.json

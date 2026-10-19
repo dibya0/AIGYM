@@ -42,6 +42,8 @@ Living document (brief §9 #11; §11: "Scope down loudly, not silently"). Each e
 - **Decision:** the `--max-cost` guardrail runs on *list prices* even though actual spend is $0.
 - **Why:** it proves the guardrail works and reports what a paid run would cost.
 - **Cost:** a sweep can stop on the list-price cap even when it is free, so the cap is set per run.
+- **Second guardrail, in requests:** list-price dollars never protect a free quota, so a daily per-model **request ledger** (`paygym.eval.budget`) caps hosted calls (Gemini 120/day, Groq 400/day, below the free limits) across all runs and the judge. A capped run stops before the call that would exceed the cap (`aborted_budget`) and resumes the next day. The sweep takes ~3 days instead of one; no account is drained.
+- **Quota allocation:** Gemini, the scarcest quota, runs single-turn eval only. Groq covers tool mode and the Track C large-model comparison; local Qwen covers everything high-volume. The judge runs on a separate model so it draws on its own quota.
 
 ## What we mocked (brief §11.5)
 - **The rule set and jurisdictions (fictional):** so answers cannot be recalled from pre-training (brief p.4). Real version: statutory tables per country with effective dates, maintained against official sources.

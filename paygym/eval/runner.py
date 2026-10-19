@@ -7,6 +7,8 @@ timeout, rubric), the same environment the trainer and the sandbox use. This har
 brief asks of a runner:
 
   * bounded concurrency plus a per-provider request-rate limit (free tiers);
+  * a daily *request* ledger per free-tier model (``paygym.eval.budget``): a run stops cleanly with
+    ``aborted_budget`` before it would exceed the day's cap, and resumes the next day;
   * a hard ``--max-cost`` guardrail at list prices: once reached, no new rollouts start, in-flight
     ones finish, partial results are written, and the run is marked ``aborted_cost``;
   * resume: rollouts already in ``transcript.jsonl`` are skipped, so a crash never pays twice;
@@ -37,6 +39,7 @@ from pathlib import Path
 from statistics import mean
 
 from paygym import __version__
+from paygym.eval.budget import RequestLedger, cap_for
 from paygym.eval.providers import ModelSpec, resolve
 from paygym.eval.stats import percentile, run_summary
 from paygym.prompting import prompt_hash
@@ -139,6 +142,13 @@ class EvalRun:
         self.transcript = self.dir / "transcript.jsonl"
         self.write_lock = asyncio.Lock()
         self.limiter = RateLimiter(self.spec.rpm)
+        uncapped = self.spec.is_baseline or self.spec.provider == "local"
+        self.ledger = None if uncapped else RequestLedger(self.spec.name, cap_for(self.spec.provider, args.daily_request_cap))
+        self.judge_ledger = None
+        if args.judge:
+            from paygym.judge import DEFAULT_MODEL as JUDGE_MODEL
+
+            self.judge_ledger = RequestLedger(f"gemini/{JUDGE_MODEL}", cap_for("gemini", args.daily_request_cap))
         self.cost_list = 0.0
         self.abort: str | None = None
         self.consecutive_errors = 0
@@ -206,7 +216,10 @@ class EvalRun:
         if self.spec.is_baseline:
             record.update(self._baseline(task))
         else:
-            record.update(await self._model_rollout(index, row, rollout))
+            result = await self._model_rollout(index, row, rollout)
+            if result is None:  # daily budget reached before the call: left for a resumed run
+                return
+            record.update(result)
         await self.write(record)
 
     def _baseline(self, task: Task) -> dict:
@@ -228,13 +241,27 @@ class EvalRun:
                               max_retries=0, timeout=float(self.args.timeout) + 30)
         rollout_input = {"prompt": row["prompt"], "example_id": index, "answer": row.get("answer", ""), "info": row["info"]}
         retried, out, err = 0, None, None
+        per_attempt = self.args.max_turns if self.args.mode == "tool" else 1
         for attempt in range(self.args.max_retries + 1):
+            if self.abort:
+                return None
+            # A trap rollout may need the judge (one call per criterion); never start a model call whose
+            # judging would then be refused, or the model call is wasted.
+            if self.judge_ledger and self.judge_ledger.remaining() is not None and self.judge_ledger.remaining() < 3:
+                self.abort = "aborted_budget"
+                return None
+            if self.ledger and not self.ledger.reserve(per_attempt):
+                self.abort = "aborted_budget"
+                return None
             await self.limiter.wait()
             try:
                 out = await self.env.run_rollout(rollout_input, client, self.spec.model_id, self.sampling_args())
                 err = _error_text(out.get("error"))
             except Exception as exc:  # the environment raised instead of recording the error
                 out, err = None, f"{type(exc).__name__}: {exc}"
+            if self.ledger:
+                turns = int(((out or {}).get("metrics") or {}).get("num_turns") or 1)
+                self.ledger.settle(per_attempt, min(per_attempt, max(1, turns)))
             if err and _is_transient(err) and attempt < self.args.max_retries:
                 retried += 1
                 await asyncio.sleep(min(60.0, 2.0 ** attempt + random.random()))
@@ -306,6 +333,9 @@ class EvalRun:
                 if (_info(row)["task_id"], r) not in done]
         planned = len(self.rows) * self.args.rollouts
         est = self.estimate_cost(len(work))
+        for led in (self.ledger, self.judge_ledger):
+            if led and led.cap is not None:
+                print(f"daily request budget {led.model}: {led.used_today()}/{led.cap} used today (US Pacific)")
         print(f"{self.spec.name}: {len(self.rows)} tasks x {self.args.rollouts} rollouts = {planned} "
               f"({len(done)} already done, {len(work)} to run); list-price estimate ${est:.2f}, cap ${self.args.max_cost:.2f}"
               + ("  [baseline: no model calls]" if self.spec.is_baseline else ""))
@@ -323,7 +353,9 @@ class EvalRun:
         status = self.abort or "completed"
         self.finalise(status, planned)
         print(f"{status}: results in {self.dir}")
-        return {"completed": 0, "aborted_cost": 2, "unavailable": 3}[status]
+        if status == "aborted_budget":
+            print("daily request budget reached: re-run the same command with --resume tomorrow", file=sys.stderr)
+        return {"completed": 0, "aborted_cost": 2, "unavailable": 3, "aborted_budget": 6}[status]
 
     def estimate_cost(self, n: int) -> float:
         if self.spec.is_baseline or not n:
@@ -426,6 +458,8 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--max-cost", type=float, default=2.00, help="hard cap in USD at list prices")
     ap.add_argument("--concurrency", type=int, default=4)
     ap.add_argument("--rpm", type=int, help="requests per minute (default per provider)")
+    ap.add_argument("--daily-request-cap", type=int,
+                    help="max requests per model per day across all runs (0 = no cap; default per provider, see paygym.eval.budget)")
     ap.add_argument("--max-retries", type=int, default=4)
     ap.add_argument("--max-consecutive-errors", type=int, default=8, help="mark the provider unavailable after this many")
     ap.add_argument("--judge", action="store_true", help="score trap explanations with the LLM judge (GEMINI_API_KEY)")

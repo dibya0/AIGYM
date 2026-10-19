@@ -2,7 +2,7 @@
 more than model choice"). Reads results/*/trackc-S*/ runs and writes results/track_c/summary.json for the
 dashboard and docs/TRACK_C.md.
 
-    uv run python scripts/track_c.py --small local/qwen2.5-3b --frontier gemini/<model>
+    uv run python scripts/track_c.py --small local/qwen2.5-3b --frontier groq/openai/gpt-oss-120b
 """
 
 from __future__ import annotations

@@ -152,7 +152,11 @@ Then, with `GEMINI_API_KEY` in `.env`, check that your free tier can reach the j
 ```bash
 uv run --env-file .env python -c "from openai import OpenAI; import os; c=OpenAI(api_key=os.environ['GEMINI_API_KEY'], base_url='https://generativelanguage.googleapis.com/v1beta/openai/'); print([m.id for m in c.models.list()][:40])"
 ```
-Paste the model list. Claude sets `PAYGYM_JUDGE_MODEL` to the best free Flash model in it (default `gemini-flash-latest`). The reliability runs (3 repeats + your 15 hand labels) happen after the eval sweep (Step 15), because they need real model refusals to judge.
+✅ 2026-10-19: model list pasted. Being listed does not mean a model has free quota, so probe the candidates with **one ~10-token request each** (5 requests total, counted in the daily ledger):
+```bash
+uv run --env-file .env python scripts/probe_models.py gemini/gemini-3.8-flash gemini/gemini-3.1-pro-preview gemini/gemini-4-argon gemini/gemma-4-31b-it groq/openai/gpt-oss-120b
+```
+Also open **AI Studio → Dashboard → Usage / Rate limits** (costs no requests) and note the requests-per-day for the models that answered OK. Paste both. Claude picks the eval model and the judge model from them, and sets the daily caps under those limits. The reliability runs (3 repeats + your 15 hand labels) happen after the eval sweep (Step 15), because they need real model refusals to judge.
 
 ### Step 12: verifiers environment ⏳
 ```bash
@@ -195,7 +199,10 @@ Then, to prove resume, start a run, press Ctrl-C after a few rollouts, and re-ru
 
 Paste the two smoke summaries (`cat .../metrics.json`). If Groq's model id differs on your account, use the id from the Groq console.
 
-### Step 15: full eval sweep ⏳ (hours; can span 2 days on free tiers)
+### Step 15: full eval sweep ⏳ (hours; spans ~3 days on free tiers by design)
+**Free-quota protection.** Every hosted call is counted in `results/.request_ledger.json`, per model per day (US Pacific). The defaults are **Gemini 120/day** and **Groq 400/day**, well under the free limits, so your accounts keep headroom. A model that reaches its cap stops cleanly and the sweep moves on to the next one. Run the same script again the next day; finished rollouts are skipped. To change the cap, set `PAYGYM_DAILY_CAP=<n>` or pass `--daily-request-cap`.
+
+**Expected Gemini use:** ≈ 330 eval requests (109 tasks × 3 rollouts), single-turn only, plus judge calls on a separate model's quota. Tool mode and Track C use Groq and local Qwen instead.
 ```bash
 GEMINI_MODEL=<strongest free Gemini id from your Step 11 list> ./scripts/sweep.sh
 ```
@@ -298,7 +305,7 @@ Deploy on Vercel (Hobby, free):
 If Vercel rejects the Python function (bundle or runtime errors), paste the build log.
 
 ### Step 20: Track C, scaffold comparison ⏳
-Fixed small model = local Qwen2.5-3B (unlimited, $0); frontier = Gemini at S0 and S4 only (saves free quota):
+Fixed small model = local Qwen2.5-3B (unlimited, $0). Large model = Groq `gpt-oss-120b` at S0 and S4 only. This is changed from Gemini to spare the scarcer Gemini quota: S4 is multi-turn, ≈ 5 requests per rollout.
 ```bash
 uv run pytest -q tests/test_environment.py                 # includes the scaffold test
 LLM_MODEL=Qwen/Qwen2.5-3B-Instruct LLM_SERVED_NAME=qwen2.5-3b docker compose --profile gpu up -d llm
@@ -306,9 +313,9 @@ for S in S0 S1 S2 S3 S4; do
   uv run python -m paygym.eval --model local/qwen2.5-3b --scaffold $S --split eval --n-seeds 45 --rollouts 3 --concurrency 8 --run-name trackc-$S
 done
 for S in S0 S4; do
-  uv run python -m paygym.eval --model gemini/$GEMINI_MODEL --scaffold $S --split eval --n-seeds 45 --rollouts 3 --run-name trackc-$S
+  uv run python -m paygym.eval --model groq/openai/gpt-oss-120b --scaffold $S --split eval --n-seeds 45 --rollouts 3 --run-name trackc-$S
 done
-uv run python scripts/track_c.py --small local/qwen2.5-3b --frontier gemini/$GEMINI_MODEL
+uv run python scripts/track_c.py --small local/qwen2.5-3b --frontier groq/openai/gpt-oss-120b
 ```
 Paste the printed finding. Claude writes `docs/TRACK_C.md` from `results/track_c/summary.json`. If Qwen-3B scores near 0 on every scaffold, use `--small groq/openai/gpt-oss-20b` (free) instead (plan fallback).
 

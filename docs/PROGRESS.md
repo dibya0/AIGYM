@@ -568,3 +568,20 @@ Re-read the PDF (pp.7–14 phase specs, plus §§9–11) line by line against th
 - **The step-0 validation is an early pilot signal** (real rubric, greedy, 44 val tasks): base Qwen-0.5B scores **−0.15** overall: Tier 2 **0.09** (near-zero exact net pay), Tier 3 **−0.875** (it answers almost every trap). This is consistent with the pre-registered expectation that the training tasks will need the `easy`/`easier` preset (A4), and it means the main thing RL can learn is when to refuse. The refusal-collapse monitor (twin refusal rate) is what guards that.
 - **Fix found by the smoke run:** TRL's default linear LR decay (2e-5 → 2e-6 in the log). Changed to a constant LR and logged as pre-registration amendment A9 (before any real training).
 - Checklist: P07.4 ◐ (KL per step shown; real runs pending). Anti-goal "training that didn't finish" de-risked.
+
+---
+
+## Steps 9–11 checks + free-quota protection (2026-10-19)
+
+- **User run:** `pytest` on parser/tools, rubric, judge, environment → **124 passed**. Gemini `/models` list pasted (Gemini 2.5/3.x/3.5–3.8 Flash, 3.1 Pro preview, gemini-4-argon, Gemma 4).
+- **Groq:** the user's first sign-up page asked for a $5 card payment (most likely xAI's *Grok*, console.x.ai); the free Groq key was obtained without a card.
+- **`.env` hygiene:** a pasted `curl` example containing the Gemini key, and unquoted values with spaces, broke `--env-file` parsing (GROQ_API_KEY was not loaded). Cleaned (backup in the session scratchpad); `SANDBOX_SECRET` generated. `.env` was never committed. The key was printed into the session once, so the user was advised to rotate it.
+- **User requirement: do not exhaust any free quota.** `--max-cost` is in list-price dollars, which never protects a free quota, so I added:
+  - `paygym/eval/budget.py`: a daily per-model **request ledger** (file-locked JSON, US-Pacific day). Before each call it reserves (1 request single-turn, `max_turns` in tool mode), and after the call it settles the actual turns. Defaults Gemini 120/day, Groq 400/day; `--daily-request-cap` / `PAYGYM_DAILY_CAP`; local and baselines uncapped.
+  - Runner: stops before the call that would exceed the cap (`aborted_budget`, exit 6), with no wasted call. It also refuses to start a rollout if the judge budget could not judge it. Resume continues the next day.
+  - Judge: counts against its own model's ledger. The sandbox opts out (`ledger=False`; it budgets per IP).
+  - Tests: `test_daily_request_budget_stops_cleanly_and_resume_continues`, `test_request_ledger_counts_across_instances_and_settles_actual_use`; `tests/conftest.py` redirects the ledger to tmp so tests never touch the real one. Full suite **210 passed** locally.
+  - `scripts/probe_models.py`: one ~10-token request per candidate model, to find which listed models really have free quota.
+  - `scripts/sweep.sh`: Gemini single-turn only; Groq single + tool mode; a budget stop moves on to the next model instead of aborting the sweep.
+  - Track C large model changed from Gemini to Groq `gpt-oss-120b` (S4 is ≈ 5 requests per rollout), so the brief's question "does scaffold matter more than model choice" is still answered.
+- Docs: USER_ACTIONS Steps 11/15/20, TRADEOFFS #8.

@@ -122,3 +122,31 @@ def test_leaderboard_groups_and_compares(tmp_path):
     board = leaderboard.build(tmp_path)
     assert len(board["runs"]) == 2 and len(board["comparisons"]) == 1
     assert {r["model"] for r in board["runs"]} == {"baseline/naive_no_ceiling", "baseline/always_abstain"}
+
+
+def test_daily_request_budget_stops_cleanly_and_resume_continues(tmp_path, monkeypatch):
+    """Free-tier protection: the run stops *before* a call that would exceed the day's cap."""
+    run, fake, code = _model_run(tmp_path, monkeypatch, [], "--max-cost", "100", "--limit", "3", "--daily-request-cap", "4")
+    assert code == 6 and fake.calls == 4
+    metrics = json.loads((run.dir / "metrics.json").read_text())
+    assert metrics["status"] == "aborted_budget" and metrics["rollouts_ok"] == 4
+    # Same day, same cap: nothing more is spent.
+    run2, fake2, code2 = _model_run(tmp_path, monkeypatch, [], "--max-cost", "100", "--limit", "3", "--daily-request-cap", "4",
+                                    "--resume", str(run.dir))
+    assert code2 == 6 and fake2.calls == 0
+    # A higher cap (or the next day) finishes only the missing rollouts.
+    run3, fake3, code3 = _model_run(tmp_path, monkeypatch, [], "--max-cost", "100", "--limit", "3", "--daily-request-cap", "10",
+                                    "--resume", str(run.dir))
+    assert code3 == 0 and fake3.calls == 2
+
+
+def test_request_ledger_counts_across_instances_and_settles_actual_use(tmp_path):
+    from paygym.eval.budget import RequestLedger, cap_for
+
+    path = tmp_path / "l.json"
+    a, b = RequestLedger("gemini/x", 5, path), RequestLedger("gemini/x", 5, path)
+    assert a.reserve(4) and not b.reserve(2)  # shared file: a second process sees the first one's use
+    a.settle(4, 1)  # a tool rollout reserved max_turns but used 1 turn
+    assert b.used_today() == 1 and b.reserve(4) and b.remaining() == 0
+    assert RequestLedger("gemini/y", 5, path).used_today() == 0  # per model
+    assert cap_for("local") is None and cap_for("gemini") == 120 and cap_for("gemini", 0) is None
