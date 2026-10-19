@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PayGym results</title>
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<style>
+  :root { --fg:#1d2433; --muted:#5b6475; --line:#e3e6ec; --bg:#fafbfc; --card:#fff; --accent:#3b5bdb; --bad:#c92a2a; --good:#2b8a3e; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:var(--fg); background:var(--bg); }
+  main { max-width:1180px; margin:0 auto; padding:24px 16px 64px; }
+  h1 { font-size:22px; margin:0 0 4px; } h2 { font-size:17px; margin:28px 0 8px; } h3 { font-size:14px; margin:16px 0 6px; }
+  .muted { color:var(--muted); } .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin:10px 0; }
+  table { border-collapse:collapse; width:100%; font-size:13px; } th,td { border-bottom:1px solid var(--line); padding:5px 8px; text-align:left; vertical-align:top; }
+  th { color:var(--muted); font-weight:600; } .num { text-align:right; font-variant-numeric:tabular-nums; }
+  .scroll { overflow-x:auto; } .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:12px; }
+  .tag { display:inline-block; padding:1px 7px; border-radius:10px; background:#edf2ff; color:var(--accent); font-size:12px; margin-right:4px; }
+  .baseline { color:var(--muted); font-style:italic; } select { font:inherit; padding:3px 6px; }
+  pre { white-space:pre-wrap; word-break:break-word; background:#f4f5f7; padding:8px; border-radius:6px; font-size:12px; max-height:360px; overflow:auto; }
+  .bad { color:var(--bad); } .good { color:var(--good); } nav a { margin-right:12px; color:var(--accent); text-decoration:none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>PayGym: payroll gross-to-net agent gym</h1>
+  <div class="muted" id="meta"></div>
+  <nav class="muted"><a href="#verdict">Verdict</a><a href="#leaderboard">Leaderboard</a><a href="#breakdown">Breakdown</a><a href="#heatmap">Failures</a><a href="#cost">Cost</a><a href="#rl">RL training</a><a href="#trackc">Scaffolds</a><a href="#transcripts">Transcripts</a></nav>
+
+  <h2 id="verdict">Which model, for which tasks, where will it hurt?</h2>
+  <div class="card" id="verdict-body"></div>
+
+  <h2 id="leaderboard">Leaderboard</h2>
+  <p class="muted">Mean reward over tasks (each task averaged over its rollouts). Error bars: SD across rollout passes. Adversarial baselines in grey: a reward that a cheap strategy can game would show up here.</p>
+  <div class="card"><div id="lb-chart" style="height:340px"></div><div class="scroll" id="lb-table"></div></div>
+  <div class="card" id="indist"></div>
+
+  <h2 id="breakdown">Breakdown</h2>
+  <div class="grid">
+    <div class="card"><h3>By difficulty tier</h3><div id="tier-chart" style="height:300px"></div>
+      <p class="muted">Tier 1 retrieval · Tier 2 computation · Tier 3 traps (refuse correctly = 0.8, +0.2 for a useful explanation; answering = −1).</p></div>
+    <div class="card"><h3>By reward function</h3><div id="comp-chart" style="height:300px"></div></div>
+  </div>
+  <div class="card"><h3>Score distribution (per-task mean reward)</h3><div id="dist-chart" style="height:300px"></div>
+    <p class="muted">A gym where every task scores 0 or every task scores 1 teaches nothing (and gives GRPO no gradient). The table shows each model's share of tasks fully passed and failed.</p><div id="dist-table"></div></div>
+  <div class="card" id="sensitivity"></div>
+
+  <h2 id="heatmap">Failure heatmap</h2>
+  <p class="muted">Task × model mean reward (red = failed, green = passed). Tasks sorted by tier.</p>
+  <div class="card scroll"><div id="hm" style="height:420px;min-width:900px"></div></div>
+
+  <h2 id="cost">Cost and latency</h2>
+  <div class="card scroll" id="cost-table"></div>
+
+  <h2 id="rl">RL training (GRPO, Qwen2.5-0.5B + LoRA)</h2>
+  <div id="rl-body"></div>
+
+  <h2 id="trackc">Track C: does the scaffold matter more than the model?</h2>
+  <div class="card" id="trackc-body"></div>
+
+  <h2 id="external">External sandbox runs</h2>
+  <div class="card" id="external-body"></div>
+
+  <h2 id="transcripts">Transcript viewer</h2>
+  <div class="card">
+    <label>Run <select id="tv-run"></select></label>
+    <label><input type="checkbox" id="tv-fail" checked> failures only</label>
+    <label>Task <select id="tv-task"></select></label>
+    <div id="tv-body"></div>
+  </div>
+</main>
+
+<script id="data" type="application/json">{{ data_json | safe }}</script>
+<script>
+const D = JSON.parse(document.getElementById('data').textContent);
+const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === 'class') e.className = v; else e.setAttribute(k, v); } for (const k of kids) e.append(k instanceof Node ? k : document.createTextNode(k ?? '')); return e; };
+const fmt = (x, d = 3) => (x === null || x === undefined || Number.isNaN(x)) ? '—' : Number(x).toFixed(d);
+const short = m => m.replace(/^baseline\//, 'baseline: ').replace(/^(groq|gemini|local)\//, '$1: ');
+const table = (headers, rows) => { const t = el('table'); t.append(el('tr', {}, ...headers.map(h => el('th', {}, h)))); for (const r of rows) t.append(el('tr', {}, ...r.map(c => c instanceof Node ? el('td', {}, c) : el('td', { class: typeof c === 'number' ? 'num' : '' }, String(c))))); return t; };
+const layout = (extra = {}) => Object.assign({ margin: { l: 50, r: 10, t: 10, b: 60 }, font: { size: 12 }, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)' }, extra);
+
+document.getElementById('meta').textContent = `Rule set v${D.ruleset.version} (${D.ruleset.fingerprint}) · generated ${D.generated_at} · all numbers from committed result files`;
+
+// ---- verdict
+(() => {
+  const v = D.verdict, box = document.getElementById('verdict-body');
+  if (!v || !v.models) { box.textContent = 'No model runs yet.'; return; }
+  box.append(el('p', {}, `Best overall: ${short(v.best_overall.model)} (mean reward ${fmt(v.best_overall.score)}). `,
+    'Best by tier: ', ...Object.entries(v.best_by_tier).map(([t, b]) => el('span', { class: 'tag' }, `Tier ${t}: ${short(b.model)} ${fmt(b.score)}`))));
+  box.append(table(['Model', 'Mean reward', 'Payslips exactly right', 'Traps answered (should refuse)', 'Twin score (over-refusal check)', 'Cost / correct payslip (list $)', 'Where it hurts: top failure clauses'],
+    v.models.map(m => [short(m.model), fmt(m.mean_reward), fmt(m.payslip_pass_rate, 2), fmt(m.trap_answered_rate, 2), fmt(m.twin_score), m.cost_per_correct_payslip_list_usd === null ? '—' : '$' + fmt(m.cost_per_correct_payslip_list_usd, 5),
+      (m.top_failure_clauses || []).map(([c, n]) => `${c} ×${n}`).join(', ') || '—'])));
+  box.append(el('p', { class: 'muted' }, 'Actual spend for every run: $0 (free tiers and a local GPU). List-price cost shows what a paid run would cost.'));
+})();
+
+// ---- leaderboard
+(() => {
+  const runs = [...D.main_runs].sort((a, b) => (a.mean_reward ?? -9) - (b.mean_reward ?? -9));
+  Plotly.newPlot('lb-chart', [{ type: 'bar', orientation: 'h', y: runs.map(r => short(r.model)), x: runs.map(r => r.mean_reward),
+    error_x: { type: 'data', array: runs.map(r => r.run_sd ?? 0), visible: true },
+    marker: { color: runs.map(r => r.is_baseline ? '#adb5bd' : '#3b5bdb') } }], layout({ margin: { l: 210, r: 10, t: 10, b: 40 }, xaxis: { range: [-1, 1], title: 'mean reward' } }), { displayModeBar: false, responsive: true });
+  document.getElementById('lb-table').append(table(['Model', 'Mean ± SD', 'Within-task rollout SD', 'Rollout disagreement', 'Tier 1', 'Tier 2', 'Tier 3', 'Twins', 'Rollouts ok / failed', 'Status'],
+    [...runs].reverse().map(r => [el('span', { class: r.is_baseline ? 'baseline' : '' }, short(r.model)), `${fmt(r.mean_reward)} ± ${fmt(r.run_sd)}`, fmt(r.rollout_sd), fmt(r.disagreement_rate, 2),
+      fmt(r.by_tier['1']), fmt(r.by_tier['2']), fmt(r.by_tier['3']), fmt(r.twins), `${r.rollouts_ok} / ${r.rollouts_failed}`, r.status])));
+  const box = document.getElementById('indist');
+  box.append(el('h3', {}, 'Where the gym cannot tell models apart'));
+  if (!D.indistinguishable.length) box.append(el('p', { class: 'muted' }, 'Every pair of runs differs (paired bootstrap 95% CI excludes 0).'));
+  else box.append(table(['Run A', 'Run B', 'Mean diff (A−B)', '95% CI', 'Shared tasks'], D.indistinguishable.map(c => [c.a, c.b, fmt(c.mean_diff), `[${c.ci95.map(x => fmt(x)).join(', ')}]`, c.tasks])));
+  if (D.other_runs.length) document.getElementById('lb-table').append(el('p', { class: 'muted' }, `Other comparison groups (different mode, taskset or rule-set version; never mixed into this table): ${D.other_runs.map(r => short(r.model) + ' [' + r.mode + ']').join(', ')}`));
+})();
+
+// ---- breakdowns
+(() => {
+  const runs = D.main_runs;
+  Plotly.newPlot('tier-chart', ['1', '2', '3'].map(t => ({ type: 'bar', name: 'Tier ' + t, x: runs.map(r => short(r.model)), y: runs.map(r => r.by_tier[t]) })), layout({ barmode: 'group', yaxis: { range: [-1, 1] } }), { displayModeBar: false, responsive: true });
+  Plotly.newPlot('comp-chart', D.components.map(c => ({ type: 'bar', name: c, x: runs.map(r => short(r.model)), y: runs.map(r => r.by_component[c] ?? null) })), layout({ barmode: 'group', yaxis: { range: [-1, 1] } }), { displayModeBar: false, responsive: true });
+  const dist = D.distribution || {};
+  const models = Object.keys(dist).filter(m => !m.startsWith('baseline/'));
+  Plotly.newPlot('dist-chart', models.map(m => ({ type: 'histogram', name: short(m), x: dist[m].task_means, opacity: 0.6, xbins: { start: -1, end: 1.0001, size: 0.1 } })),
+    layout({ barmode: 'overlay', xaxis: { title: 'per-task mean reward', range: [-1.05, 1.05] }, yaxis: { title: 'tasks' } }), { displayModeBar: false, responsive: true });
+  document.getElementById('dist-table').append(table(['Model', 'Share of tasks at 1.0', 'Share at ≤ 0'], Object.entries(dist).map(([m, d]) => [short(m), fmt(d.share_full, 2), fmt(d.share_zero_or_below, 2)])));
+  const s = D.sensitivity, box = document.getElementById('sensitivity');
+  box.append(el('h3', {}, 'Do the reward weights change the ranking?'));
+  if (!s) { box.append(el('p', { class: 'muted' }, 'Run python -m paygym.eval.sensitivity.')); return; }
+  box.append(table(['Weighting (net / lines / format)', "Kendall's τ vs shipped", 'Ranking'], Object.entries(s.kendall_tau_vs_shipped).map(([k, tau]) => [k, fmt(tau, 2), s.ranking_by_weighting[k].map(short).join(' > ')])));
+})();
+
+// ---- heatmap
+(() => {
+  const h = D.heatmap;
+  if (!h.models.length) return;
+  Plotly.newPlot('hm', [{ type: 'heatmap', z: h.z, x: h.tasks, y: h.models.map(short), zmin: -1, zmax: 1, colorscale: 'RdYlGn', hoverongaps: false,
+    hovertemplate: '%{y}<br>%{x}<br>reward %{z}<extra></extra>' }], layout({ margin: { l: 210, r: 10, t: 10, b: 120 }, xaxis: { tickangle: -60, tickfont: { size: 9 } } }), { displayModeBar: false, responsive: true });
+  document.getElementById('hm').on('plotly_click', ev => { const p = ev.points[0]; const run = D.main_runs.find(r => short(r.model) === p.y); if (run) openTranscript(run, p.x); });
+})();
+
+// ---- cost & latency
+(() => {
+  const all = [...D.main_runs, ...D.other_runs];
+  document.getElementById('cost-table').append(table(['Model', 'Mode', 'List-price cost ($)', 'Actual cost ($)', 'Latency mean / p95 (s)', 'Tool calls / rollout', 'Parse failures'],
+    all.map(r => [short(r.model), r.mode, fmt(r.cost_list_usd, 4), fmt(r.cost_actual_usd, 2), `${fmt(r.latency_s.mean, 2)} / ${fmt(r.latency_s.p95, 2)}`, fmt(r.tool_calls_mean, 2), fmt(r.parse_fail_rate, 2)])));
+})();
+
+// ---- RL
+(() => {
+  const box = document.getElementById('rl-body'), rl = D.rl;
+  if (!rl || !rl.runs.length) { box.append(el('div', { class: 'card muted' }, 'No training runs yet.')); return; }
+  if (rl.summary) box.append(el('div', { class: 'card' }, el('h3', {}, 'Held-out before / after (scored once, never trained on)'), el('pre', {}, JSON.stringify(rl.summary, null, 2))));
+  const plots = [['reward', 'Mean reward'], ['kl', 'KL(π_θ‖π_ref), k3 estimator'], ['entropy', 'Policy entropy'], ['completions/mean_length', 'Mean completion length (tokens)'],
+    ['monitor/pass_rate_tier2', 'Pass rate, Tier 2'], ['monitor/pass_rate_tier3', 'Pass rate, Tier 3 (traps)'], ['frac_reward_zero_std', 'Groups with identical rewards (no gradient)'],
+    ['monitor/twin_refusal_rate', 'Refusing determinable twins (collapse alarm)'], ['monitor/trap_answer_rate', 'Answering traps'], ['monitor/modal_net_share', 'Modal net-pay share (mode collapse)']];
+  const grid = el('div', { class: 'grid' }); box.append(grid);
+  for (const [key, title] of plots) {
+    const div = el('div', { style: 'height:240px' }); grid.append(el('div', { class: 'card' }, el('h3', {}, title), div));
+    Plotly.newPlot(div, rl.runs.map(r => ({ type: 'scatter', mode: 'lines', name: `${r.run} (β=${r.beta})`, x: r.series.step, y: r.series[key] })), layout({ margin: { l: 45, r: 10, t: 5, b: 30 }, showlegend: key === 'reward' }), { displayModeBar: false, responsive: true });
+  }
+})();
+
+// ---- Track C
+(() => {
+  const box = document.getElementById('trackc-body'), t = D.track_c;
+  if (!t) { box.textContent = 'Track C results not yet run.'; return; }
+  box.append(table(Object.keys(t.rows[0]), t.rows.map(r => Object.values(r).map(v => typeof v === 'number' ? fmt(v) : String(v)))));
+  if (t.finding) box.append(el('p', {}, t.finding));
+})();
+
+// ---- external sandbox runs
+(async () => {
+  const box = document.getElementById('external-body');
+  if (!D.sandbox_url) { box.textContent = 'Sandbox URL not configured for this build.'; return; }
+  box.textContent = 'Loading live sandbox leaderboard (first request may take a few seconds on a cold start)…';
+  try {
+    const res = await fetch(D.sandbox_url.replace(/\/$/, '') + '/api/leaderboard'); const data = await res.json(); box.textContent = '';
+    box.append(el('p', { class: 'muted' }, 'Runs submitted by outside agents via the sandbox, scored by the same rubric, labelled external.'));
+    box.append(table(['Run', 'Ruleset', 'Tier mix', 'Tasks', 'Mean reward', 'Submitted'], (data.runs || []).map(r => [r.run_id.slice(0, 10) + '…', r.ruleset_version, JSON.stringify(r.tier_mix), r.n_tasks, fmt(r.mean_reward), r.submitted_at])));
+  } catch (e) { box.textContent = 'Could not reach the sandbox: ' + e; }
+})();
+
+// ---- transcript viewer
+const cache = {};
+async function loadRun(run) { if (!cache[run.run]) cache[run.run] = await (await fetch(run.transcript_file)).json(); return cache[run.run]; }
+const runSel = document.getElementById('tv-run'), taskSel = document.getElementById('tv-task'), failOnly = document.getElementById('tv-fail'), body = document.getElementById('tv-body');
+const allRuns = [...D.main_runs, ...D.other_runs];
+allRuns.forEach((r, i) => runSel.append(el('option', { value: i }, `${short(r.model)} [${r.mode}]`)));
+async function refreshTasks(selectId) {
+  const data = await loadRun(allRuns[runSel.value]); taskSel.innerHTML = '';
+  for (const [tid, rolls] of Object.entries(data.rollouts)) {
+    const ok = rolls.filter(r => r.status === 'ok'); const m = ok.length ? ok.reduce((a, r) => a + r.reward, 0) / ok.length : null;
+    if (failOnly.checked && m !== null && m >= 0.95 && !selectId) continue;
+    taskSel.append(el('option', { value: tid }, `${tid}  (mean ${fmt(m, 2)})`));
+  }
+  if (selectId) taskSel.value = selectId; showTask();
+}
+async function showTask() {
+  const data = await loadRun(allRuns[runSel.value]), tid = taskSel.value; body.textContent = ''; if (!tid) return;
+  const exp = data.expected[tid] || {};
+  body.append(el('h3', {}, 'Task prompt'), el('pre', {}, exp.prompt || ''));
+  body.append(el('h3', {}, 'Expected (ground truth from the reference implementation)'), el('pre', {}, exp.kind === 'payslip' ? JSON.stringify(exp.lines, null, 1) : exp.kind === 'refusal' ? `refuse: ${exp.reason_code} (${exp.clause})\n${exp.why}` : `value: ${exp.value}`));
+  for (const r of data.rollouts[tid] || []) {
+    const head = el('h3', {}, `Rollout ${r.rollout}: reward ${fmt(r.reward)} `, el('span', { class: 'tag' }, r.gate || 'pass'), el('span', { class: 'tag' }, r.stop_condition || ''), ' clauses: ' + (r.driving_clauses || []).join(', '));
+    body.append(head);
+    if (r.error) body.append(el('pre', { class: 'bad' }, r.error));
+    for (const s of r.steps || []) body.append(el('pre', {}, s.type === 'tool_call' ? `→ ${s.name}(${s.arguments})` : s.type === 'tool_result' ? `← ${s.text}` : s.text));
+  }
+}
+function openTranscript(run, taskId) { runSel.value = allRuns.indexOf(run); location.hash = '#transcripts'; refreshTasks(taskId); }
+runSel.onchange = () => refreshTasks(); failOnly.onchange = () => refreshTasks(); taskSel.onchange = showTask;
+if (allRuns.length) refreshTasks();
+</script>
+</body>
+</html>

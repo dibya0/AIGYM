@@ -1,0 +1,129 @@
+"""Judge reliability (brief p.10): we do both measures the brief offers.
+
+1. Repeat disagreement: judge the same outputs 3 times with the cache bypassed and report the share
+   of (output, criterion) pairs whose verdicts are not unanimous.
+2. Judge vs human: a labelling sheet of 15 outputs x 3 criteria; the user fills ``human_pass``; we
+   report raw agreement and Cohen's kappa.
+
+Items are real refusals from eval transcripts: traps refused with the correct reason code (the only
+case the judge scores). Input: JSONL rows {"task_id": ..., "explanation": ...}.
+"""
+
+from __future__ import annotations
+
+import csv
+import json
+from pathlib import Path
+
+from paygym.judge import CRITERIA, GeminiJudge, prompt_hash
+from paygym.schema import Task
+
+
+def load_items(items_path: Path, tasks: dict[str, Task]) -> list[tuple[Task, str]]:
+    items = []
+    for line in items_path.read_text().splitlines():
+        if line.strip():
+            row = json.loads(line)
+            items.append((tasks[row["task_id"]], row["explanation"]))
+    return items
+
+
+def repeat_disagreement(items: list[tuple[Task, str]], repeats: int = 3, judge: GeminiJudge | None = None) -> dict:
+    judge = judge or GeminiJudge(use_cache=False)
+    pairs, split = [], 0
+    for task, explanation in items:
+        for criterion in CRITERIA:
+            verdicts = [judge.judge_criterion(task, criterion, explanation)["pass"] for _ in range(repeats)]
+            unanimous = len(set(verdicts)) == 1
+            split += not unanimous
+            pairs.append({"task": task.id, "criterion": criterion, "verdicts": verdicts})
+    return {
+        "judge_model": judge.model, "judge_prompt_hash": prompt_hash(), "repeats": repeats,
+        "items": len(items), "pairs": len(pairs), "non_unanimous_pairs": split,
+        "disagreement_rate": round(split / len(pairs), 4) if pairs else None, "detail": pairs,
+    }
+
+
+def write_label_sheet(items: list[tuple[Task, str]], path: Path, judge: GeminiJudge | None = None, n: int = 15) -> int:
+    """CSV for hand labelling: fill human_pass with 1 or 0 for every row (do it before looking at judge_pass)."""
+    judge = judge or GeminiJudge()
+    rows = []
+    for task, explanation in items[:n]:
+        for criterion in CRITERIA:
+            verdict = judge.judge_criterion(task, criterion, explanation)
+            rows.append({"task_id": task.id, "reason_code": task.ground_truth.reason_code, "criterion": criterion,
+                         "explanation": explanation, "human_pass": "", "judge_pass": int(verdict["pass"])})
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="") as fh:
+        writer = csv.DictWriter(fh, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+    return len(rows)
+
+
+def cohens_kappa(a: list[int], b: list[int]) -> float | None:
+    n = len(a)
+    if n == 0:
+        return None
+    observed = sum(x == y for x, y in zip(a, b)) / n
+    pa, pb = sum(a) / n, sum(b) / n
+    expected = pa * pb + (1 - pa) * (1 - pb)
+    return None if expected == 1 else (observed - expected) / (1 - expected)
+
+
+def agreement(path: Path) -> dict:
+    with path.open() as fh:
+        rows = [r for r in csv.DictReader(fh) if r["human_pass"].strip() in ("0", "1")]
+    human = [int(r["human_pass"]) for r in rows]
+    judge = [int(r["judge_pass"]) for r in rows]
+    per = {}
+    for criterion in CRITERIA:
+        sel = [(h, j) for r, h, j in zip(rows, human, judge) if r["criterion"] == criterion]
+        if sel:
+            per[criterion] = round(sum(h == j for h, j in sel) / len(sel), 4)
+    kappa = cohens_kappa(human, judge)
+    return {
+        "labelled_rows": len(rows),
+        "outputs": len({r["task_id"] + r["explanation"] for r in rows}),
+        "agreement": round(sum(h == j for h, j in zip(human, judge)) / len(rows), 4) if rows else None,
+        "cohens_kappa": None if kappa is None else round(kappa, 4),
+        "agreement_by_criterion": per,
+    }
+
+
+def extract_items(run_dirs: list[Path]) -> list[dict]:
+    """Real judge inputs from eval transcripts: traps refused with the *correct* reason code.
+
+    Returns rows {"task_id", "task_json", "explanation", "source_run"} (task_json is embedded so the
+    items file is self-contained)."""
+    from paygym.environment import completion_text, load_tasks
+    from paygym.parser import parse_answer
+
+    items, seen = [], set()
+    for run_dir in run_dirs:
+        cfg = json.loads((run_dir / "config.json").read_text())
+        tasks = {t.id: t for t in load_tasks(cfg["split"], cfg["n_seeds"], cfg.get("tasks_path"), cfg["tier"])}
+        for line in (run_dir / "transcript.jsonl").read_text().splitlines():
+            row = json.loads(line)
+            task = tasks.get(row["task_id"])
+            if row.get("status") != "ok" or task is None or task.ground_truth.kind != "refusal":
+                continue
+            parsed = parse_answer(completion_text(row.get("completion")), "refusal")
+            if parsed.decision != "refuse" or parsed.reason_code != task.ground_truth.reason_code:
+                continue
+            key = (task.id, parsed.explanation.strip())
+            if key in seen or not parsed.explanation.strip():
+                continue
+            seen.add(key)
+            items.append({"task_id": task.id, "task_json": task.model_dump_json(exclude_none=True),
+                          "explanation": parsed.explanation, "source_run": str(run_dir)})
+    return items
+
+
+def items_from_file(path: Path) -> list[tuple[Task, str]]:
+    out = []
+    for line in path.read_text().splitlines():
+        if line.strip():
+            row = json.loads(line)
+            out.append((Task.model_validate_json(row["task_json"]), row["explanation"]))
+    return out

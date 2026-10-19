@@ -1,0 +1,87 @@
+{
+  "path": "tasks/generated/train.jsonl",
+  "leakage": {
+    "literal_leaks": [],
+    "literal_leak_count": 0,
+    "classifier": {
+      "n": 251,
+      "labels": {
+        "ANSWER": 180,
+        "NO_APPLICABLE_TABLE": 26,
+        "CONFLICTING_RECORDS": 14,
+        "UNSUPPORTED_CURRENCY": 15,
+        "MISSING_INPUT": 16
+      },
+      "majority_baseline": 0.7171,
+      "chance_balanced": 0.2,
+      "cv_accuracy": 0.5458,
+      "cv_std": 0.0512,
+      "lift_over_majority": -0.1713,
+      "cv_balanced_accuracy": 0.3204,
+      "lift_over_chance_balanced": 0.1204,
+      "top_ngrams_per_label": {
+        "ANSWER": [
+          "2025",
+          "2026",
+          "usd",
+          "usd start_date",
+          "rennick",
+          "nmk start_date",
+          "salary_currency usd",
+          "nrd"
+        ],
+        "CONFLICTING_RECORDS": [
+          "is currency",
+          "stated",
+          "currency not",
+          "not stated",
+          "bram",
+          "04",
+          "new_annual_salary",
+          "06"
+        ],
+        "MISSING_INPUT": [
+          "greta",
+          "00 start_date",
+          "9099",
+          "val 9099",
+          "kestwick",
+          "val 8626",
+          "8626",
+          "period march"
+        ],
+        "NO_APPLICABLE_TABLE": [
+          "2027",
+          "2027 2027",
+          "2024 2024",
+          "2024",
+          "2020",
+          "2027 05",
+          "2027 12",
+          "effective_date 2027"
+        ],
+        "UNSUPPORTED_CURRENCY": [
+          "jpy",
+          "salary_currency jpy",
+          "jpy start_date",
+          "gbp",
+          "gbp start_date",
+          "salary_currency gbp",
+          "is jpy",
+          "is gbp"
+        ]
+      },
+      "verdict": "wording predicts the label above chance: review top n-grams, they should be genuine evidence (currency codes, years, missing/conflicting fields), not template words"
+    }
+  },
+  "dedup": {
+    "n": 251,
+    "threshold": 0.9,
+    "exact_duplicate_cases": [],
+    "exact_duplicate_prompts": [],
+    "near_duplicates": [],
+    "trap_twin_pairs": 71,
+    "trap_twin_mean_jaccard": 0.8113,
+    "unique_tasks_after_dedup": 251
+  }
+}

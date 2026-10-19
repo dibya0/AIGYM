@@ -1,0 +1,63 @@
+# Local services only. CLIs (eval, train, validate) run natively via `uv run`, as the brief specifies.
+#   docker compose up redis                          # local stand-in for Upstash
+#   docker compose --profile sandbox up sandbox      # sandbox API (lands in Step 19)
+#   docker compose --profile gpu up llm              # OpenAI-compatible vLLM server on the local GPU
+#   docker compose --profile dashboard up dashboard  # preview of the built static site
+name: paygym
+
+services:
+  redis:
+    image: redis:7.4-alpine
+    ports:
+      - "6379:6379"
+
+  sandbox:
+    profiles: ["sandbox"]
+    build:
+      context: .
+      dockerfile: docker/sandbox.Dockerfile
+    env_file: .env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8001:8000"
+    depends_on:
+      - redis
+
+  llm:
+    profiles: ["gpu"]
+    # vLLM 0.30.0 (2026-09-22). Blackwell (sm_120) support is confirmed in Step 8 before relying on it.
+    image: ${VLLM_IMAGE:-vllm/vllm-openai:v0.30.0}
+    command:
+      - --model
+      - ${LLM_MODEL:-Qwen/Qwen2.5-0.5B-Instruct}
+      - --served-model-name
+      - ${LLM_SERVED_NAME:-qwen2.5-0.5b}
+      - --max-model-len
+      - "8192"   # single-turn prompts carry ~3.5k tokens of rule book + task + completion
+      - --gpu-memory-utilization
+      - "0.85"
+    ipc: host
+    volumes:
+      - hf-cache:/root/.cache/huggingface
+      - ./results:/results:ro   # serve a merged GRPO model: LLM_MODEL=/results/train/<run>/merged
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  dashboard:
+    profiles: ["dashboard"]
+    image: nginx:1.27-alpine
+    volumes:
+      - ./public:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80"
+
+volumes:
+  hf-cache:

@@ -1,0 +1,8 @@
+# Vercel sandbox function only (the gym itself installs from pyproject.toml with `uv sync`).
+# The scorer's core dependencies + the API; no verifiers, torch or TRL, to keep the function bundle small.
+pydantic>=2.12.3
+pyyaml>=6.0
+numpy>=2.1
+fastapi>=0.115
+upstash-redis>=1.1
+openai>=2.9

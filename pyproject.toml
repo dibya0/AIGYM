@@ -1,0 +1,67 @@
+[project]
+name = "paygym"
+version = "0.1.0"
+description = "PayGym: a verifiable payroll gross-to-net gym — evaluation and RL environment (verifiers spec)."
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+license = { text = "MIT" }
+# Core = what the scorer needs everywhere (eval, trainer, sandbox). Kept small so the
+# Vercel sandbox bundle stays light; heavy stacks live in extras below.
+dependencies = [
+    "pydantic>=2.12.3",
+    "pyyaml>=6.0",
+    "numpy>=2.1",
+]
+
+[project.optional-dependencies]
+# verifiers 0.2.1 is the last release exposing the v0 API the brief specifies
+# (load_environment -> vf.Environment, Rubric, SingleTurnEnv, ToolEnv); 0.3.0 removed it.
+env = ["verifiers==0.2.1", "openai>=2.9"]
+# Eval harness + dataset audits (leakage classifier, near-duplicate detection).
+eval = ["openai>=2.9", "httpx>=0.27", "scikit-learn>=1.5", "datasketch>=1.6", "python-dotenv>=1.0"]
+# Sandbox API (FastAPI on Vercel; Upstash Redis for run records and rate limits).
+sandbox = ["fastapi>=0.115", "uvicorn>=0.30", "upstash-redis>=1.1", "redis>=5.0", "openai>=2.9"]
+# Static dashboard generator (Plotly.js is loaded in the page, not a Python dependency).
+dashboard = ["jinja2>=3.1"]
+# GRPO training on the local RTX 5070 Ti (Blackwell, sm_120). torch 2.13.0 matches the
+# version vLLM 0.30 pins, so vLLM generation can be added later without a torch conflict.
+train = [
+    "paygym[env]",  # the trainer reads its dataset from the verifiers environment
+    "torch==2.13.0",
+    "transformers==5.18.0",
+    "trl==1.14.1",
+    "peft==0.21.1",
+    "accelerate>=1.0",
+    "datasets>=4.7",
+]
+# Everything except the GPU training stack.
+cpu = ["paygym[env,eval,sandbox,dashboard]"]
+
+[project.scripts]
+paygym = "paygym.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8", "hypothesis>=6.100"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["paygym"]
+
+# Ship the pinned rule set inside the wheel so a non-editable install (e.g. the
+# Vercel sandbox) scores against exactly the same RULESET.md + rules.yaml.
+[tool.hatch.build.targets.wheel.force-include]
+"ruleset" = "paygym/_ruleset"
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu129" }]
+
+[[tool.uv.index]]
+name = "pytorch-cu129"
+url = "https://download.pytorch.org/whl/cu129"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

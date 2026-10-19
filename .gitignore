@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.hypothesis/
+
+# Secrets
+.env
+
+# Build outputs (the dashboard builds into public/, which IS committed: Vercel serves it as-is)
+dist/
+
+# Training artefacts (curves/metrics CSVs under results/train are committed; weights are not)
+checkpoints/
+results/train/**/checkpoints/
+*.safetensors
+*.bin
+wandb/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+
+# The assignment brief (Niural's document; not ours to republish)
+*.docx.pdf

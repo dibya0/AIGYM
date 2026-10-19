@@ -1,0 +1,144 @@
+# Machine-readable copy of the rate tables in RULESET.md (Part B).
+# RULESET.md is the authority; tests/test_ruleset.py fails if this file and the
+# prose tables ever disagree. Decimals are strings so no float rounding creeps in.
+ruleset_id: paygym-payroll
+version: "1.0"
+
+jurisdictions:
+  VAL:
+    name: Valdoria
+    currency: VLD
+    minor_unit: "0.01"
+    day_count: calendar            # VAL-§1.1
+    required_inputs: [pay_period, monthly_salary, salary_currency, start_date]   # VAL-§1.2
+    unused_inputs: [tax_residency, ytd_contributory_earnings]                    # VAL-§1.2
+    si_ceiling_basis: monthly      # VAL-§2.1
+    si_deductible_from_tax: true   # VAL-§4.1
+    tax_method: monthly_brackets   # VAL-§4.2
+    tables:
+      2025:
+        personal_allowance: {value: "1000.00", clause: VAL-§4.1}
+        brackets:
+          clause: VAL-§4.2
+          bands:
+            - {lower: "0", upper: "2000", rate: "0.10"}
+            - {lower: "2000", upper: "5000", rate: "0.20"}
+            - {lower: "5000", upper: "10000", rate: "0.30"}
+            - {lower: "10000", upper: null, rate: "0.40"}
+        si_employee_rate: {value: "0.08", clause: VAL-§2.2}
+        si_employer_rate: {value: "0.12", clause: VAL-§2.2}
+        si_ceiling: {value: "5500.00", clause: VAL-§2.1}
+        pension_rate: {value: "0.05", clause: VAL-§3.1}
+        meal_exemption: {value: "120.00", clause: GEN-§7.2}
+      2026:
+        personal_allowance: {value: "1000.00", clause: VAL-§4.1}
+        brackets:
+          clause: VAL-§4.2
+          bands:
+            - {lower: "0", upper: "2000", rate: "0.10"}
+            - {lower: "2000", upper: "5000", rate: "0.20"}
+            - {lower: "5000", upper: "10000", rate: "0.30"}
+            - {lower: "10000", upper: null, rate: "0.40"}
+        si_employee_rate: {value: "0.08", clause: VAL-§2.2}
+        si_employer_rate: {value: "0.12", clause: VAL-§2.2}
+        si_ceiling: {value: "6000.00", clause: VAL-§2.1}
+        pension_rate: {value: "0.05", clause: VAL-§3.1}
+        meal_exemption: {value: "150.00", clause: GEN-§7.2}
+
+  KES:
+    name: Kestrel Isles
+    currency: KSD
+    minor_unit: "0.01"
+    day_count: calendar            # KES-§1.1
+    required_inputs: [pay_period, monthly_salary, salary_currency, start_date, tax_residency, ytd_contributory_earnings]  # KES-§1.2
+    unused_inputs: []
+    january_unused_inputs: [ytd_contributory_earnings]                           # KES-§1.2 exception
+    si_ceiling_basis: annual_cumulative  # KES-§2.1
+    si_deductible_from_tax: false        # KES-§4.1
+    tax_method: annualised_brackets      # KES-§4.2 (residents) / KES-§4.3 (non-residents)
+    tables:
+      2025:
+        personal_allowance: {value: "12000.00", clause: KES-§4.2}
+        brackets:
+          clause: KES-§4.2
+          bands:
+            - {lower: "0", upper: "24000", rate: "0.15"}
+            - {lower: "24000", upper: "60000", rate: "0.25"}
+            - {lower: "60000", upper: null, rate: "0.35"}
+        non_resident_rate: {value: "0.25", clause: KES-§4.3}
+        si_employee_rate: {value: "0.06", clause: KES-§2.2}
+        si_employer_rate: {value: "0.09", clause: KES-§2.2}
+        si_ceiling: {value: "66000.00", clause: KES-§2.1}
+        pension_rate: {value: "0.04", clause: KES-§3.1}
+        meal_exemption: {value: "100.00", clause: GEN-§7.2}
+      2026:
+        personal_allowance: {value: "12000.00", clause: KES-§4.2}
+        brackets:
+          clause: KES-§4.2
+          bands:
+            - {lower: "0", upper: "24000", rate: "0.15"}
+            - {lower: "24000", upper: "60000", rate: "0.25"}
+            - {lower: "60000", upper: null, rate: "0.35"}
+        non_resident_rate: {value: "0.25", clause: KES-§4.3}
+        si_employee_rate: {value: "0.06", clause: KES-§2.2}
+        si_employer_rate: {value: "0.09", clause: KES-§2.2}
+        si_ceiling: {value: "72000.00", clause: KES-§2.1}
+        pension_rate: {value: "0.04", clause: KES-§3.1}
+        meal_exemption: {value: "100.00", clause: GEN-§7.2}
+
+  NRD:
+    name: Nordmark
+    currency: NMK
+    minor_unit: "1"                # NRD-§1.1
+    day_count: working             # NRD-§1.2
+    required_inputs: [pay_period, monthly_salary, salary_currency, start_date]   # NRD-§1.3
+    unused_inputs: [tax_residency, ytd_contributory_earnings]                    # NRD-§1.3
+    si_ceiling_basis: monthly      # NRD-§2.1
+    si_deductible_from_tax: false  # NRD-§4.1
+    tax_method: monthly_brackets   # NRD-§4.2
+    tables:
+      2025:
+        personal_allowance: {value: "800", clause: NRD-§4.1}
+        brackets:
+          clause: NRD-§4.2
+          bands:
+            - {lower: "0", upper: "3000", rate: "0.12"}
+            - {lower: "3000", upper: "7000", rate: "0.24"}
+            - {lower: "7000", upper: null, rate: "0.36"}
+        si_employee_rate: {value: "0.07", clause: NRD-§2.2}
+        si_employer_rate: {value: "0.10", clause: NRD-§2.2}
+        si_ceiling: {value: "4800", clause: NRD-§2.1}
+        pension_rate: {value: "0.03", clause: NRD-§3.1}
+        meal_exemption: {value: "80", clause: GEN-§7.2}
+      2026:
+        personal_allowance: {value: "800", clause: NRD-§4.1}
+        brackets:
+          clause: NRD-§4.2
+          bands:
+            - {lower: "0", upper: "3000", rate: "0.12"}
+            - {lower: "3000", upper: "7000", rate: "0.24"}
+            - {lower: "7000", upper: null, rate: "0.36"}
+        si_employee_rate: {value: "0.07", clause: NRD-§2.2}
+        si_employer_rate: {value: "0.10", clause: NRD-§2.2}
+        si_ceiling: {value: "5000", clause: NRD-§2.1}
+        pension_rate: {value: "0.03", clause: NRD-§3.1}
+        meal_exemption: {value: "80", clause: GEN-§7.2}
+
+fx:
+  clause: FX-§1.1
+  # Units of local currency per 1 unit of salary currency, valid on every month-end of the year.
+  rates:
+    2025:
+      USD->VLD: "3.2000"
+      EUR->VLD: "3.5000"
+      USD->KSD: "1.2500"
+      EUR->KSD: "1.3500"
+      USD->NMK: "9.8000"
+      EUR->NMK: "10.6000"
+    2026:
+      USD->VLD: "3.4000"
+      EUR->VLD: "3.6500"
+      USD->KSD: "1.3000"
+      EUR->KSD: "1.4000"
+      USD->NMK: "10.2000"
+      EUR->NMK: "11.0000"

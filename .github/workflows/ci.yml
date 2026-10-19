@@ -1,0 +1,20 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      # CPU extras only: the GPU training stack is not needed to test the gym.
+      - run: uv sync --extra cpu --locked
+      - name: Validate every taskset (schema, ground truth vs reference, hand checks, trap twins)
+        run: uv run paygym validate tasks/
+      - name: Tests
+        run: uv run pytest -q

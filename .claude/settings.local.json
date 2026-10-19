@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -m venv /tmp/claude-1000/-home-dibya-Documents-PROJECT-niural-task/01301510-31fe-438e-a469-77c79b65bb34/scratchpad/venv)"
+    ]
+  }
+}

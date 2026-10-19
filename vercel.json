@@ -1,0 +1,35 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 60,
+      "includeFiles": "{paygym/**,ruleset/**}"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/tasks",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/submit",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/runs/(.*)",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/health",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/leaderboard",
+      "destination": "/api/index"
+    }
+  ]
+}
