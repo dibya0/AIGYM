@@ -44,3 +44,12 @@ def test_transcript_view_handles_real_tool_call_shapes():
     assert [s.get("name") for s in steps if s["type"] == "tool_call"] == ["lookup_rules", "calc"]
     assert steps[-1] == {"type": "assistant", "text": "final"}
     assert _last_assistant("plain text")["steps"][0]["text"] == "plain text"
+
+
+def test_main_leaderboard_is_the_full_eval_not_a_bigger_subset_group():
+    """The headline verdict once rested on the 6-task core6 group because it had the most runs (subset views)."""
+    from paygym.dashboard.build import _main_group
+
+    full = [{"group": "hashA|single|None|fp|1.4", "mode": "single", "tasks": 109, "scaffold": None} for _ in range(3)]
+    subset = [{"group": "subset:eval_core6|single|None|fp|1.4", "mode": "single", "tasks": 6, "scaffold": None} for _ in range(9)]
+    assert _main_group({"runs": full + subset}) == "hashA|single|None|fp|1.4"

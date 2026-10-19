@@ -1073,3 +1073,35 @@ The brief's Phase 06, Phase 08 and §9 text was re-read (pdftotext) and checked 
   - **rate limit:** 34 rapid `/tasks` calls → 29 × 200 then 429 (30/min per caller, shared through Redis; one request from the previous test was in the same minute);
   - dashboard serves the held-out tables, the 7 Track C rows and the live sandbox link.
 - **Phase 08 is now met live** (URL up without the laptop, fetch/submit/runs, no ground truth, same rubric, score + breakdown + clause, run_id with version/seed/tier mix, task cap, rate limit, quickstart, Swagger docs). **Phase 06 is live.**
+
+---
+
+## Reports written from results (2026-10-19)
+
+- **`docs/STATUS.md` (new):** live links, deliverables status, headline results, what is left and who does it.
+- **`docs/EVAL_REPORT.md`:** full tables (full eval + subsets), distribution, indistinguishable pairs, baselines vs floors, weight sensitivity (τ = 1.0), fidelity, audit, spend (actual $0; list price ≈ $0.82), non-determinism, harness problems found.
+  - **Key finding:** Gemini 3.5 Flash-Lite is not distinguishable from the `naive_no_ceiling` script (Δ −0.066 [−0.26, +0.12]). Net pay is exact on only 6/210 payslips for Flash-Lite vs 111/210 for the script; Flash-Lite wins on decisions.
+  - Pending: judge 3-repeat reliability, and the hosted top-up (Gemini 3.8 Flash 4/6 tasks, Groq 20/30 rollouts).
+- **`docs/FAILURE_ANALYSIS.md`:** 11 transcripts read in full across 5 configs, 5 categories, each counted across all rollouts:
+  - missed VAL personal allowance (tax exactly +200);
+  - KES annualisation not applied;
+  - wrong year's FX rate (4,576 = 3,520 × 1.30 instead of × 1.25);
+  - job title treated as a conflicting input (9 of Flash-Lite's 22 over-refusals; GEN-§9.2 says it is not an input);
+  - the 3B's FX-rule misreading (116/133 with tools vs 6 with rules in context);
+  - the trained 0.5B answering all 56 trap rollouts while naming the refusal reason;
+  - the trained 0.5B's bare-number Tier-1 answers (60/60);
+  - tool loops (12/18).
+  - A denominator error in my first draft (refusals counted against 210 payslips although they include retrieval tasks; correct base 270) was caught and fixed before saving.
+- **Dashboard bug (user: "why are there empty fields?"):**
+  - **Cause:** `_main_group` chose the single-turn group with the most *runs*. After subset views were added, that was the **core6 group** (11 rows: every model's 6-task view + Gemini 3.8 Flash), so the headline verdict read "Gemini 3.8 Flash best, 1.000" on 4 scored tasks;
+  - subset-view rows had `by_component` / `twins` set to None, so those fields were empty.
+  - **Fix:** the main group is the full eval (most tasks, then most runs; scaffold runs other than S1 excluded); subset views now compute the component breakdown, gates and twin score from their rows.
+  - **Result:** the main leaderboard is 9 configurations on 109 tasks with no empty fields; verdict best = Gemini 3.5 Flash-Lite +0.314. Baselines show "—" for latency (no model calls).
+  - Test: `test_main_leaderboard_is_the_full_eval_not_a_bigger_subset_group`. Suite 234 passed.
+- **Remaining reports written:**
+  - README: live links, a "Results in one screen" table, rubric 1.4 score levels and the exploit history, RL β/data notes, sandbox storage/cold start/external runs, and a "bring your own agent, model or domain" section. The no-clone quickstart one-liner was verified live.
+  - Corrected an overstated README claim: "mutation checks" do not exist. The property-test count was verified at 1,050 cases.
+  - EDGE_CASES: rewritten around the 5 cases hit in real runs; all 18 cited tests verified to exist.
+  - TRADEOFFS: +4 entries (subsets, rubric evolution + rescoring, brief-minimum RL, infra-vs-model failures) and an updated "two more days".
+  - AI_USAGE: removed stray characters at the top and two claims of human reviews not yet done (they are now an unticked to-do list); added "Where the AI was wrong, and how it was caught" (7 items).
+  - LOOM_SCRIPT: ≈ 10 min with timings checked against the brief's minimums.

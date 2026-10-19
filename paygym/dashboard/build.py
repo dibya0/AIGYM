@@ -61,9 +61,16 @@ def _last_assistant(completion) -> dict:
 
 
 def _main_group(board: dict) -> str | None:
-    """The comparison group shown on the leaderboard: the single-turn eval group with the most runs."""
-    counts = Counter(r["group"] for r in board["runs"] if r["mode"] == "single")
-    return counts.most_common(1)[0][0] if counts else None
+    """The comparison group shown on the leaderboard: the FULL single-turn eval group (most tasks, then most
+    runs). Subset groups (``subset:...``) are shown as secondary tables. (Before 2026-10-19 this picked the group
+    with the most runs, which was the 6-task core6 subset view, so the headline verdict rested on 4 tasks.)"""
+    single = [r for r in board["runs"] if r["mode"] == "single" and r.get("scaffold") is None]
+    full = [r for r in single if not r["group"].startswith("subset:")] or single
+    if not full:
+        return None
+    counts = Counter(r["group"] for r in full)
+    tasks = {g: max(r.get("tasks") or 0 for r in full if r["group"] == g) for g in counts}
+    return max(counts, key=lambda g: (tasks[g], counts[g]))
 
 
 def _verdict(runs: list[dict], rows_by_run: dict[str, list[dict]]) -> dict:

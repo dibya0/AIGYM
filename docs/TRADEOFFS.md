@@ -21,7 +21,9 @@ Living document (brief §9 #11; §11: "Scope down loudly, not silently"). Each e
 
 ### 4. RL policy fixed at 0.5B; difficulty adapted instead
 - **Decision:** if base Qwen-0.5B cannot get a gradient, the **training tasks** are made easier (`--knobs easy|easier`) instead of moving to 1.5B.
-- **Why:** the brief says scale earns nothing and the approach is what is assessed; held-out evaluation still uses full-difficulty tasks, so any gain has to transfer.
+- **Why:** the brief says scale earns nothing and the approach is what is assessed.
+- **Outcome:** the base 0.5B got 0 % exact payslips at every preset (A11), so training used `easy`. Held-out is reported at both the training preset and full difficulty, and the gain transfers (+0.30 [0.20, 0.41] at full difficulty).
+- **Cost:** trap discrimination was not learned; a 1.5B policy is the documented next step.
 
 ### 5. Fictional rule set instead of real statutes
 - **Decision:** three invented jurisdictions.
@@ -50,6 +52,26 @@ Living document (brief §9 #11; §11: "Scope down loudly, not silently"). Each e
   - **The judge** (Gemini 3.1 Flash-Lite) has its own 500/day bucket, so it never competes with an eval.
   - **Wall clock:** the sweep takes ~4 days of once-a-day runs instead of one sitting.
 
+### 9. Scarce frontier models evaluated on fixed subsets
+- **Decision:** Gemini 3.8 Flash (20 requests/day) runs on core6 and gpt-oss-120b (200K tokens/day) on core10. Both subsets are stratified, every trap with its twin, and fixed before any model was scored. Gemini 3.5 Flash-Lite (500/day) covers the full eval.
+- **Why:** the user asked for the evaluation to finish in about a day without exhausting any free quota.
+- **Cost:** wide CIs for those two (6 and 10 tasks). They are compared only paired with other models' rollouts on the same tasks, never against a full-set mean.
+
+### 10. The rubric changed during the project (1.0 → 1.4), and every run was re-scored
+- **Decision:** when the trained policy exposed an exploit, fix the rubric, bump its version, and re-score every saved eval run (`paygym rescore`, no model calls) rather than keeping old numbers.
+- **Why:** a reward that a trained policy can game is not the reward we want to report against. One version per comparison avoids silent skew.
+- **Cost:** the training runs themselves used the rubric of their time (the reported β = 0.04 run used 1.3). Its validation and held-out results are scored under 1.4, which differs from 1.3 only on outputs that run never produced on validation.
+
+### 11. Brief-minimum RL scope and an untuned learning rate
+- **Decision:** 30 training tasks, 60 steps per β, two β values, one seed each; LR fixed at 5e-5 after the pre-registered probe was cancelled (A10, A13).
+- **Why:** the user asked for the brief's minimum to show the flow; the brief itself says a working loop on 30 tasks with an honest held-out comparison is enough.
+- **Cost:** no seed variance per β, no β above 0.04, and LR chosen by argument from the observed KL rather than a probe.
+
+### 12. Infrastructure failures are not model failures, but empty model output is
+- **Decision:** a rollout that times out before the model replies (our rate-limit queue) is an error, retried and not scored. A reply with no usable content is a scored −1.
+- **Why:** the first rule stops the harness penalising a model for our queue; the second stops it excluding real failures, which flattered tool mode.
+- **Cost:** the line needs judgement at the edges (e.g. a partially streamed reply). Both rules are documented in the runner.
+
 ## What we mocked (brief §11.5)
 - **The rule set and jurisdictions (fictional):** so answers cannot be recalled from pre-training (brief p.4). Real version: statutory tables per country with effective dates, maintained against official sources.
 - **Employees and documents (synthetic):** no real personal data (brief §11.3). Real version: HRIS and contract-management records.
@@ -66,8 +88,8 @@ Living document (brief §9 #11; §11: "Scope down loudly, not silently"). Each e
 - a third β value.
 
 **With two more days:**
-1. Tool-mode GRPO on the 0.5B policy, so the trained model is measured where tools are the only data source.
-2. Fix the biased group-relative advantage on hard prompts (arXiv 2601.08521) with difficulty-weighted advantages, and use the pilot's identical-group fraction to rebalance the train mix.
-3. A second slice, payroll anomaly detection (seeded errors, precision/recall), sharing the rule set and reference.
-4. Real statutory tables for two countries, with versioned rule sets and a fidelity audit per release.
-5. A single-pass decision model for the categorical choices (table year, cap type, refuse or answer), with its calibration measured against this gym's per-decision ground truth.
+1. **Qwen2.5-1.5B under rubric 1.4,** β ∈ {0.001, 0.04, 0.1}, 2 seeds each. Does trap discrimination become learnable once some answers in a group are right?
+2. **The three learned exploits become permanent adversarial baselines** (broken JSON everywhere, invalid decision word, refuse everything), so future rubric changes are tested against what the optimiser found.
+3. **GRPO group construction:** trap and twin in the same step, more prompts per step (68–74 % of groups had no gradient), and a few Tier-1 tasks in training (the trained model lost the retrieval answer format).
+4. **Tool-mode GRPO,** so the trained model is measured where tools are the only data source.
+5. **A second slice** (payroll anomaly detection), **real statutory tables** for two countries, and **a single-pass decision model** for the categorical choices, with its calibration measured against this gym's per-decision ground truth.

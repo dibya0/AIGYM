@@ -16,6 +16,7 @@ over a different task mix.
 from __future__ import annotations
 
 import json
+from collections import Counter
 from itertools import combinations
 from pathlib import Path
 from statistics import mean
@@ -94,9 +95,18 @@ def subset_views(runs: list[dict], subsets: dict[str, set[str]]) -> list[dict]:
             for d in (1, 2, 3):
                 tm = task_means([r for r in rows if r.get("difficulty") == d])
                 by_tier[str(d)] = round(mean(tm.values()), 4) if tm else None
+            ok = [r for r in rows if r.get("status") == "ok"]
+            comps: dict[str, list[float]] = {}
+            for r in ok:
+                for k, v in (r.get("metrics") or {}).items():
+                    if isinstance(v, (int, float)):
+                        comps.setdefault(k, []).append(float(v))
+            twin_means = [m for t, m in task_means(rows).items() if t.endswith("-twin")]
             views.append({**run, **run_summary(rows), "run": f"{run['run']}@{name}", "subset": name, "subset_view_of": run["run"],
                           "group": f"subset:{name}" + run["_key"], "by_tier": by_tier, "task_means": task_means(rows),
-                          "by_component": None, "gates": None, "twins": None})
+                          "by_component": {k: round(mean(v), 4) for k, v in comps.items()},
+                          "gates": dict(Counter(r.get("gate") or "none" for r in ok)),
+                          "twins": round(mean(twin_means), 4) if twin_means else None})
     return views
 
 
