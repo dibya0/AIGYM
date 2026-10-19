@@ -790,3 +790,29 @@ Re-read the PDF (pp.7–14 phase specs, plus §§9–11) line by line against th
 - The auto-started β = 0.04 run (also v1.0) was stopped at step 4 (SIGINT). Both v1.0 runs are kept as evidence: `results/train/v1.0-grpo-b0.*`.
 - **Re-scoring:** `paygym rescore` (new) re-scores saved eval completions under the current rubric with no model calls and records `rescored_from`; trap rows are untouched (1.1 changed only the payslip refusal branch, and judge calls must not be repeated). `scripts/sweep.sh` runs it first, so resumed runs pass the rubric-version check and the leaderboard never mixes versions. Test: `test_rescore_moves_a_run_to_the_current_rubric_without_model_calls`.
 - Suite **224 passed**.
+
+**Sweep, hosted part, day 1 (2026-10-19):**
+- **Gemini 3.5 Flash-Lite full eval: 327/327 ok** (109 tasks × 3).
+- **Gemini 3.8 Flash core6: 16/18 ok**, all 6 tasks covered. 2 rollouts got 429 `limit: 20`: Google counted 20 requests where our ledger had 19 (probe plus an off-by-one).
+- **Groq core10: 20/30 ok**, all 10 tasks covered. Groq's TPD counter reported **197,235** used, while our ledger, summing the `usage` field, had 142,802. Groq bills ~1.4× the reported usage (likely hidden reasoning tokens), so the 200K cap was hit while the ledger showed headroom.
+- **Fix:** `TOKEN_BILLING_FACTOR = {"groq": 1.4}` in the ledger, and today's entries corrected to the providers' own counts (Groq 197,235 tokens; Gemini 3.8 Flash 20 requests).
+- **Remaining:** 2 Gemini 3.8 Flash and 10 Groq rollouts; one re-run of `sweep.sh` after the quotas reset finishes them (resume).
+
+---
+
+## Verification asked by the user: "is it the model or our implementation?" (2026-10-19)
+
+**Answer: largely our implementation.** The v1.1 rerun also stopped early (step 7, rolling twin refusal 0.525 > 0.5), and three checks showed why.
+1. **Sampler mismatch (ours).**
+   - TRL trains with top_p 1.0, top_k 0, repetition 1.0 (`GRPOConfig` defaults), while vLLM's default `--generation-config auto` applied Qwen's `generation_config.json` (top_p 0.8, top_k 20, repetition 1.1) in the pilot. So the pilot measured a sharper policy than the one being trained.
+   - **Evidence:** the same twin (`gen-easy-0000005-twin`) refused 6/8 at training step 2 (KL 0.0006, effectively the base model) vs 0/4 in the pilot; training's broken-JSON rate reached 69 % vs 16–38 % in the pilots.
+   - **Fix:** training samples with the model's settings (`--top-p 0.8 --top-k 20 --repetition-penalty 1.1`, recorded in config).
+2. **Safety stop on noise (ours).**
+   - Each logged twin-refusal value is one or two prompt groups, and the base model already refuses `gen-easy-0000014-twin` 4/4.
+   - **Fix:** the collapse stops need a rise of ≥ 0.25 over the policy's own first 5 values as well as > 0.5.
+3. **Too few steps to judge (consequence of 2):** 6–7 steps at KL ≈ 0.004 is no training at all.
+
+**Correction to my own earlier claim:** the "reward gaming learned in 5 steps" finding under v1.0 was base-sampler behaviour, not learning (the v1.1 run shows the same counts at step 2). RL_REPORT B6 now says so: the v1.0 *incentive* and the v1.1 fix stand; the learning claim does not.
+- Logged as pre-registration amendment **A12** before the reported runs.
+- The two mismatched-sampler runs are kept as `results/train/v1.1-trlsampler-*`; the β = 0.04 one was stopped at once.
+- **Still a model-capacity point (stated, not yet tested):** for a policy that cannot compute payslips, over-refusing a twin costs ~0.05 vs −1 for answering a trap. A 1.5B policy (A11 fallback) is the next step if 0.5B shows no learning after this fix.

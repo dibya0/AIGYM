@@ -1,0 +1,386 @@
+{
+  "model": "groq/openai/gpt-oss-120b",
+  "seed": 7,
+  "task_seeds": [
+    2000003,
+    2000012,
+    2000025,
+    2000048,
+    2000049,
+    2000065,
+    2000065,
+    2000066,
+    2000066,
+    2000090
+  ],
+  "taskset_hash": "356e86dc20a070f8",
+  "ruleset_version": "1.0",
+  "ruleset_fingerprint": "42b009c25d689c46",
+  "rubric_version": "1.0",
+  "schema_version": "1.0",
+  "summary": {
+    "tasks": 10,
+    "rollouts_ok": 20,
+    "rollouts_failed": 10,
+    "mean_reward": 0.405,
+    "run_sd": 0.0673,
+    "rollout_sd": 0.0,
+    "disagreement_rate": 0.0
+  },
+  "by_tier": {
+    "1": 1.0,
+    "2": 0.0083,
+    "3": 1.0
+  },
+  "by_component": {
+    "format_valid": 0.5,
+    "judge_flag_quality": 0.2,
+    "line_accuracy": 0.0,
+    "net_pay_exact": 0.0,
+    "num_turns": 1.0,
+    "parse_failed": 0.5,
+    "paygym_reward": 0.405,
+    "refused": 0.3,
+    "tool_errors": 0.0,
+    "trap_decision": 0.2,
+    "value_exact": 0.2
+  },
+  "gates": {
+    "unparseable": 10,
+    "refused_determinable": 2,
+    "none": 8
+  },
+  "per_task": {
+    "gen-2000003": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 2000003,
+      "rewards": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "gates": [
+        "unparseable",
+        "unparseable",
+        "unparseable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 1.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.0,
+      "sd": 0.0
+    },
+    "gen-2000048": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 2000048,
+      "rewards": [
+        0.0,
+        0.0
+      ],
+      "gates": [
+        "unparseable",
+        "unparseable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "error"
+      ],
+      "components": {
+        "paygym_reward": 0.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 1.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.0,
+      "sd": 0.0
+    },
+    "gen-2000049": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 2000049,
+      "rewards": [
+        0.05,
+        0.05
+      ],
+      "gates": [
+        "refused_determinable",
+        "refused_determinable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "error"
+      ],
+      "components": {
+        "paygym_reward": 0.05,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 1.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.05,
+      "sd": 0.0
+    },
+    "gen-2000065-trap": {
+      "difficulty": 3,
+      "kind": "refusal",
+      "task_seed": 2000065,
+      "rewards": [
+        1.0,
+        1.0
+      ],
+      "gates": [
+        null,
+        null
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "error"
+      ],
+      "components": {
+        "paygym_reward": 1.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 1.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 1.0,
+        "refused": 1.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 1.0,
+      "sd": 0.0
+    },
+    "gen-2000065-twin": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 2000065,
+      "rewards": [
+        0.0,
+        0.0
+      ],
+      "gates": [
+        "unparseable",
+        "unparseable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "error"
+      ],
+      "components": {
+        "paygym_reward": 0.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 1.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.0,
+      "sd": 0.0
+    },
+    "gen-2000066-trap": {
+      "difficulty": 3,
+      "kind": "refusal",
+      "task_seed": 2000066,
+      "rewards": [
+        1.0,
+        1.0
+      ],
+      "gates": [
+        null,
+        null
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "error"
+      ],
+      "components": {
+        "paygym_reward": 1.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 1.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 1.0,
+        "refused": 1.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 1.0,
+      "sd": 0.0
+    },
+    "gen-2000066-twin": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 2000066,
+      "rewards": [
+        0.0
+      ],
+      "gates": [
+        "unparseable"
+      ],
+      "statuses": [
+        "ok",
+        "error",
+        "error"
+      ],
+      "components": {
+        "paygym_reward": 0.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 1.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.0,
+      "sd": 0.0
+    },
+    "gen-2000090": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 2000090,
+      "rewards": [
+        0.0,
+        0.0
+      ],
+      "gates": [
+        "unparseable",
+        "unparseable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "error"
+      ],
+      "components": {
+        "paygym_reward": 0.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 1.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.0,
+      "sd": 0.0
+    },
+    "gen-2000012": {
+      "difficulty": 1,
+      "kind": "value",
+      "task_seed": 2000012,
+      "rewards": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "gates": [
+        null,
+        null,
+        null
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 1.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 1.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 1.0,
+      "sd": 0.0
+    },
+    "gen-2000025": {
+      "difficulty": 1,
+      "kind": "value",
+      "task_seed": 2000025,
+      "rewards": [
+        1.0
+      ],
+      "gates": [
+        null
+      ],
+      "statuses": [
+        "ok",
+        "error",
+        "error"
+      ],
+      "components": {
+        "paygym_reward": 1.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 1.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 1.0,
+      "sd": 0.0
+    }
+  },
+  "twins": 0.0
+}

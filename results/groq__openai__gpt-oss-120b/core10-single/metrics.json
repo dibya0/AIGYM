@@ -1,0 +1,50 @@
+{
+  "model": "groq/openai/gpt-oss-120b",
+  "seed": 7,
+  "task_seeds": [
+    2000003,
+    2000012,
+    2000025,
+    2000048,
+    2000049,
+    2000065,
+    2000065,
+    2000066,
+    2000066,
+    2000090
+  ],
+  "taskset_hash": "356e86dc20a070f8",
+  "ruleset_version": "1.0",
+  "ruleset_fingerprint": "42b009c25d689c46",
+  "rubric_version": "1.0",
+  "schema_version": "1.0",
+  "status": "unavailable",
+  "rollouts_planned": 30,
+  "rollouts_recorded": 30,
+  "rollouts_ok": 20,
+  "rollouts_error": 10,
+  "retried_rollouts": 0,
+  "errors_sample": [
+    "ModelError: ModelError",
+    "ModelError: ModelError",
+    "ModelError: ModelError",
+    "ModelError: ModelError",
+    "ModelError: ModelError"
+  ],
+  "input_tokens": 89811.0,
+  "output_tokens": 10472.0,
+  "cost_list_usd": 0.0213,
+  "cost_actual_usd": 0.0,
+  "latency_s": {
+    "mean": 2.01,
+    "p50": 1.9779999999999998,
+    "p95": 3.363400000000002
+  },
+  "tool_calls_total": 0,
+  "tool_calls_mean": 0,
+  "stop_conditions": {
+    "max_turns_reached": 20
+  },
+  "parse_fail_rate": 0.5,
+  "wall_clock_s": 1741.4
+}

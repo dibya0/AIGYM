@@ -113,6 +113,17 @@ If one is found: transcript evidence → rubric fix (version bump) → rerun →
   - **Expectation, stated in advance:** the policy can learn **format** (unparseable 16 % → lower), **trap decisions and reason codes** (answered traps → refusals with the right code), and partial line credit. It is **not** expected to learn exact payroll arithmetic (exact net pay stays ≈ 0). If trap refusals rise, the twins' refusal rate and `monitor/twin_refusal_rate` are the check against learning "refuse everything".
   - **If validation does not improve by step 40 on either β run,** the documented next step (not run without the user's decision) is Qwen2.5-1.5B-Instruct, inside the brief's 0.5–2B band.
 
+- **2026-10-19, A12 (after two runs stopped at steps 6–7, before the runs reported in Part B): two implementation fixes.**
+  1. **Sampler parity.**
+     - **Before:** training sampled with TRL's defaults (top_p 1.0, top_k off, repetition 1.0), while the pilot (vLLM) used the model's own `generation_config` (top_p 0.8, top_k 20, repetition 1.1). The pilot had measured a different, sharper policy than the one being trained.
+     - **Symptoms:** broken JSON up to 69 % in training vs 16–38 % in the pilot; a twin refused 6/8 at step 2, after two near-zero updates (KL 0.0006), against 0/4 for the same task in the pilot.
+     - **Fix:** training now samples with the model's settings (temperature 1.0, top_p 0.8, top_k 20, repetition 1.1), recorded in `config.json`.
+  2. **Collapse stops relative to the start.**
+     - **Before:** each logged twin-refusal / modal-answer value comes from one or two prompt groups, and the base model already refuses some twins 4/4, so the absolute threshold (rolling mean > 0.5) fired on noise at steps 6–7, before any learning.
+     - **Fix:** these two stops now also require a rise of ≥ 0.25 over the policy's own first 5 logged values.
+     - KL and entropy stops are unchanged.
+  - The four stopped runs are kept as evidence (`results/train/v1.0-*`, `results/train/v1.1-trlsampler-*`). None is used for model selection or held-out results.
+
 ---
 
 ## Part B: results (filled after training from committed files)
@@ -124,7 +135,7 @@ If one is found: transcript evidence → rubric fix (version bump) → rerun →
 - B5. Held-out before/after (`results/train/rl_summary.json`):
 - B6. Reward gaming found (transcripts, fix, rerun) or what was searched:
 
-  **Found in the first 6 steps: "refuse the payable payslip", the abstention harbour, under rubric v1.0.**
+  **Found: an exploitable incentive in rubric v1.0 (the abstention harbour); corrected after verification, see the note at the end of this item.**
   - **Evidence** (`results/train/v1.0-grpo-b0.001/`, `metrics.csv` + `train_samples.jsonl`, 8 saved completions per step):
     - refusals of *determinable* payslips went from 1/8 (step 0) and 0/8 (step 1) to **5/8, 6/8 and 5/8** at steps 2, 4 and 5;
     - `monitor/twin_refusal_rate` rose 0.50 → 0.625 → 0.75 → 0.625;
@@ -141,6 +152,20 @@ If one is found: transcript evidence → rubric fix (version bump) → rerun →
     - Tests: `test_refusing_a_determinable_payslip_scores_like_a_wrong_answer` (now strict); baseline floors unchanged and passing.
     - Every saved eval run was re-scored under v1.1 with `paygym rescore` (saved completions, no model calls), so no leaderboard row mixes rubric versions.
   - **A second finding from the same run, a broken monitor, not gaming:** the safety stop at step 6 (`modal_net_share` 0.57 > 0.5) was a false positive. The monitor counted completions, so with mostly refusals one or two answers read as "100 % identical", and eight agreeing answers to one task looked like the modal-answer exploit. Fixed: one vote per distinct task, logged only with ≥ 2 tasks answered (`test_modal_net_monitor_counts_distinct_tasks_only`).
-  - **Rerun under v1.1:** see B3–B5.
+  - **Correction after verification (same day, A12).** The refusal counts above are **not** evidence that the policy *learned* the exploit:
+    - the v1.1 rerun, where refusing pays nothing, shows the same 6/8 refusals on the same twin at step 2;
+    - KL at step 2 was 0.0006, so the policy was still essentially the base model;
+    - those refusals were base behaviour under the mismatched training sampler (A12).
+  - **What stands:**
+    - the v1.0 incentive itself (a guaranteed 0.05 for refusing a payable payslip vs 0.00 for broken JSON), shown by the rubric's arithmetic;
+    - the inconsistency with Tier 1;
+    - the fix (v1.1).
+  - **What does not stand:** "the policy learned it in 5 steps".
+  - We report the incentive as found *with the optimiser's help* (its first steps made the refusal path's payoff visible in the logs), and the learning claim as unproven.
+  - **A further design finding from the v1.1 rerun:**
+    - for a policy that cannot compute payslips, v1.1 still costs little for over-refusal (twin: refuse 0.00 vs broken JSON 0.00 vs wrong answer ≈ 0.05), while under-refusal on a trap costs −1;
+    - the calibration reward only deters blanket refusal once the policy can earn credit by answering;
+    - this is why A11's fallback (a 1.5B policy) exists.
+  - **Rerun under v1.1 with A12:** see B3–B5.
 - B7. Degenerate groups (`frac_reward_zero_std`) and what we would change about the taskset:
 - B8. What we would do with two more days:

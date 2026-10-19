@@ -45,6 +45,10 @@ UNKNOWN_LIMITS = {"gemini": {"rpm": 5, "rpd": 20, "tpm": 250_000},
 # 0.9 (was 0.75): the user chose a faster sweep (one day for the hosted part) over a larger reserve;
 # 10% of every daily quota still stays untouched for the owner's own use.
 CAP_FRACTION = 0.9
+# Providers bill more tokens than their usage field reports (hidden reasoning tokens). Measured
+# 2026-10-19: Groq's own TPD counter said 197K when the summed `usage` of our requests was 143K (ratio 1.38),
+# so its 200K/day cap was hit while our ledger showed 143K/180K. Token counts are scaled by this factor.
+TOKEN_BILLING_FACTOR = {"groq": 1.4}
 
 
 @dataclass(frozen=True)
@@ -132,6 +136,7 @@ class RequestLedger:
         return self._update(requests, tokens, check=True)
 
     def settle(self, reserved: int, used: int, reserved_tokens: int = 0, used_tokens: int = 0) -> None:
+        used_tokens = int(used_tokens * TOKEN_BILLING_FACTOR.get(self.model.split("/", 1)[0], 1.0))
         if used != reserved or used_tokens != reserved_tokens:
             self._update(used - reserved, used_tokens - reserved_tokens, check=False)
 

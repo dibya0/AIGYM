@@ -37,3 +37,141 @@ completed: results in results/gemini__gemini-3.8-flash/core6-single
 Aborted rollout due to ModelError() -> RateLimitError("Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m59f09dkezx8vx4p13hxgtt8` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197235, Requested 5443. Please try again in 19m16.896s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}")
 Aborted rollout due to ModelError() -> RateLimitError("Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m59f09dkezx8vx4p13hxgtt8` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 197096, Requested 5791. Please try again in 20m47.184s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}")
 Aborted rollout due to ModelError() -> RateLimitError("Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m59f09dkezx8vx4p13hxgtt8` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 196957, Requested 4518. Please try again in 10m37.199999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}")
+Aborted rollout due to ModelError() -> RateLimitError("Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m59f09dkezx8vx4p13hxgtt8` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 196818, Requested 5656. Please try again in 17m48.768s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}")
+Aborted rollout due to ModelError() -> RateLimitError("Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m59f09dkezx8vx4p13hxgtt8` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 196679, Requested 4533. Please try again in 8m43.584s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}")
+Aborted rollout due to ModelError() -> RateLimitError("Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m59f09dkezx8vx4p13hxgtt8` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 196540, Requested 4971. Please try again in 10m52.752s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}")
+Aborted rollout due to ModelError() -> RateLimitError("Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m59f09dkezx8vx4p13hxgtt8` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 196401, Requested 4949. Please try again in 9m43.2s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}")
+Aborted rollout due to ModelError() -> RateLimitError("Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m59f09dkezx8vx4p13hxgtt8` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 196262, Requested 4820. Please try again in 7m47.424s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}")
+Aborted rollout due to ModelError() -> RateLimitError("Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m59f09dkezx8vx4p13hxgtt8` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 196123, Requested 4957. Please try again in 7m46.56s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}")
+Aborted rollout due to ModelError() -> RateLimitError("Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m59f09dkezx8vx4p13hxgtt8` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 195984, Requested 4628. Please try again in 4m24.383999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}")
+daily budget groq/openai/gpt-oss-120b: requests 3/900, tokens 12119/180000 today (US Pacific)
+daily budget gemini/gemini-3.1-flash-lite: requests 117/450 today (US Pacific)
+groq/openai/gpt-oss-120b: 10 tasks x 3 rollouts = 30 (0 already done, 30 to run); list-price estimate $0.05, cap $25.00
+unavailable: results in results/groq__openai__gpt-oss-120b/core10-single
+   -> provider unavailable (for local models: start the vLLM server); re-run later
+== hosted tool mode (tools are the only data source): Gemini 3.1 Flash-Lite on core6
+   (not on Groq: one tool-mode request exceeds its 8K tokens/minute limit, HTTP 413)
+daily budget gemini/gemini-3.1-flash-lite: requests 129/450 today (US Pacific)
+daily budget gemini/gemini-3.1-flash-lite: requests 129/450 today (US Pacific)
+gemini/gemini-3.1-flash-lite: 6 tasks x 3 rollouts = 18 (0 already done, 18 to run); list-price estimate $0.06, cap $25.00
+completed: results in results/gemini__gemini-3.1-flash-lite/core6-tool
+== local open-weight models (start the server first, one model at a time):
+   LLM_MODEL=Qwen/Qwen2.5-3B-Instruct LLM_SERVED_NAME=qwen2.5-3b docker compose --profile gpu up -d llm
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+local/qwen2.5-3b: 109 tasks x 3 rollouts = 327 (0 already done, 327 to run); list-price estimate $0.00, cap $25.00
+unavailable: results in results/local__qwen2.5-3b/eval-single
+   -> provider unavailable (for local models: start the vLLM server); re-run later
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+local/qwen2.5-3b: 109 tasks x 3 rollouts = 327 (0 already done, 327 to run); list-price estimate $0.00, cap $25.00
+unavailable: results in results/local__qwen2.5-3b/eval-tool
+   -> provider unavailable (for local models: start the vLLM server); re-run later
+   LLM_MODEL=Qwen/Qwen2.5-0.5B-Instruct LLM_SERVED_NAME=qwen2.5-0.5b docker compose --profile gpu up -d llm
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+Aborted rollout due to ModelError() -> APIConnectionError('Connection error.') -> ConnectError('All connection attempts failed') -> ConnectError(OSError('All connection attempts failed'))
+local/qwen2.5-0.5b: 109 tasks x 3 rollouts = 327 (0 already done, 327 to run); list-price estimate $0.00, cap $25.00
+unavailable: results in results/local__qwen2.5-0.5b/eval-single
+   -> provider unavailable (for local models: start the vLLM server); re-run later
+== aggregate
+local/qwen2.5-0.5b                       single mean=-0.1046 run_sd=0.0022 status=completed
+gemini/gemini-3.5-flash-lite             single mean=0.3939 run_sd=0.0068 status=completed
+baseline/naive_no_ceiling                single mean=0.2486 run_sd=0.0 status=completed
+baseline/always_abstain                  single mean=0.1211 run_sd=0.0 status=completed
+baseline/gross_as_net                    single mean=-0.0273 run_sd=0.0 status=completed
+baseline/modal_answer                    single mean=-0.0945 run_sd=0.0 status=completed
+baseline/format_only                     single mean=-0.1039 run_sd=0.0 status=completed
+local/qwen2.5-0.5b                       single mean=None run_sd=None status=unavailable
+local/qwen2.5-3b                         single mean=None run_sd=None status=unavailable
+local/qwen2.5-3b                         tool   mean=None run_sd=None status=unavailable
+local/qwen2.5-0.5b                       single mean=-0.1406 run_sd=0.0159 status=completed
+local/qwen2.5-0.5b                       single mean=-0.079 run_sd=0.0052 status=completed
+gemini/gemini-3.5-flash-lite             single mean=0.4831 run_sd=0.0031 status=completed
+groq/openai/gpt-oss-120b                 single mean=0.405 run_sd=0.0673 status=unavailable
+baseline/naive_no_ceiling                single mean=0.255 run_sd=0.0 status=completed
+baseline/always_abstain                  single mean=0.09 run_sd=0.0 status=completed
+baseline/gross_as_net                    single mean=-0.07 run_sd=0.0 status=completed
+baseline/format_only                     single mean=-0.135 run_sd=0.0 status=completed
+baseline/modal_answer                    single mean=-0.135 run_sd=0.0 status=completed
+gemini/gemini-3.5-flash-lite             single mean=0.3682 run_sd=0.0468 status=completed
+baseline/naive_no_ceiling                single mean=0.1613 run_sd=0.0 status=completed
+baseline/always_abstain                  single mean=0.1525 run_sd=0.0 status=completed
+baseline/gross_as_net                    single mean=-0.0825 run_sd=0.0 status=completed
+baseline/modal_answer                    single mean=-0.1412 run_sd=0.0 status=completed
+baseline/format_only                     single mean=-0.1888 run_sd=0.0 status=completed
+gemini/gemini-3.5-flash-lite             single mean=0.4375 run_sd=0.0 status=completed
+gemini/gemini-3.8-flash                  single mean=0.3889 run_sd=0.1039 status=completed
+groq/openai/gpt-oss-120b                 single mean=0.3417 run_sd=0.0658 status=unavailable
+baseline/naive_no_ceiling                single mean=0.25 run_sd=0.0 status=completed
+baseline/always_abstain                  single mean=0.0833 run_sd=0.0 status=completed
+baseline/gross_as_net                    single mean=-0.025 run_sd=0.0 status=completed
+baseline/format_only                     single mean=-0.0958 run_sd=0.0 status=completed
+baseline/modal_answer                    single mean=-0.0958 run_sd=0.0 status=completed
+gemini/gemini-3.1-flash-lite             tool   mean=0.287 run_sd=0.0498 status=completed
+33 indistinguishable pair(s) -> results/leaderboard.json
+shipped (0.70/0.25/0.05)         tau=1.0  ranking=['groq/openai/gpt-oss-120b', 'gemini/gemini-3.5-flash-lite', 'gemini/gemini-3.8-flash', 'baseline/naive_no_ceiling', 'baseline/always_abstain', 'baseline/gross_as_net', 'local/qwen2.5-0.5b', 'baseline/modal_answer', 'baseline/format_only', 'local/qwen2.5-3b']
+net-heavy (0.85/0.10/0.05)       tau=0.9556  ranking=['groq/openai/gpt-oss-120b', 'gemini/gemini-3.8-flash', 'gemini/gemini-3.5-flash-lite', 'baseline/naive_no_ceiling', 'baseline/always_abstain', 'baseline/gross_as_net', 'local/qwen2.5-0.5b', 'baseline/modal_answer', 'baseline/format_only', 'local/qwen2.5-3b']
+lines-heavy (0.50/0.45/0.05)     tau=0.9556  ranking=['gemini/gemini-3.5-flash-lite', 'groq/openai/gpt-oss-120b', 'gemini/gemini-3.8-flash', 'baseline/naive_no_ceiling', 'baseline/always_abstain', 'baseline/gross_as_net', 'local/qwen2.5-0.5b', 'baseline/modal_answer', 'baseline/format_only', 'local/qwen2.5-3b']
+no format (0.72/0.28/0.00)       tau=0.9556  ranking=['groq/openai/gpt-oss-120b', 'gemini/gemini-3.8-flash', 'gemini/gemini-3.5-flash-lite', 'baseline/naive_no_ceiling', 'baseline/always_abstain', 'baseline/gross_as_net', 'local/qwen2.5-0.5b', 'baseline/modal_answer', 'baseline/format_only', 'local/qwen2.5-3b']
+{
+ "2026-10-19": {
+  "gemini/gemini-3.1-flash-lite": {
+   "requests": 246,
+   "tokens": 562275
+  },
+  "gemini/gemini-3.1-pro-preview": 1,
+  "gemini/gemini-3.5-flash-lite": {
+   "requests": 345,
+   "tokens": 1719497
+  },
+  "gemini/gemini-3.8-flash": {
+   "requests": 20,
+   "tokens": 28565
+  },
+  "gemini/gemini-4-argon": 1,
+  "gemini/gemma-4-31b-it": 2,
+  "groq/openai/gpt-oss-120b": {
+   "requests": 33,
+   "tokens": 174435
+  }
+ }
+}

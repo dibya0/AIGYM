@@ -120,7 +120,10 @@ class ValidationAndSafety(TrainerCallback):
     2. validation plateau: every ``every`` steps, score the policy greedily on the validation split with the
        rubric; stop if the best score has not improved by >= ``delta`` over ``patience`` consecutive checks;
     3. safety stop (then read transcripts: these are the reward-gaming signals): rolling means over the last
-       5 logged steps of KL > kl_stop, entropy < entropy_floor, twin refusal > 0.5, modal net-pay share > 0.5.
+       5 logged steps of KL > kl_stop, entropy < entropy_floor; and, for the collapse monitors (twin refusal,
+       modal net-pay share), a rolling mean above 0.5 AND at least 0.25 above the policy's own first 5 logged
+       values. Each logged value comes from one or two prompt groups, and the base model already refuses some
+       twins 4/4, so an absolute 0.5 fired on noise at step 6-7 before any learning (RL_REPORT A12).
 
     Validation never touches the held-out split; the best validation checkpoint is the one scored on held-out.
     """
@@ -198,14 +201,23 @@ class ValidationAndSafety(TrainerCallback):
             return
         checks = {"kl": ("above", self.kl_stop), "entropy": ("below", self.entropy_floor),
                   "monitor/twin_refusal_rate": ("above", 0.5), "monitor/modal_net_share": ("above", 0.5)}
+        relative = {"monitor/twin_refusal_rate", "monitor/modal_net_share"}
         for key, (direction, limit) in checks.items():
             if key not in logs:
                 continue
-            values = self.window.setdefault(key, [])
-            values.append(float(logs[key]))
-            del values[:-5]
-            if len(values) == 5:
-                avg = sum(values) / 5
+            history = self.window.setdefault(key, [])
+            history.append(float(logs[key]))
+            recent = history[-5:]
+            if key in relative:
+                if len(history) < 10:  # first 5 values = the starting policy's own level, then a full window
+                    continue
+                start = sum(history[:5]) / 5
+                avg = sum(recent) / 5
+                if avg > limit and avg >= start + 0.25:
+                    self._stop(control, f"safety stop: rolling {key} {avg:.4f} above {limit} and +{avg - start:.2f} over start {start:.2f}",
+                               state.global_step)
+            elif len(recent) == 5:
+                avg = sum(recent) / 5
                 if (direction == "above" and avg > limit) or (direction == "below" and avg < limit):
                     self._stop(control, f"safety stop: rolling {key} {avg:.4f} {direction} {limit}", state.global_step)
 
@@ -230,6 +242,9 @@ def main() -> None:
     ap.add_argument("--max-steps", type=int, default=150)
     ap.add_argument("--num-generations", type=int, default=8, help="G, completions per prompt (brief: >= 4)")
     ap.add_argument("--prompts-per-step", type=int, default=4)
+    ap.add_argument("--top-p", type=float, default=0.8, help="sampling, as the model's generation_config (and vLLM) use")
+    ap.add_argument("--top-k", type=int, default=20)
+    ap.add_argument("--repetition-penalty", type=float, default=1.1)
     ap.add_argument("--micro-batch", type=int, default=4,
                     help="completions per forward/backward pass (memory only; prompts_per_step*G must be divisible by it)")
     ap.add_argument("--max-completion-length", type=int, default=384)
@@ -267,7 +282,7 @@ def main() -> None:
         "reference_model": "base model with LoRA adapter disabled",
         "stop_rules": {"max_steps": args.max_steps, "val_every": args.val_every, "plateau_delta": args.plateau_delta,
                        "plateau_patience": args.plateau_patience, "kl_stop": args.kl_stop, "entropy_floor": args.entropy_floor,
-                       "twin_refusal_stop": 0.5, "modal_net_share_stop": 0.5, "window": 5},
+                       "twin_refusal_stop": "0.5 and +0.25 over the first 5 values", "modal_net_share_stop": "0.5 and +0.25 over the first 5 values", "window": 5},
     }, indent=2))
     val_tasks = []
     if args.val_tasks and Path(args.val_tasks).exists():
@@ -299,6 +314,11 @@ def main() -> None:
         num_generations=args.num_generations,
         max_completion_length=args.max_completion_length,
         temperature=1.0,
+        # Sample like the pilot and the eval did. vLLM applies the model's generation_config by default
+        # (Qwen2.5: top_p 0.8, top_k 20, repetition_penalty 1.1); TRL's defaults are top_p 1.0, top_k off,
+        # repetition 1.0. Training on the wilder sampler meant the pilot had measured a different policy
+        # (broken JSON up to 69 % vs 16-38 %; a twin refused 6/8 at step 2 vs 0/4 in the pilot). RL_REPORT A12.
+        top_p=args.top_p, top_k=args.top_k, repetition_penalty=args.repetition_penalty,
         beta=args.beta,
         loss_type="dr_grpo",
         scale_rewards="none",
