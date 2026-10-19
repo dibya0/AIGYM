@@ -12,7 +12,8 @@
 #   groq gpt-oss-120b        200K tok/day, 8K/min    180K tok     core10 x 3 (~5.5K tok each)            today
 #   gemini-3.1-flash-lite    500 req/day, 15/min     450 req      judge (~200) + tool mode core6 x 3     today
 #                                                                 (~8 requests per tool rollout ≈ 144)
-#   local Qwen 3B            unlimited               -            full eval, single-turn AND tool mode    hours (GPU)
+#   local Qwen 0.5B          unlimited               -            full eval, single-turn                 minutes (GPU)
+#   (local Qwen 3B: via Track C, Step 20; its S1/S2 runs are its single/tool leaderboard rows)
 #   (*) 18 rollouts + the 1 probe request already spent today = 19 of Google's 20.
 # Tool mode costs ~8 requests per rollout (one per model turn; Step 14 measured 11 tool calls per rollout),
 # so the hosted tool-mode run is the small core6 on a model whose quota only the judge uses; full-coverage
@@ -71,9 +72,8 @@ echo "   (not on Groq: one tool-mode request exceeds its 8K tokens/minute limit,
 ev --model "gemini/$TOOLM" $COMMON --ids tasks/subsets/eval_core6.txt --mode tool --run-name core6-tool --judge $(resume "gemini/$TOOLM" core6-tool)
 
 echo "== local open-weight models (start the server first, one model at a time):"
-echo "   LLM_MODEL=Qwen/Qwen2.5-3B-Instruct LLM_SERVED_NAME=qwen2.5-3b docker compose --profile gpu up -d llm"
-ev --model local/qwen2.5-3b $COMMON --run-name eval-single --concurrency 8 $(resume local/qwen2.5-3b eval-single)
-ev --model local/qwen2.5-3b $COMMON --mode tool --run-name eval-tool --concurrency 8 $(resume local/qwen2.5-3b eval-tool)
+echo "   (Qwen-3B's leaderboard rows come from its Track C runs: S1 and S2 send exactly the default single/tool"
+echo "    prompts, so they are the same configuration; see docs/USER_ACTIONS.md Step 20)"
 echo "   LLM_MODEL=Qwen/Qwen2.5-0.5B-Instruct LLM_SERVED_NAME=qwen2.5-0.5b docker compose --profile gpu up -d llm"
 ev --model local/qwen2.5-0.5b $COMMON --run-name eval-single --concurrency 8 $(resume local/qwen2.5-0.5b eval-single)
 

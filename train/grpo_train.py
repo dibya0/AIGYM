@@ -94,10 +94,17 @@ class CsvMetrics(TrainerCallback):
     """Writes every logged step (reward, kl, entropy, completion length, frac_reward_zero_std, ...) to CSV,
     plus wall-clock seconds per step, so curves are plotted from committed files (brief P07)."""
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, resume: bool = False):
         self.path = path
         self.rows: list[dict] = []
+        if resume and path.exists():  # keep the curve from before a crash (rows after the checkpoint are re-logged)
+            with path.open() as fh:
+                self.rows = [r for r in csv.DictReader(fh)]
         self.last = time.time()
+
+    def on_train_begin(self, args, state, control, **kwargs):
+        # On resume, drop rows logged after the checkpoint we resumed from: those steps are run again.
+        self.rows = [r for r in self.rows if str(r.get("step", "")).isdigit() and int(r["step"]) <= state.global_step]
 
     def on_log(self, args, state, control, logs=None, **kwargs):
         if not logs:
@@ -270,6 +277,19 @@ def main() -> None:
     if args.num_generations < 4:
         raise SystemExit("--num-generations must be >= 4 (brief P07)")
 
+    # Attention kernel, set process-wide before the model loads. Qwen2.5 uses grouped-query attention (14 query /
+    # 2 KV heads); with a padding mask PyTorch's flash and memory-efficient kernels reject that shape and SDPA
+    # silently falls back to the math kernel, which materialises the full attention matrix: 16 sequences x 14
+    # heads x ~6k^2 tokens tried to allocate 16.5 GB and crashed step 14 (2026-10-19, twice). A scoped
+    # `sdpa_kernel` priority context was not honoured inside the trainer's generate (second crash), so the math
+    # kernel is disabled globally: cuDNN attention handles GQA + mask (tested on this GPU at 6k tokens: +0.02 GB,
+    # forward and backward, equal to the math kernel to bf16 precision). With math off, an unsupported call
+    # fails loudly instead of silently allocating gigabytes.
+    import torch
+
+    torch.backends.cuda.enable_math_sdp(False)
+    torch.backends.cuda.enable_cudnn_sdp(True)
+
     run_dir = ROOT / "results" / "train" / args.run_name
     run_dir.mkdir(parents=True, exist_ok=True)
     os.environ["PAYGYM_SAMPLES_PATH"] = str(run_dir / "train_samples.jsonl")  # read by paygym.training_reward
@@ -340,18 +360,9 @@ def main() -> None:
         args=config,
         train_dataset=dataset,
         peft_config=peft_config,
-        callbacks=[CsvMetrics(run_dir / "metrics.csv"), guard],
+        callbacks=[CsvMetrics(run_dir / "metrics.csv", resume=args.resume), guard],
     )
-    # Attention kernel: Qwen2.5 uses grouped-query attention (14 query / 2 KV heads). With a padding mask, PyTorch's
-    # flash and memory-efficient kernels reject that shape and SDPA silently falls back to the math kernel, which
-    # materialises the full attention matrix: 16 sequences x 14 heads x ~6k^2 tokens tried to allocate 16.5 GB and
-    # crashed step 14 (2026-10-19). cuDNN attention handles GQA + mask (checked on this RTX 5070 Ti: matches the
-    # math kernel to bf16 precision, ~48 MB peak on a test batch), so it goes first; math stays as a last resort.
-    from torch.nn.attention import SDPBackend, sdpa_kernel
-
-    with sdpa_kernel([SDPBackend.CUDNN_ATTENTION, SDPBackend.FLASH_ATTENTION, SDPBackend.EFFICIENT_ATTENTION,
-                      SDPBackend.MATH], set_priority=True):
-        trainer.train(resume_from_checkpoint=args.resume or None)
+    trainer.train(resume_from_checkpoint=args.resume or None)
     trainer.save_model(str(run_dir / "final_adapter"))
     print(f"done: {run_dir}")
 

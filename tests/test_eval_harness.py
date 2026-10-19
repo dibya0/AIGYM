@@ -385,3 +385,16 @@ def test_rescore_needs_no_api_key_for_a_judged_run(tmp_path, monkeypatch):
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     assert rescore(run_dir)["rubric_version"] != "1.0"
     assert json.loads((run_dir / "config.json").read_text())["judge"] is True
+
+
+def test_track_c_s1_s2_are_the_default_configurations():
+    from paygym.environment import load_tasks
+    from paygym.eval.leaderboard import effective_scaffold
+    from paygym.prompting import messages_for
+
+    tasks = load_tasks(split="eval", n_seeds=12)
+    assert all(messages_for(t, "single", "S1") == messages_for(t, "single") for t in tasks)
+    assert all(messages_for(t, "tool", "S2") == messages_for(t, "tool") for t in tasks)
+    assert effective_scaffold({"scaffold": "S1", "mode": "single"}) is None
+    assert effective_scaffold({"scaffold": "S2", "mode": "tool"}) is None
+    assert effective_scaffold({"scaffold": "S4", "mode": "tool"}) == "S4"

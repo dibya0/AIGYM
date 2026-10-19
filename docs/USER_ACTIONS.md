@@ -353,6 +353,7 @@ Deploy on Vercel (Hobby, free):
 If Vercel rejects the Python function (bundle or runtime errors), paste the build log.
 
 ### Step 20: Track C, scaffold comparison ⏳ (local GPU only, no hosted quota)
+These runs are also **Qwen-3B's leaderboard rows**. S1 and S2 send exactly the default single-turn and tool-mode prompts (checked task by task, `test_track_c_s1_s2_are_the_default_configurations`), so the sweep no longer runs 3B separately.
 **Minimum per the brief (p.14):** hold the model constant and vary the scaffold. The model is local **Qwen2.5-3B** at S0–S4 on the full eval set. "Does the scaffold matter more than the model?" is answered by comparing:
 - the scaffold effect: 3B from S0 to S4;
 - the model effect: 0.5B → 3B → the hosted models, at the default scaffold (the sweep's paired rows).

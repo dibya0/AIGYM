@@ -874,3 +874,11 @@ Every GRPO setting was checked against the code and the observed logs.
   - broken JSON 6–19 % on later steps; KL rose steadily to 0.03;
   - **but** the step-14 twin was refused by 15/16 completions, the over-refusal pressure predicted for a policy that cannot compute payslips (RL_REPORT B6). It is watched on `val_easy` twins.
 - Checkpoints every 10 steps from now on (was 20), so a crash loses ≤ 10 steps.
+- **User asked: "do we need the 3B model?"**
+  - **Not for the minimums:** ≥ 3 configs are met by Gemini ×2, Groq and Qwen-0.5B, plus the baselines.
+  - **Kept for Track C:** a 0.5B scoring ~0 on every scaffold would make "does the scaffold matter?" uninformative, and a hosted fixed model would cost ~470 requests (a full day of Flash-Lite quota).
+  - **Cut:** the separate 3B leaderboard runs. Track C's S1 / S2 prompts are identical to the default single/tool prompts (verified on every task), so `effective_scaffold()` puts them in the default comparison groups and the sensitivity table; the sweep no longer runs 3B. This saves ~40 min of GPU.
+  - Test: `test_track_c_s1_s2_are_the_default_configurations`. Suite 227 passed.
+- **Same crash again at step 14 after the "fix"** (16.53 GiB, `_fallback`). The scoped `sdpa_kernel(..., set_priority=True)` context around `trainer.train()` was **not honoured** inside the trainer's generate. In a standalone test the same context did select cuDNN (+0.02 GB vs an OOM without it). So the first fix was verified in isolation, not in the trainer: my mistake.
+  - **Real fix:** `torch.backends.cuda.enable_math_sdp(False)` + `enable_cudnn_sdp(True)` process-wide, before the model loads. Tested at 6k tokens with no context: +0.02 GB, forward and backward OK. Any call with no fused kernel now raises instead of silently allocating gigabytes.
+  - The β = 0.001 run resumes from `checkpoint-10`; β = 0.04 (old code) was stopped and restarts fresh.

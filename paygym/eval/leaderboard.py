@@ -30,6 +30,13 @@ def is_leaderboard_run(cfg: dict, metrics: dict) -> bool:
     return cfg.get("split") == "eval" and not cfg.get("tasks_path") and (metrics.get("rollouts_ok") or 0) > 0
 
 
+def effective_scaffold(cfg: dict) -> str | None:
+    """Track C's S1 (rules in context) and S2 (tools) send exactly the default single-turn and tool-mode
+    prompts (checked task by task), so they are the same configuration and share a comparison group."""
+    sc = cfg.get("scaffold")
+    return None if (sc, cfg.get("mode")) in {("S1", "single"), ("S2", "tool")} else sc
+
+
 def load_runs(root: Path) -> list[dict]:
     runs = []
     for cfg_path in sorted(root.glob("*/*/config.json")):
@@ -51,11 +58,11 @@ def load_runs(root: Path) -> list[dict]:
             "mode": cfg["mode"],
             "split": cfg.get("split"),
             "taskset_hash": cfg["taskset_hash"],
-            "scaffold": cfg.get("scaffold"),
+            "scaffold": effective_scaffold(cfg),
             "group": (f"subset:{Path(cfg['ids']).stem}" if cfg.get("ids") else cfg["taskset_hash"])
-                     + f"|{cfg['mode']}|{cfg.get('scaffold')}|{cfg['ruleset_fingerprint']}|{cfg['rubric_version']}",
+                     + f"|{cfg['mode']}|{effective_scaffold(cfg)}|{cfg['ruleset_fingerprint']}|{cfg['rubric_version']}",
             "subset": Path(cfg["ids"]).stem if cfg.get("ids") else None,
-            "_key": f"|{cfg['mode']}|{cfg.get('scaffold')}|{cfg['ruleset_fingerprint']}|{cfg['rubric_version']}",
+            "_key": f"|{cfg['mode']}|{effective_scaffold(cfg)}|{cfg['ruleset_fingerprint']}|{cfg['rubric_version']}",
             "ruleset_version": cfg["ruleset_version"],
             "status": metrics["status"],
             "rollouts": cfg["rollouts"],
