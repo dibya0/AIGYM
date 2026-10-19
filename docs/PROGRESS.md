@@ -816,3 +816,21 @@ Re-read the PDF (pp.7–14 phase specs, plus §§9–11) line by line against th
 - Logged as pre-registration amendment **A12** before the reported runs.
 - The two mismatched-sampler runs are kept as `results/train/v1.1-trlsampler-*`; the β = 0.04 one was stopped at once.
 - **Still a model-capacity point (stated, not yet tested):** for a policy that cannot compute payslips, over-refusing a twin costs ~0.05 vs −1 for answering a trap. A 1.5B policy (A11 fallback) is the next step if 0.5B shows no learning after this fix.
+
+---
+
+## Training-setup audit while the corrected run started (2026-10-19, user: "check the parameters we can play with")
+
+Every GRPO setting was checked against the code and the observed logs.
+- **Correct as is:** `dr_grpo` loss, no std scaling, β sweep with the k3 KL, G = 8 × 2 prompts, LoRA r16/α32 all-linear, sampler parity (A12), micro-batch 4.
+- **Measurement gap (fixed, A13):** we train on `easy` but validated and planned held-out at full difficulty, where the base model scores 0 on payslips. So any learning would have been invisible.
+  - Added `val_easy` / `heldout_easy` from the never-trained seed ranges (0 content/seed overlap with `train_easy`, checked).
+  - `paygym generate` now accepts a preset for val/heldout (with `--out`; eval stays full difficulty).
+  - Selection uses `val_easy`; held-out is reported on both.
+- **LR 2e-5 → 5e-5 (A13):** KL 0.004 and grad norm ~0.01 after 7 steps would not move in 60 steps.
+- **Levers noted, not changed** (only if no learning shows):
+  - `max_completion_length` 384 → 512 and `mask_truncated_completions=True` (6–19 % of completions truncated and scored 0);
+  - `epsilon_high` (clip-higher) for exploration;
+  - more prompts per step (less noisy advantages, slower);
+  - Qwen2.5-1.5B (A11).
+- Suite 224 passed; `paygym validate tasks/` → 1202 tasks OK.

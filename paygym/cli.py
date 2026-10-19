@@ -30,10 +30,15 @@ def _cmd_generate(args: argparse.Namespace) -> int:
     from paygym.generator import KNOB_PRESETS, generate_split
     from paygym.schema import dump_task
 
-    if args.knobs != "default" and args.split != "train":
-        print("difficulty presets apply to the train split only (eval/held-out keep full difficulty)")
+    if args.knobs != "default" and args.split == "eval":
+        print("the eval split (the leaderboard) always keeps full difficulty")
         return 1
-    tasks = generate_split(args.split, args.seeds, KNOB_PRESETS[args.knobs] if args.split == "train" else None, args.knobs)
+    if args.knobs != "default" and not args.out:
+        print("a non-default preset needs --out (the default file of each split stays full difficulty)")
+        return 1
+    # val/heldout at the training preset measure in-distribution learning on never-trained seeds (RL_REPORT A13);
+    # the default val/heldout files stay full difficulty and measure transfer.
+    tasks = generate_split(args.split, args.seeds, KNOB_PRESETS[args.knobs] if args.knobs != "default" else None, args.knobs)
     out = Path(args.out or f"tasks/generated/{args.split}.jsonl")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("".join(dump_task(t) + "\n" for t in tasks))
@@ -124,7 +129,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("generate", help="generate a split from its seed range")
     p.add_argument("--split", required=True, choices=["train", "val", "heldout", "eval"])
     p.add_argument("--seeds", type=int, required=True, help="number of seeds (a trap seed yields trap + twin)")
-    p.add_argument("--knobs", default="default", choices=["default", "easy", "easier"], help="train-split difficulty preset")
+    p.add_argument("--knobs", default="default", choices=["default", "easy", "easier"], help="difficulty preset (train; or val/heldout with --out, for in-distribution checks)")
     p.add_argument("--out")
     p.set_defaults(func=_cmd_generate)
 

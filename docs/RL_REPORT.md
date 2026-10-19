@@ -124,6 +124,20 @@ If one is found: transcript evidence → rubric fix (version bump) → rerun →
      - KL and entropy stops are unchanged.
   - The four stopped runs are kept as evidence (`results/train/v1.0-*`, `results/train/v1.1-trlsampler-*`). None is used for model selection or held-out results.
 
+- **2026-10-19, A13 (before any reported run; no learning result seen): measure where the policy trains, and a faster LR.**
+  1. **In-distribution validation and held-out.**
+     - **Problem:** training uses the `easy` preset (A11), while `val.jsonl` / `heldout.jsonl` are full difficulty, where the base 0.5B scores 0 on payslips. Learning on the trained distribution could be invisible there.
+     - **New sets:** `val_easy.jsonl` (47 tasks, seeds 500000–500035) and `heldout_easy.jsonl` (124 tasks, seeds 1000000–1000094), generated with the training preset from the never-trained seed ranges. Checked: 0 content and 0 seed overlap with `train_easy.jsonl`.
+     - **Checkpoint selection** uses `val_easy` (validation only).
+     - **Held-out is reported twice, each scored once:**
+       - `heldout_easy`: did the gym teach the policy something, on tasks it never saw?
+       - `heldout`, full difficulty: does it transfer?
+       - Neither is used to choose anything.
+  2. **Learning rate 2e-5 → 5e-5.**
+     - **Why:** the first 7 steps at 2e-5 moved the policy by KL ≈ 0.004 with grad norm ≈ 0.01. With 60 steps, that is too slow to show learning.
+     - **Range:** 5e-5 is the top of the range A2b / A8 named as normal for LoRA GRPO; the KL safety stop (1.0) still applies. The LR remains untuned (A10) and is reported as such.
+  - **Unchanged:** everything else (β sweep, G, steps, rubric v1.1, sampler, stop rules).
+
 ---
 
 ## Part B: results (filled after training from committed files)
