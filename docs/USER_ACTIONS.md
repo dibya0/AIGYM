@@ -6,6 +6,25 @@ Things only you can do: accounts, hardware, long runs, deployments, judgement ca
 
 ---
 
+## Minimum plan (brief thresholds only, chosen 2026-10-19 to show the full flow fast)
+
+| Brief requirement (page) | Minimum | What we run |
+|---|---|---|
+| Hand-checked tasks, 3 tiers, Tier-3 traps (p.6) | ≥ 10, ≥ 3 traps | 16 seed tasks, 4 traps ✅ |
+| Generated instances, non-degenerate distribution (p.8) | ≥ 100 | 529 generated ✅; distribution from the sweep |
+| Model configs incl. one frontier + one small (p.10) | ≥ 3 | Gemini 3.5 Flash-Lite (full), Gemini 3.8 Flash (core6), Groq gpt-oss-120b (core10), Qwen 3B and 0.5B (local), 5 baselines |
+| Rollouts per task, non-zero temperature (p.10) | ≥ 3 | 3 |
+| Judge reliability (p.9) | 3 repeats **or** 15 hand labels | **3 repeats** (automatic); hand labels optional |
+| Fidelity audit (p.9) | ≥ 10 tasks | 10 ✅ (0 / 50) |
+| GRPO group size (p.11) | G ≥ 4 | G = 8 |
+| β sweep, one too low (p.12) | ≥ 2 values | 0.001 and 0.04 |
+| RL scope (p.12) | "0.5B over 30 training tasks", held-out before/after | 30 train tasks, 60 steps per β; held-out 109 tasks × 3 |
+| Reward gaming (p.12) | ≥ 1 instance, or the documented search | transcript reading at each checkpoint |
+| Track C (p.14) | model fixed, scaffold varied | local Qwen-3B × S0–S4 (no hosted quota) |
+| Failure analysis (p.16) | 5–10 transcripts | 5 |
+| Edge cases / trade-offs (p.16) | top 5 / ≥ 3 | 5 / 8 |
+| Loom (p.16) | 8–12 min | ≈ 9 min |
+
 ## A. Now (unblocks everything)
 
 | ☐ | Action | When | Notes |
@@ -218,20 +237,23 @@ Paste:
 - `cat results/groq__openai__gpt-oss-120b/smoke-single/metrics.json` and `cat results/gemini__gemini-3.5-flash-lite/smoke-tool/metrics.json`;
 - the ledger.
 
-### Step 15: full eval sweep ⏳ (run once a day for ~4 days; free tiers by design)
-**Your real free limits** (your dashboards, 2026-10-19) decide the plan. The ledger caps every model at **75%** of its limit, so you always keep a quarter:
+### Step 15: full eval sweep ⏳ (hosted part ≈ 1 day; runs in parallel with the GPU work)
+**Sized to finish in about a day.** The user asked for speed over a 4-day sweep. Every model is capped at **90%** of its free limit, on requests and tokens:
 
-| Model | Free limit | Our cap/day | Runs | Days |
+| Model | Free limit | Cap/day | Runs | Fits |
 |---|---|---|---|---|
-| gemini-3.5-flash-lite | 500 req/day | 375 | full eval 109×3 + tool mode on core20 | ~2 |
-| gemini-3.8-flash | **20 req/day**, 5/min | 15 | core20 subset ×3 (60 req) | ~4 |
-| groq gpt-oss-120b | **200K tokens/day**, 8K/min | 150K tokens | core20 subset ×3 | ~3 |
-| gemini-3.1-flash-lite (judge) | 500 req/day | 375 | trap explanations | – |
-| local Qwen 3B / 0.5B | unlimited | – | full eval (+ tool mode for 3B) | – |
+| gemini-3.5-flash-lite | 500 req/day | 450 | full eval 109×3 (327) + tool mode on core10 ×3 (~240) | today + small tail |
+| gemini-3.8-flash | **20 req/day** | 18 | core6 ×3 (18) | today |
+| groq gpt-oss-120b | **200K tokens/day** | 180K | core10 ×3 (~165K) | today |
+| gemini-3.1-flash-lite (judge) | 500 req/day | 450 | trap explanations | today |
+| local Qwen 3B / 0.5B | unlimited | – | full eval (+ tool mode for 3B) | hours |
 
-**core20** is a fixed, stratified 20-task subset (`tasks/subsets/eval_core20.txt`): 4 retrieval, 6 payslips, 5 traps and their 5 twins. Every full-set model is also scored on it, so the scarce models are compared paired.
+Older Gemini models do not help: 2.5 / 3 / 3.6 / 3.7 Flash are all 20 req/day on this key. Only the Flash-Lite models (500) and Gemma (14.4K, but it returned HTTP 500 twice) have more.
 
-**Run the same command once a day.** A model that reaches its cap stops cleanly and the script moves on; finished rollouts are never re-run. Check usage any time with `cat results/.request_ledger.json`.
+The subsets are nested (`tasks/subsets/eval_core{6,10,20}.txt`), fixed before any model was scored, and every trap comes with its twin. Every other model is also scored on the same tasks, so the comparisons are paired.
+
+**If a model hits its cap,** re-run the same command after midnight US Pacific, when the quotas reset; it continues where it stopped.
+
 ```bash
 GEMINI_MODEL=<strongest free Gemini id from your Step 11 list> ./scripts/sweep.sh
 ```
@@ -241,10 +263,9 @@ GEMINI_MODEL=<strongest free Gemini id from your Step 11 list> ./scripts/sweep.s
 Then:
 ```bash
 uv run paygym judge items results/gemini__*/eval-single results/groq__*/eval-single   # real refusals for the judge
-uv run paygym judge repeat                     # 3-repeat disagreement rate
-uv run paygym judge labels                     # writes docs/judge_labels.csv
+uv run paygym judge repeat                     # 3-repeat disagreement rate: the brief's minimum (p.9)
 ```
-**Your hand-labelling (§C):** open `docs/judge_labels.csv` and fill `human_pass` (1/0) for the first 15 outputs × 3 criteria **without looking at `judge_pass`**. Then run `uv run paygym judge agreement`.
+*Optional* (the brief accepts either method): `uv run paygym judge labels`, fill `human_pass` in `docs/judge_labels.csv` for 15 outputs without looking at `judge_pass`, then `uv run paygym judge agreement`.
 
 Paste: the `paygym leaderboard` output, the `sensitivity` output, the judge disagreement rate and the agreement report.
 
@@ -256,41 +277,40 @@ docker compose --profile dashboard up dashboard             # preview at http://
 ```
 Deploy: commit `public/` and push; Vercel (linked to the repo) serves it as-is. The API config lands in Step 19. Send Claude the live URL to verify each P06 item on the deployed page.
 
-### Step 17: RL difficulty pilot + two β runs ⏳ (GPU; smoke ran ≈24 s/step at 8 completions, so plan for ≈3–6 h total; the first LR-probe run gives the real figure)
-**Before training, commit `docs/RL_REPORT.md` Part A as it is.** It is the pre-registration; its git timestamp shows it predates the runs.
+### Step 17: RL pilot + the two β runs ⏳ (GPU, ≈ 1.5 h total; brief-minimum scope)
+**Scope = the brief's own minimum** (p.12: "a working loop on a 0.5B model over 30 training tasks, with real curves and an honest held-out comparison"): 30 training tasks, G = 8 (brief ≥ 4), two β values (one deliberately too low), 60 steps each. The LR probe is dropped: the brief does not require it (RL_REPORT A10).
 
-1. Pilot (base 0.5B, 8 samples per task, ~50 training tasks):
+**0. One-time Docker permission fix** (the `permission denied … docker.sock` error):
 ```bash
-uv run paygym generate --split train --seeds 180
+sudo usermod -aG docker $USER && newgrp docker      # or log out and back in
+docker ps                                           # must work without sudo
+```
+
+**1. Pilot** (base 0.5B, 30 train tasks × 4 samples, ~5 min). It checks that the tasks are neither impossible nor trivial for the base model:
+```bash
 LLM_MODEL=Qwen/Qwen2.5-0.5B-Instruct LLM_SERVED_NAME=qwen2.5-0.5b docker compose --profile gpu up -d llm
-uv run python -m paygym.eval --model local/qwen2.5-0.5b --tasks tasks/generated/train.jsonl --tier 2,3 --limit 50 \
-    --rollouts 8 --max-tokens 384 --concurrency 16 --run-name pilot-default
+docker compose logs -f llm      # wait for "Application startup complete", then Ctrl-C (server keeps running)
+uv run python -m paygym.eval --model local/qwen2.5-0.5b --tasks tasks/generated/train.jsonl --tier 2,3 --limit 30 \
+    --rollouts 4 --max-tokens 384 --concurrency 16 --run-name pilot-default
 uv run python scripts/pilot_report.py results/local__qwen2.5-0.5b/pilot-default
 ```
-If the report says "too hard":
+First delete today's broken pilot directory (400 error rows from a bug since fixed): `rm -rf results/local__qwen2.5-0.5b/pilot-default`.
+If the report says "too hard", use the easier preset and pilot again:
 ```bash
 uv run paygym generate --split train --seeds 180 --knobs easy --out tasks/generated/train_easy.jsonl
-uv run python -m paygym.eval --model local/qwen2.5-0.5b --tasks tasks/generated/train_easy.jsonl --tier 2,3 --limit 50 \
-    --rollouts 8 --max-tokens 384 --concurrency 16 --run-name pilot-easy
+uv run python -m paygym.eval --model local/qwen2.5-0.5b --tasks tasks/generated/train_easy.jsonl --tier 2,3 --limit 30 \
+    --rollouts 4 --max-tokens 384 --concurrency 16 --run-name pilot-easy
 uv run python scripts/pilot_report.py results/local__qwen2.5-0.5b/pilot-easy
 ```
-If that is still too hard, repeat with `easier`.
+Paste the report. Claude names the train file (`TRAIN=…`).
 
-1b. Learning-rate probe (pre-registered in RL_REPORT A8; ~30 min). Free the GPU first (`docker compose --profile gpu down`):
-```bash
-for LR in 1e-5 2e-5 5e-5; do
-  uv run python train/grpo_train.py --reward rubric --tasks $TRAIN --beta 0.04 --learning-rate $LR \
-      --max-steps 30 --val-every 10 --run-name lrprobe-$LR
-done
-tail -n 2 results/train/lrprobe-*/validation.csv; cat results/train/lrprobe-*/stop_reason.json 2>/dev/null
-```
-Paste the output. Claude applies the pre-registered rule (best validation reward at step 30, excluding safety stops or KL > 0.5) and tells you which `--learning-rate` to use below.
-
-2. Free the GPU, then the two runs on the chosen train file (`TRAIN=tasks/generated/train.jsonl` or `train_easy.jsonl`, etc.):
+**2. The two β runs** (free the GPU first; ≈ 30–40 min each):
 ```bash
 docker compose --profile gpu down
-uv run python train/grpo_train.py --reward rubric --tasks $TRAIN --beta 0.001 --learning-rate $BEST_LR --run-name grpo-b0.001
-uv run python train/grpo_train.py --reward rubric --tasks $TRAIN --beta 0.04  --learning-rate $BEST_LR --run-name grpo-b0.04
+for B in 0.001 0.04; do
+  uv run python train/grpo_train.py --reward rubric --tasks $TRAIN --n-tasks 30 --beta $B \
+      --max-steps 60 --num-generations 8 --prompts-per-step 2 --val-every 20 --save-steps 20 --run-name grpo-b$B
+done
 ```
 A crashed run resumes with the same command plus `--resume`.
 
@@ -299,7 +319,6 @@ Paste for each run:
 - `cat results/train/<run>/best_checkpoint.json`
 - `tail -5 results/train/<run>/validation.csv`
 
-Claude then reads `train_samples.jsonl` and `val_samples.jsonl` for reward gaming (Step 18).
 
 ### Step 18: held-out before/after ⏳ (after Step 17)
 ```bash
@@ -333,21 +352,23 @@ Deploy on Vercel (Hobby, free):
 
 If Vercel rejects the Python function (bundle or runtime errors), paste the build log.
 
-### Step 20: Track C, scaffold comparison ⏳
-Fixed small model = local Qwen2.5-3B (unlimited, $0). Large comparator = **Gemini 3.5 Flash-Lite** at S0 and S4 on core20 (≈ 60 + 300 requests, about a day of its quota). Groq was planned, but S2–S4 use tools, and a tool-mode request exceeds Groq's 8K tokens/minute (HTTP 413).
+### Step 20: Track C, scaffold comparison ⏳ (local GPU only, no hosted quota)
+**Minimum per the brief (p.14):** hold the model constant and vary the scaffold. The model is local **Qwen2.5-3B** at S0–S4 on the full eval set. "Does the scaffold matter more than the model?" is answered by comparing:
+- the scaffold effect: 3B from S0 to S4;
+- the model effect: 0.5B → 3B → the hosted models, at the default scaffold (the sweep's paired rows).
 ```bash
-uv run pytest -q tests/test_environment.py                 # includes the scaffold test
 LLM_MODEL=Qwen/Qwen2.5-3B-Instruct LLM_SERVED_NAME=qwen2.5-3b docker compose --profile gpu up -d llm
 for S in S0 S1 S2 S3 S4; do
   uv run python -m paygym.eval --model local/qwen2.5-3b --scaffold $S --split eval --n-seeds 95 --rollouts 3 --concurrency 8 --run-name trackc-$S
 done
-for S in S0 S4; do
-  uv run python -m paygym.eval --model gemini/gemini-3.5-flash-lite --scaffold $S --split eval --n-seeds 95 --ids tasks/subsets/eval_core20.txt \
-      --rollouts 3 --run-name trackc-$S
+docker compose --profile gpu down
+LLM_MODEL=Qwen/Qwen2.5-0.5B-Instruct LLM_SERVED_NAME=qwen2.5-0.5b docker compose --profile gpu up -d llm
+for S in S0 S4; do   # the comparison model at matched scaffolds
+  uv run python -m paygym.eval --model local/qwen2.5-0.5b --scaffold $S --split eval --n-seeds 95 --rollouts 3 --concurrency 16 --run-name trackc-$S
 done
-uv run python scripts/track_c.py --small local/qwen2.5-3b --frontier gemini/gemini-3.5-flash-lite
+uv run python scripts/track_c.py --small local/qwen2.5-3b --compare local/qwen2.5-0.5b
 ```
-Paste the printed finding. Claude writes `docs/TRACK_C.md` from `results/track_c/summary.json`. If Qwen-3B scores near 0 on every scaffold, use `--small groq/openai/gpt-oss-20b` (free) instead (plan fallback).
+Paste the printed finding. Claude writes `docs/TRACK_C.md` from `results/track_c/summary.json`.
 
 ### Step 21: dashboard v2 ⏳ (after Steps 17–20)
 ```bash

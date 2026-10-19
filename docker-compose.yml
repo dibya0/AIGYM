@@ -34,7 +34,11 @@ services:
       - --served-model-name
       - ${LLM_SERVED_NAME:-qwen2.5-0.5b}
       - --max-model-len
-      - "8192"   # single-turn prompts carry ~3.5k tokens of rule book + task + completion
+      - "32768"  # Qwen2.5's native window; tool-mode rollouts reach ~37K tokens on Gemini (Step 14), 8192 was too small
+      # Tool mode: vLLM rejects OpenAI `tools` requests unless auto tool choice is on; Qwen2.5 uses the hermes format.
+      - --enable-auto-tool-choice
+      - --tool-call-parser
+      - hermes
       - --gpu-memory-utilization
       - "0.85"
     ipc: host

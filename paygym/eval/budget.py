@@ -42,7 +42,9 @@ FREE_TIER_LIMITS: dict[str, dict[str, int]] = {
 # Unknown hosted models get the strictest limits seen for that provider, so a typo never drains a quota.
 UNKNOWN_LIMITS = {"gemini": {"rpm": 5, "rpd": 20, "tpm": 250_000},
                   "groq": {"rpm": 30, "rpd": 1_000, "tpm": 8_000, "tpd": 200_000}}
-CAP_FRACTION = 0.75  # leave a quarter of every daily quota untouched for the owner's own use
+# 0.9 (was 0.75): the user chose a faster sweep (one day for the hosted part) over a larger reserve;
+# 10% of every daily quota still stays untouched for the owner's own use.
+CAP_FRACTION = 0.9
 
 
 @dataclass(frozen=True)

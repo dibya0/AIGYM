@@ -67,11 +67,11 @@ def load_runs(root: Path) -> list[dict]:
 
 
 def subset_views(runs: list[dict], subsets: dict[str, set[str]]) -> list[dict]:
-    """Full-set runs re-summarised on each subset they fully cover."""
+    """Runs re-summarised on each (smaller) subset they fully cover, e.g. a full run on core10, a core10 run on core6."""
     views = []
     for name, ids in subsets.items():
         for run in runs:
-            if run["subset"] or not ids <= set(run["task_means"]):
+            if run["subset"] == name or not ids <= set(run["task_means"]):  # a subset run also covers smaller subsets
                 continue
             rows = [r for r in run["_rows"] if r["task_id"] in ids]
             by_tier = {}

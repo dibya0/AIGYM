@@ -707,3 +707,45 @@ Re-read the PDF (pp.7–14 phase specs, plus §§9–11) line by line against th
   - rules this sample did not exercise: KES non-resident, exhausted annual ceiling, out-of-period salary change, table/currency traps, reason precedence;
   - one author wrote the rule book, the reference and the check, which is why the user's review of the working is the independent check (§C);
   - the worksheet shows normalised inputs. Improvement for next time: print the raw prompt fields.
+
+---
+
+## Sweep resized to ~1 day (2026-10-19, user request: "3–4 days is too much")
+
+- The user interrupted the first sweep after the baselines and part of Flash-Lite. Resume keeps every finished rollout.
+- **Why it took days:** Gemini 3.8 Flash is limited to 20 requests/day by Google, and core20 × 3 = 60 requests.
+- **Older models do not help:** the user's dashboard shows Gemini 2.5 / 3 / 3.6 / 3.7 Flash at the same 20/day. Only the Flash-Lite models (500/day) and Gemma 4 (14.4K/day, which returned 500 twice in the probe) are larger.
+- **Change:**
+  - **nested subsets** core6 ⊂ core10 ⊂ core20, the same fixed stratified order, every trap with its twin; core20 unchanged;
+  - Gemini 3.8 Flash on **core6** (18 requests, one day);
+  - Groq on **core10** (~165K tokens, one day);
+  - Flash-Lite tool mode on core10;
+  - `CAP_FRACTION` 0.75 → **0.9** (user chose speed; 10% of each quota stays untouched).
+- Leaderboard subset views now also map a subset run onto smaller subsets (core10 → core6), so every scarce model is compared paired with every other.
+- `scripts/sweep.sh` was replaced atomically (write + `mv`), so a running bash would not read a half-edited script.
+- **Cost, stated for EVAL_REPORT:** Gemini 3.8 Flash's numbers rest on 6 tasks × 3 rollouts. That is a spot-check with a wide CI, not a leaderboard-grade estimate. The frontier-lab config with full coverage is Gemini 3.5 Flash-Lite.
+- **Key point for the RL story:** the before/after evidence is local Qwen-0.5B (unlimited, $0); it needs no hosted quota, so it runs in parallel on the GPU now.
+- Suite 220 passed.
+- **Pre-flight on `docker-compose.yml` before the first local run:**
+  - `--max-model-len` 8192 → 32768 (Qwen2.5 native). Tool-mode rollouts reach ~37K tokens (Step 14 measurement), so local tool mode would have failed on context length.
+  - Added `--enable-auto-tool-choice --tool-call-parser hermes`. Without them vLLM rejects every request that carries `tools`, so local tool mode and Track C S2–S4 could not have run at all.
+- **Same day, further resize ("can it finish today?"):** hosted tool mode moved from 3.5 Flash-Lite core10 (~240 requests, which spilled into tomorrow) to **3.1 Flash-Lite core6** (~144 requests). That model's 500/day quota was used only by the judge (~200 today). Gemini 3.8 Flash runs with `--daily-request-cap 19` (18 rollouts + the 1 probe request already spent = 19 of Google's 20).
+  - **Brief check:** it requires ≥ 3 configs, ≥ 3 rollouts per task, and ≥ 100 generated instances with a non-degenerate distribution. It does not fix a per-model task count, so smaller hosted subsets keep every requirement. The full 109-task coverage comes from Gemini 3.5 Flash-Lite, local Qwen 3B / 0.5B and the baselines.
+  - **Cost, stated for EVAL_REPORT:** in that one run the judge (3.1 Flash-Lite) scores its own model's trap explanations (1 trap × 3 rollouts), a self-preference risk; the judge's weight is 0.2 of a trap's score and its reliability is measured separately.
+
+---
+
+## Minimum-threshold plan + two runner bugs from the first pilot attempt (2026-10-19)
+
+**User request:** "just add the minimum no. of thresholds the document asked, so we can showcase that it works". Every minimum was re-read from the brief text (pdftotext). The table is at the top of USER_ACTIONS.
+- **Judge reliability:** the brief says 3 repeats **or** 15 hand labels (p.9). Now 3 repeats only; hand labels are optional.
+- **RL** (p.12: "a working loop on a 0.5B model over 30 training tasks"): 30 train tasks, 60 steps per β, G = 8, validation and checkpoints every 20 steps. The LR probe is cancelled. Logged as pre-registration amendment **A10, before any training run**.
+- **Track C** (p.14: model fixed, scaffold varied): all local. Qwen-3B × S0–S4, with Qwen-0.5B at S0/S4 as the matched-scaffold comparison model; no hosted quota. `track_c.py --frontier` became `--compare` (default local Qwen-0.5B).
+- **Failure analysis:** 5 transcripts (p.16: 5–10).
+
+**First pilot attempt (user run):**
+- **Docker:** `permission denied … docker.sock`. The user is not in the `docker` group; fix in Step 17.0 (`usermod -aG docker`).
+- **Runner bug 1:** the TPM guard I added earlier today ("input + max_tokens must fit the provider's per-minute window") rejected every request with `--max-tokens < 512`, including local models with no TPM limit. So all 400 pilot rollouts errored with "prompt too large … at 0 TPM". **Fix:** it applies only when a TPM limit exists and the *clamp* (not the user's own `--max-tokens`) leaves too little room.
+- **Runner bug 2:** that error path skipped the consecutive-error counter, so a run with **0/400 successful rollouts reported `completed`**, the "silently fails" pattern the brief warns about. **Fix:** every error path counts; a non-baseline run with zero successes is never `completed` (status `unavailable`, exit 3).
+- `pilot_report.py` now explains a run with no successes instead of `ZeroDivisionError`.
+- **Guards:** `test_small_max_tokens_is_allowed_without_a_tpm_limit`, `test_a_run_where_nothing_succeeded_is_never_completed`. Suite **222 passed**.

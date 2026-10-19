@@ -334,7 +334,9 @@ class EvalRun:
                 self.abort = "aborted_budget"
                 return None
             sampling = self.sampling_args(row)
-            if sampling["max_tokens"] < 512:  # the prompt alone nearly fills the provider's per-minute window
+            # Only when the TPM clamp (not the user's own --max-tokens) left too little room for a reply.
+            if self.tpm and sampling["max_tokens"] < min(512, self.args.max_tokens):
+                self._count_error()
                 return {"status": "error", "error": f"prompt too large for {self.spec.name} at {self.tpm} TPM", "retried": retried,
                         "reward": None, "metrics": {}, "input_tokens": 0, "output_tokens": 0, "cost_list_usd": 0.0}
             # Providers count input + max_tokens against the per-minute window at request time.
@@ -368,9 +370,7 @@ class EvalRun:
         if self.cost_list >= self.args.max_cost and not self.abort:
             self.abort = "aborted_cost"
         if err:
-            self.consecutive_errors += 1
-            if self.consecutive_errors >= self.args.max_consecutive_errors and not self.abort:
-                self.abort = "unavailable"
+            self._count_error()
         else:
             self.consecutive_errors = 0
         timing = (out or {}).get("timing") or {}
@@ -399,6 +399,11 @@ class EvalRun:
             "prompt": _compact_prompt(row["prompt"], self.args.mode),
             "completion": _jsonable((out or {}).get("completion")),
         }
+
+    def _count_error(self) -> None:
+        self.consecutive_errors += 1
+        if self.consecutive_errors >= self.args.max_consecutive_errors and not self.abort:
+            self.abort = "unavailable"
 
     async def write(self, record: dict) -> None:
         line = json.dumps(record, default=str)
@@ -444,6 +449,12 @@ class EvalRun:
 
         await asyncio.gather(*(guarded(i, row, r) for i, row, r in work))
         status = self.abort or "completed"
+        if status == "completed" and work and not self.spec.is_baseline:
+            # Never report "completed" for a run in which nothing succeeded (found 2026-10-19: 400/400 errors
+            # were reported as completed because one error path skipped the consecutive-error counter).
+            ok = sum(1 for v in self.load_done().values() if v.get("status") == "ok")
+            if ok == 0:
+                status = "unavailable"
         self.finalise(status, planned)
         print(f"{status}: results in {self.dir}")
         if status == "aborted_budget":

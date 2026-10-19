@@ -23,6 +23,10 @@ def main(run_dir: Path) -> None:
         if r.get("status") == "ok":
             groups[r["task_id"]].append(r["reward"])
             tiers[r["task_id"]] = r["difficulty"]
+    if not groups:
+        errors = [r.get("error") for r in rows if r.get("status") != "ok"]
+        raise SystemExit(f"no successful rollouts in {run_dir} ({len(errors)} errors, e.g. {errors[:1]}); "
+                         "is the model server running? (docker compose --profile gpu up -d llm)")
     zero_std = sum(1 for v in groups.values() if len(set(round(x, 6) for x in v)) == 1) / len(groups)
     pass2 = [x >= 0.95 for t, v in groups.items() if tiers[t] == 2 for x in v]
     pass3 = [x >= 0.8 for t, v in groups.items() if tiers[t] == 3 for x in v]

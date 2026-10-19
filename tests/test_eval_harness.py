@@ -183,10 +183,10 @@ def test_caps_come_from_the_published_free_limits_with_headroom(tmp_path):
 
     assert caps_for("local/qwen2.5-3b") is None and caps_for("baseline/format_only") is None
     flash = caps_for("gemini/gemini-3.8-flash")  # 20 requests/day, 5/min on the free tier
-    assert flash.requests == 15 and flash.rpm == 4
+    assert flash.requests == 18 and flash.rpm == 4
     groq = caps_for("groq/openai/gpt-oss-120b")  # 200K tokens/day, 8K/min
-    assert groq.tokens == 150_000 and groq.tpm == 8000
-    assert caps_for("gemini/some-typo").requests == 15  # unknown models get the strictest limits
+    assert groq.tokens == 180_000 and groq.tpm == 8000
+    assert caps_for("gemini/some-typo").requests == 18  # unknown models get the strictest limits
     assert caps_for("gemini/gemini-3.8-flash", 0).requests is None
     # The token cap binds independently of the request cap.
     led = RequestLedger("groq/openai/gpt-oss-120b", Caps(requests=100, tokens=10_000, rpm=0, tpm=0), tmp_path / "l.json")
@@ -326,3 +326,17 @@ def test_gpt_oss_on_groq_uses_low_reasoning_effort(tmp_path, monkeypatch):
     assert run.sampling_args()["reasoning_effort"] == "low"
     cfg = json.loads((run.dir / "config.json").read_text())
     assert cfg["sampling"]["reasoning_effort"] == "low"  # recorded, so the config is honest about it
+
+
+def test_small_max_tokens_is_allowed_without_a_tpm_limit(tmp_path, monkeypatch):
+    """--max-tokens 384 on a local model (pilot) was rejected as 'prompt too large' by the TPM guard."""
+    run, fake, code = _model_run(tmp_path, monkeypatch, [], "--max-cost", "100", "--limit", "2", "--rollouts", "1",
+                                 "--max-tokens", "384")
+    assert code == 0 and fake.calls == 2
+
+
+def test_a_run_where_nothing_succeeded_is_never_completed(tmp_path, monkeypatch):
+    run, fake, code = _model_run(tmp_path, monkeypatch, ["fatal"] * 50, "--max-cost", "100", "--limit", "2",
+                                 "--rollouts", "1", "--max-consecutive-errors", "100")
+    metrics = json.loads((run.dir / "metrics.json").read_text())
+    assert code == 3 and metrics["status"] == "unavailable" and metrics["rollouts_ok"] == 0

@@ -42,7 +42,7 @@ KL̂       = per-token k3 estimator:  exp(log π_ref − log π_θ) − (log π_
 | Algorithm | GRPO (Dr. GRPO loss) | **Rewards:** our rewards are verifiable and per-completion, so a group of samples gives a baseline for free. **Alternatives:** PPO needs a value network (2× memory, plus critic instability on a 0.5B); RLOO is equivalent in spirit but less supported in TRL; DPO/SFT need preference or gold traces and do not optimise our actual rubric; REINFORCE without a group baseline has high variance. | No: chosen by argument |
 | Group size G | 8 | The brief's minimum is 4. With binary-ish rewards and pass rates ≈ 0.2–0.6, G = 8 makes an all-identical group unlikely (≈ 0.6⁸ + 0.4⁸ ≈ 2% at p = 0.4) while fitting memory. | No (G = 4 only in the smoke test) |
 | Prompts per step | 4 (32 completions) | A stable advantage estimate per step that still fits ~150 steps in ~45 min | No |
-| Learning rate | 2e-5 (LoRA) | LoRA adapters need ~10× the full fine-tune LR; 1e-5 to 5e-5 is the usual LoRA GRPO range | **Yes: LR probe (A8)** |
+| Learning rate | 2e-5 (LoRA) | LoRA adapters need ~10× the full fine-tune LR; 1e-5 to 5e-5 is the usual LoRA GRPO range | No (the A8 probe was cancelled in A10, before training) |
 | LoRA rank / α | 16 / 32 | Enough capacity to change output format and decision behaviour on 0.5B; α = 2r is the common default | No |
 | β (KL) | 0.001 vs 0.04 | Required sweep, one deliberately too low; β = 0 logs no KL in TRL | **Yes: the sweep** |
 | Clip ε | 0.2 (TRL default) | Standard PPO/GRPO trust region; not a lever the brief asks about | No |
@@ -92,11 +92,17 @@ If one is found: transcript evidence → rubric fix (version bump) → rerun →
 - **2026-10-19, after the smoke test (reward = format only, so not a result):** the LR schedule is now **constant** with no warmup. The smoke run showed TRL's default linear decay (2e-5 → 2e-6 over 10 steps). With decay, the effective LR depends on `max_steps`, so a 30-step probe (A8) would not transfer to a 150-step run, and a plateau stop would compare checkpoints trained at different LRs. No training result had been seen when this was changed.
 - **Measured cost:** smoke config (2 prompts × G = 4 = 8 completions/step, HF generation) ran at ≈ 24 s/step on the RTX 5070 Ti. The real config is 32 completions/step; Step 17 measures it before the runs are sized.
 
+- **2026-10-19, A10 (before any training run): scope reduced to the brief's minimum**, at the user's request to show the full flow quickly. Brief p.12: "A working loop on a 0.5B model over 30 training tasks, with real curves and an honest held-out comparison, scores far better than an ambitious run that did not converge."
+  - **Training set:** 30 tasks (first 30 of the train file chosen by the pilot), not ~200.
+  - **Steps:** 60 per run (was ≤ 150); G = 8; 2 prompts per step (16 completions/step); ≈ 4 passes over the 30 tasks.
+  - **Validation and checkpoints:** every 20 steps (was 25), so a run has 3 checks plus step 0. The plateau rule (3 checks without +0.02) can therefore only fire at the end; the safety stops are unchanged.
+  - **LR probe (A8) cancelled.** It is not a brief requirement. LR stays at 2e-5 for the reasons in A2b, and A2b's "Tuned?" column now reads "no" for LR. Reported as a limitation: the LR was not tuned.
+  - **Pilot:** 30 train tasks × 4 samples (brief's G minimum), same rule as A4.
+  - **Unchanged:** algorithm, loss, β ∈ {0.001, 0.04}, stop rules, model selection on validation only, held-out scored once (109 tasks × 3 rollouts).
+
 ---
 
 ## Part B: results (filled after training from committed files)
-
-- B1b. LR probe: validation reward at step 30 and KL per LR, and the chosen LR:
 
 - B1. Pilot result and preset chosen:
 - B2. Curves (reward, KL, entropy, completion length, per-tier pass rate): dashboard §RL; `results/train/<run>/metrics.csv`

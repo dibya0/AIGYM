@@ -2,7 +2,11 @@
 more than model choice"). Reads results/*/trackc-S*/ runs and writes results/track_c/summary.json for the
 dashboard and docs/TRACK_C.md.
 
-    uv run python scripts/track_c.py --small local/qwen2.5-3b --frontier gemini/gemini-3.5-flash-lite
+    uv run python scripts/track_c.py --small local/qwen2.5-3b --compare local/qwen2.5-0.5b
+
+The fixed model runs S0–S4; the comparison model runs at least S0 and S4 (matched scaffolds), so the
+scaffold effect (fixed model, best vs worst scaffold) can be set against the model effect (the two models at
+the same scaffold). Both local: no hosted quota.
 """
 
 from __future__ import annotations
@@ -41,6 +45,7 @@ def load(results: Path) -> list[dict]:
 
 
 def finding(rows: list[dict], small: str, frontier: str) -> str:
+    """`frontier` is the comparison model (any model run at matched scaffolds; here local Qwen-0.5B)."""
     by = {(r["model"], r["scaffold"]): r["mean_reward"] for r in rows if r["mean_reward"] is not None}
     small_scores = {s: v for (m, s), v in by.items() if m == small}
     if not small_scores:
@@ -54,11 +59,11 @@ def finding(rows: list[dict], small: str, frontier: str) -> str:
     if model_effects:
         avg_model = mean(model_effects.values())
         lines.append(f"Model effect ({frontier} minus {small}) at matched scaffolds: "
-                     + ", ".join(f"{s} {v:+.3f}" for s, v in model_effects.items()) + f" (mean {avg_model:+.3f}).")
+                     + ", ".join(f"{s} {v:+.3f}" for s, v in model_effects.items()) + f" (mean {avg_model:+.3f}, size {abs(avg_model):.3f}).")
         verdict = "scaffold matters more than model choice" if scaffold_effect > abs(avg_model) else "model choice matters more than scaffold"
         lines.append(f"On this gym: {verdict}.")
     if (frontier, "S0") in by:
-        lines.append(f"Cheap model with its best scaffold ({small_scores[best_s]:.3f}) vs frontier with a bare prompt "
+        lines.append(f"Fixed model with its best scaffold ({small_scores[best_s]:.3f}) vs {frontier} with a bare prompt "
                      f"({by[(frontier, 'S0')]:.3f}).")
     return " ".join(lines)
 
@@ -67,7 +72,8 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--results", default="results")
     ap.add_argument("--small", required=True)
-    ap.add_argument("--frontier", required=True)
+    ap.add_argument("--compare", "--frontier", dest="frontier", default="local/qwen2.5-0.5b",
+                    help="comparison model run at matched scaffolds (default: local Qwen-0.5B)")
     args = ap.parse_args()
     rows = load(Path(args.results))
     summary = {"rows": rows, "finding": finding(rows, args.small, args.frontier)}

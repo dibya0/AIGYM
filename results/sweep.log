@@ -1,0 +1,12 @@
+== adversarial baselines (no model calls)
+baseline/format_only: 109 tasks x 3 rollouts = 327 (0 already done, 327 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
+completed: results in results/baseline__format_only/eval-single
+baseline/always_abstain: 109 tasks x 3 rollouts = 327 (0 already done, 327 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
+completed: results in results/baseline__always_abstain/eval-single
+baseline/modal_answer: 109 tasks x 3 rollouts = 327 (0 already done, 327 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
+completed: results in results/baseline__modal_answer/eval-single
+baseline/naive_no_ceiling: 109 tasks x 3 rollouts = 327 (0 already done, 327 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
+completed: results in results/baseline__naive_no_ceiling/eval-single
+baseline/gross_as_net: 109 tasks x 3 rollouts = 327 (0 already done, 327 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
+completed: results in results/baseline__gross_as_net/eval-single
+== Gemini Flash-Lite (frontier lab, highest free quota): full eval, single-turn
