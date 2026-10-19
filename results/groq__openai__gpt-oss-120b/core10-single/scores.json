@@ -16,20 +16,20 @@
   "taskset_hash": "356e86dc20a070f8",
   "ruleset_version": "1.0",
   "ruleset_fingerprint": "42b009c25d689c46",
-  "rubric_version": "1.0",
+  "rubric_version": "1.1",
   "schema_version": "1.0",
   "summary": {
     "tasks": 10,
     "rollouts_ok": 20,
     "rollouts_failed": 10,
-    "mean_reward": 0.405,
-    "run_sd": 0.0673,
+    "mean_reward": 0.4,
+    "run_sd": 0.0693,
     "rollout_sd": 0.0,
     "disagreement_rate": 0.0
   },
   "by_tier": {
     "1": 1.0,
-    "2": 0.0083,
+    "2": 0.0,
     "3": 1.0
   },
   "by_component": {
@@ -39,7 +39,7 @@
     "net_pay_exact": 0.0,
     "num_turns": 1.0,
     "parse_failed": 0.5,
-    "paygym_reward": 0.405,
+    "paygym_reward": 0.4,
     "refused": 0.3,
     "tool_errors": 0.0,
     "trap_decision": 0.2,
@@ -124,8 +124,8 @@
       "kind": "payslip",
       "task_seed": 2000049,
       "rewards": [
-        0.05,
-        0.05
+        0.0,
+        0.0
       ],
       "gates": [
         "refused_determinable",
@@ -137,7 +137,7 @@
         "error"
       ],
       "components": {
-        "paygym_reward": 0.05,
+        "paygym_reward": 0.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -149,7 +149,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.05,
+      "mean": 0.0,
       "sd": 0.0
     },
     "gen-2000065-trap": {

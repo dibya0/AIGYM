@@ -111,7 +111,10 @@ def _cmd_judge(args: argparse.Namespace) -> int:
 def _cmd_rescore(args: argparse.Namespace) -> int:
     from paygym.eval.runner import rescore
 
-    dirs = [Path(d) for d in args.runs] or sorted(p.parent for p in Path(args.results).glob("*/*/config.json"))
+    # Eval runs only: they have a transcript and a taskset hash (training runs under results/train/ do not).
+    dirs = [Path(d) for d in args.runs] or sorted(
+        p.parent for p in Path(args.results).glob("*/*/config.json")
+        if (p.parent / "transcript.jsonl").exists() and "taskset_hash" in json.loads(p.read_text()))
     for d in dirs:
         print(json.dumps(rescore(d)))
     return 0

@@ -36,20 +36,20 @@
   "taskset_hash": "031c0d348c5d4973",
   "ruleset_version": "1.0",
   "ruleset_fingerprint": "42b009c25d689c46",
-  "rubric_version": "1.0",
+  "rubric_version": "1.1",
   "schema_version": "1.0",
   "summary": {
     "tasks": 30,
     "rollouts_ok": 120,
     "rollouts_failed": 0,
-    "mean_reward": -0.1046,
+    "mean_reward": -0.1079,
     "run_sd": 0.0022,
     "rollout_sd": 0.0061,
     "disagreement_rate": 0.2
   },
   "by_tier": {
     "1": null,
-    "2": 0.0601,
+    "2": 0.0554,
     "3": -0.4889
   },
   "by_component": {
@@ -59,7 +59,7 @@
     "net_pay_exact": 0.0,
     "num_turns": 1.0,
     "parse_failed": 0.3833,
-    "paygym_reward": -0.1046,
+    "paygym_reward": -0.1079,
     "refused": 0.1333,
     "tool_errors": 0.0,
     "trap_decision": -0.1467,
@@ -116,10 +116,10 @@
       "kind": "payslip",
       "task_seed": 11,
       "rewards": [
-        0.05,
-        0.05,
-        0.05,
-        0.05
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "gates": [
         "refused_determinable",
@@ -134,7 +134,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.05,
+        "paygym_reward": 0.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -146,7 +146,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.05,
+      "mean": 0.0,
       "sd": 0.0
     },
     "gen-0000009-twin": {
@@ -762,10 +762,10 @@
       "kind": "payslip",
       "task_seed": 14,
       "rewards": [
-        0.05,
-        0.05,
-        0.05,
-        0.05
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "gates": [
         "refused_determinable",
@@ -780,7 +780,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.05,
+        "paygym_reward": 0.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -792,7 +792,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.05,
+      "mean": 0.0,
       "sd": 0.0
     },
     "gen-0000015-trap": {
@@ -1214,5 +1214,5 @@
       "sd": 0.0
     }
   },
-  "twins": 0.05
+  "twins": 0.0437
 }

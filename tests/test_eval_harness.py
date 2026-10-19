@@ -372,3 +372,16 @@ def test_leaderboard_excludes_pilots_and_runs_with_no_successes(tmp_path):
     assert not is_leaderboard_run({"split": "eval", "tasks_path": "tasks/generated/train_easy.jsonl"}, {"rollouts_ok": 120})  # a pilot
     assert not is_leaderboard_run({"split": "eval", "tasks_path": None}, {"rollouts_ok": 0})  # server was down
     assert [r["model"] for r in leaderboard.build(tmp_path)["runs"]] == ["baseline/naive_no_ceiling"]
+
+
+def test_rescore_needs_no_api_key_for_a_judged_run(tmp_path, monkeypatch):
+    from paygym.eval.runner import rescore
+
+    assert main(["--model", "baseline/always_abstain", "--n-seeds", "12", "--rollouts", "1", "--out", str(tmp_path), "--run-name", "r"]) == 0
+    run_dir = tmp_path / "baseline__always_abstain" / "r"
+    cfg = json.loads((run_dir / "config.json").read_text())
+    cfg.update({"rubric_version": "1.0", "judge": True})  # as a hosted run with --judge was recorded
+    (run_dir / "config.json").write_text(json.dumps(cfg))
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    assert rescore(run_dir)["rubric_version"] != "1.0"
+    assert json.loads((run_dir / "config.json").read_text())["judge"] is True

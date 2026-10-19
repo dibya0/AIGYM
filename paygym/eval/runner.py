@@ -562,6 +562,9 @@ def rescore(run_dir: Path) -> dict:
         if key in cfg:
             setattr(args, attr, cfg[key])
     args.resume = str(run_dir)
+    # Trap rows (the only ones the judge scores) are not re-scored, so no judge client is needed: rescoring
+    # must work with no API key at all. The config keeps judge=True for the record.
+    args.judge = False
     if cfg.get("base_url") and cfg.get("provider") == "custom":
         args.base_url = cfg["base_url"]
     run = EvalRun(args)
@@ -584,6 +587,7 @@ def rescore(run_dir: Path) -> dict:
     run.transcript.write_text("".join(json.dumps(r, default=str) + "\n" for r in rows))
     cfg["rescored_from"] = cfg.get("rubric_version")
     cfg["rubric_version"] = RUBRIC_VERSION
+    cfg["judge"] = json.loads((run_dir / "config.json").read_text()).get("judge")
     (run_dir / "config.json").write_text(json.dumps(cfg, indent=2, default=str))
     run.finalise(old_metrics.get("status", "completed"), old_metrics.get("rollouts_planned", len(rows)))
     return {"run": str(run_dir), "changed": changed, "rescored_from": cfg["rescored_from"], "rubric_version": RUBRIC_VERSION}

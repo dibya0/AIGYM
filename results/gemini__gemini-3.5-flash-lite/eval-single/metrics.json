@@ -115,7 +115,7 @@
   "taskset_hash": "26e38b81e474ac53",
   "ruleset_version": "1.0",
   "ruleset_fingerprint": "42b009c25d689c46",
-  "rubric_version": "1.0",
+  "rubric_version": "1.1",
   "schema_version": "1.0",
   "status": "completed",
   "rollouts_planned": 327,
@@ -139,5 +139,5 @@
     "max_turns_reached": 327
   },
   "parse_fail_rate": 0.0092,
-  "wall_clock_s": 416.7
+  "wall_clock_s": 0.1
 }

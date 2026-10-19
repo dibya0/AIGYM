@@ -36,20 +36,20 @@
   "taskset_hash": "78f37f3a4701f3ec",
   "ruleset_version": "1.0",
   "ruleset_fingerprint": "42b009c25d689c46",
-  "rubric_version": "1.0",
+  "rubric_version": "1.1",
   "schema_version": "1.0",
   "summary": {
     "tasks": 30,
     "rollouts_ok": 120,
     "rollouts_failed": 0,
-    "mean_reward": -0.1406,
-    "run_sd": 0.0159,
-    "rollout_sd": 0.0416,
-    "disagreement_rate": 0.2
+    "mean_reward": -0.1535,
+    "run_sd": 0.0166,
+    "rollout_sd": 0.0409,
+    "disagreement_rate": 0.1667
   },
   "by_tier": {
     "1": null,
-    "2": 0.0693,
+    "2": 0.0509,
     "3": -0.6306
   },
   "by_component": {
@@ -59,7 +59,7 @@
     "net_pay_exact": 0.0,
     "num_turns": 1.0,
     "parse_failed": 0.3667,
-    "paygym_reward": -0.1406,
+    "paygym_reward": -0.1535,
     "refused": 0.2667,
     "tool_errors": 0.0,
     "trap_decision": -0.1892,
@@ -78,10 +78,10 @@
       "kind": "payslip",
       "task_seed": 2,
       "rewards": [
-        0.05,
-        0.05,
-        0.05,
-        0.05
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "gates": [
         "refused_determinable",
@@ -96,7 +96,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.05,
+        "paygym_reward": 0.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -108,7 +108,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.05,
+      "mean": 0.0,
       "sd": 0.0
     },
     "gen-easier-0000006": {
@@ -572,10 +572,10 @@
       "kind": "payslip",
       "task_seed": 5,
       "rewards": [
-        0.05,
-        0.05,
-        0.05,
-        0.05
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "gates": [
         "refused_determinable",
@@ -590,7 +590,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.05,
+        "paygym_reward": 0.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -602,7 +602,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.05,
+      "mean": 0.0,
       "sd": 0.0
     },
     "gen-easier-0000008": {
@@ -610,10 +610,10 @@
       "kind": "payslip",
       "task_seed": 8,
       "rewards": [
-        0.05,
         0.0,
-        0.05,
-        0.05
+        0.0,
+        0.0,
+        0.0
       ],
       "gates": [
         "refused_determinable",
@@ -628,7 +628,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.0375,
+        "paygym_reward": 0.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -640,18 +640,18 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.0375,
-      "sd": 0.0217
+      "mean": 0.0,
+      "sd": 0.0
     },
     "gen-easier-0000003": {
       "difficulty": 2,
       "kind": "payslip",
       "task_seed": 3,
       "rewards": [
-        0.05,
-        0.05,
-        0.05,
-        0.05
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "gates": [
         "refused_determinable",
@@ -666,7 +666,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.05,
+        "paygym_reward": 0.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -678,7 +678,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.05,
+      "mean": 0.0,
       "sd": 0.0
     },
     "gen-easier-0000015-trap": {
@@ -914,10 +914,10 @@
       "kind": "payslip",
       "task_seed": 18,
       "rewards": [
-        0.05,
-        0.05,
-        0.05,
-        0.05
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "gates": [
         "refused_determinable",
@@ -932,7 +932,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.05,
+        "paygym_reward": 0.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -944,7 +944,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.05,
+      "mean": 0.0,
       "sd": 0.0
     },
     "gen-easier-0000014-twin": {
@@ -1066,10 +1066,10 @@
       "kind": "payslip",
       "task_seed": 20,
       "rewards": [
-        0.05,
-        0.05,
-        0.05,
-        0.05
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "gates": [
         "refused_determinable",
@@ -1084,7 +1084,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.05,
+        "paygym_reward": 0.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -1096,7 +1096,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.05,
+      "mean": 0.0,
       "sd": 0.0
     },
     "gen-easier-0000017-twin": {
@@ -1104,10 +1104,10 @@
       "kind": "payslip",
       "task_seed": 17,
       "rewards": [
-        0.05,
-        0.05,
-        0.05,
-        0.05
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "gates": [
         "refused_determinable",
@@ -1122,7 +1122,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.05,
+        "paygym_reward": 0.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -1134,7 +1134,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.05,
+      "mean": 0.0,
       "sd": 0.0
     },
     "gen-easier-0000016": {
@@ -1142,10 +1142,10 @@
       "kind": "payslip",
       "task_seed": 16,
       "rewards": [
-        0.05,
-        0.05,
-        0.05,
-        0.05
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "gates": [
         "refused_determinable",
@@ -1160,7 +1160,7 @@
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.05,
+        "paygym_reward": 0.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
@@ -1172,7 +1172,7 @@
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
-      "mean": 0.05,
+      "mean": 0.0,
       "sd": 0.0
     },
     "gen-easier-0000017-trap": {
@@ -1214,5 +1214,5 @@
       "sd": 0.433
     }
   },
-  "twins": 0.0531
+  "twins": 0.0406
 }

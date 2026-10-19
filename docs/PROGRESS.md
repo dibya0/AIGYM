@@ -848,3 +848,10 @@ Every GRPO setting was checked against the code and the observed logs.
 - **Bug 2, the weight-sensitivity table compared models on different tasks:** it kept the *last* run per model, so Gemini 3.8 Flash (core6), Groq (core10) and Flash-Lite (core6 tool / full) were ranked against each other on different task sets. **Fix:** sensitivity uses only full-eval, single-turn, default-scaffold runs, so every model is scored on the same 109 tasks; two such runs for one model is an error.
   - **Result:** ranking unchanged under all four weightings (Kendall τ = 1.0), over Flash-Lite + 5 baselines so far.
 - **Still to do today:** `paygym rescore` brings the Flash-Lite and baseline runs, scored under rubric 1.0, to 1.1 ($0). Suite 225 passed.
+- **Rescore to rubric 1.1 done:**
+  - `always_abstain` changed 210 rows, mean **0.121 → 0.089**; Flash-Lite **0.394 → 0.391**; Groq core10 0.405 → 0.400. All other runs unchanged.
+  - Every leaderboard row is now rubric 1.1, so there is a single version group.
+- **Two `rescore` bugs found on the real run, both fixed:**
+  1. it built the Gemini judge for runs recorded with `--judge`, and crashed without `GEMINI_API_KEY`. Re-scoring never re-judges (trap rows are untouched), so it now runs with no API key (`test_rescore_needs_no_api_key_for_a_judged_run`);
+  2. it also picked up training run folders (`results/train/*`, which have no transcript). It now picks only eval runs (transcript + taskset hash).
+- Suite 226 passed.
