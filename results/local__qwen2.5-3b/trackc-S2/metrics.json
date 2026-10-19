@@ -120,33 +120,28 @@
   "status": "completed",
   "rollouts_planned": 327,
   "rollouts_recorded": 327,
-  "rollouts_ok": 300,
-  "rollouts_error": 27,
+  "rollouts_ok": 327,
+  "rollouts_error": 0,
   "retried_rollouts": 0,
-  "errors_sample": [
-    "EmptyModelResponseError: Model returned no content and did not call any tools",
-    "EmptyModelResponseError: Model returned no content and did not call any tools",
-    "EmptyModelResponseError: Model returned no content and did not call any tools",
-    "EmptyModelResponseError: Model returned no content and did not call any tools",
-    "EmptyModelResponseError: Model returned no content and did not call any tools"
-  ],
+  "errors_sample": [],
   "input_tokens": 7371467.0,
   "output_tokens": 219316.0,
   "cost_list_usd": 0,
   "cost_actual_usd": 0.0,
   "latency_s": {
-    "mean": 15.766,
-    "p50": 7.201499999999999,
-    "p95": 60.87070000000002
+    "mean": 16.005,
+    "p50": 8.228,
+    "p95": 59.57319999999998
   },
-  "tool_calls_total": 2241.0,
-  "tool_calls_mean": 7.47,
+  "tool_calls_total": 2650.0,
+  "tool_calls_mean": 8.104,
   "stop_conditions": {
     "no_tools_called": 270,
+    "has_error": 27,
     "prompt_too_long": 12,
     "tool_loop_detected": 7,
     "max_turns_reached": 11
   },
-  "parse_fail_rate": 0.24,
-  "wall_clock_s": 679.8
+  "parse_fail_rate": 0.3028,
+  "wall_clock_s": 0.1
 }

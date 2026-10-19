@@ -60,8 +60,15 @@ def finding(rows: list[dict], small: str, frontier: str) -> str:
         avg_model = mean(model_effects.values())
         lines.append(f"Model effect ({frontier} minus {small}) at matched scaffolds: "
                      + ", ".join(f"{s} {v:+.3f}" for s, v in model_effects.items()) + f" (mean {avg_model:+.3f}, size {abs(avg_model):.3f}).")
-        verdict = "scaffold matters more than model choice" if scaffold_effect > abs(avg_model) else "model choice matters more than scaffold"
-        lines.append(f"On this gym: {verdict}.")
+        signs = {v > 0 for v in model_effects.values()}
+        if len(signs) > 1:
+            lines.append("The model effect changes sign across scaffolds (an interaction): neither choice dominates; "
+                         "pick the model and the scaffold together.")
+        elif abs(scaffold_effect - abs(avg_model)) < 0.05:
+            lines.append("Scaffold and model effects are comparable (within 0.05).")
+        else:
+            verdict = "scaffold matters more than model choice" if scaffold_effect > abs(avg_model) else "model choice matters more than scaffold"
+            lines.append(f"On this gym: {verdict}.")
     if (frontier, "S0") in by:
         lines.append(f"Fixed model with its best scaffold ({small_scores[best_s]:.3f}) vs {frontier} with a bare prompt "
                      f"({by[(frontier, 'S0')]:.3f}).")

@@ -1041,3 +1041,28 @@ The brief's Phase 06, Phase 08 and §9 text was re-read (pdftotext) and checked 
 - **Verified before redeploying:** a copy of the repo minus the ignored paths (5.1 MB), in a clean venv with only `requirements.txt`, gives `/health` 200 (rubric 1.4), `/tasks` (no ground truth), `/submit` (score + breakdown + clause), and `/api/docs` Swagger 200 with 6 endpoints.
 - Added a `/docs` → `/api/docs` redirect (`vercel.json`) so reviewers find the interactive API docs.
 - Sandbox env vars: `SANDBOX_SECRET` (≥ 32 chars), `GEMINI_API_KEY`, `PAYGYM_JUDGE_MODEL`. The store accepts Vercel's `KV_REST_API_*` names as well as `UPSTASH_REDIS_REST_*`.
+- **Live sandbox verified after the fix** (https://aigym-alpha.vercel.app):
+  - `/health` 200 (rubric 1.4); `/docs` → Swagger 200;
+  - `scripts/quickstart.py <url>` round trip OK, with per-task score + breakdown + clause (e.g. trap wrong reason +0.30 `GEN-§9.4`; refused payslip −1.00 `GEN-§9`);
+  - `/submit` echoes run_id, ruleset_version, seed, tier_mix; `/runs/<id>` 200 ×3;
+  - `n=10000` → 400 "capped at 50 tasks per run".
+  - Pending: confirm Upstash Redis is connected (persistence across cold instances, rate limits).
+
+---
+
+## Step 20: Track C done; dashboard rebuilt with final results (2026-10-19)
+
+- **`scripts/track_c.sh`:** 7 runs × 327 rollouts (Qwen-3B S0–S4, Qwen-0.5B S0/S4), all complete. S2's 27 empty replies were re-scored as −1 (`rescore --force`).
+- **Results:**
+  - Qwen-3B: S0 −0.622, S1 −0.485, S2 −0.526, S3 −0.423, S4 −0.412;
+  - Qwen-0.5B: S0 −0.454, S4 −0.997;
+  - 0 % exact payslips in every Qwen configuration;
+  - Gemini Flash-Lite at S1 +0.314 (reference).
+- **The script's verdict was misleading:** it declared "scaffold matters more" on +0.210 vs 0.209, and the model effect *changes sign* (S0 +0.168, S4 −0.585). **Fixed:** `track_c.py` reports a sign change as an interaction and a < 0.05 gap as comparable, instead of picking a winner.
+- **`docs/TRACK_C.md` written:**
+  - the scaffold gives +0.21 for the 3B, and rules in context (S1) gives +0.14 at 4.6K tokens, the best value; tools alone are worse than S1 at 5× tokens;
+  - the model effect flips with the scaffold;
+  - frontier vs 3B is +0.80 at S1, which dominates;
+  - commercial reading and limits.
+- **Dashboard rebuilt** with `--sandbox-url https://aigym-alpha.vercel.app`: 12 models/baselines, Track C rows, both held-out tables, RL curves, external-runs section.
+  - Fix: subset-view rows reused a duplicate transcript file each (46 files, 4.7 MB). They now point to the full run's file, and stale data is cleared on each build: `public/` 15 MB → 9.6 MB.

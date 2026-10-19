@@ -214,9 +214,15 @@ def build(results: Path = Path("results"), out: Path = Path("public"), sandbox_u
     rows_by_run = {r["run"]: _rows(results / r["run"]) for r in board["runs"]}
 
     out.mkdir(parents=True, exist_ok=True)
-    (out / "data").mkdir(exist_ok=True)
+    import shutil
+
+    shutil.rmtree(out / "data", ignore_errors=True)  # no stale files from earlier builds
+    (out / "data").mkdir()
     expected_cache: dict[str, dict] = {}
     for r in board["runs"]:
+        if r.get("subset_view_of"):  # a view of a full run on a subset: reuse that run's transcript file
+            r["transcript_file"] = f"data/{r['subset_view_of'].replace('/', '__')}.json"
+            continue
         key = r["taskset_hash"]
         if key not in expected_cache:
             expected_cache[key] = _expected(results / r["run"])

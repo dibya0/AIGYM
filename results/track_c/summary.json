@@ -1,0 +1,96 @@
+{
+  "rows": [
+    {
+      "model": "local/qwen2.5-0.5b",
+      "scaffold": "S0",
+      "scaffold_label": "bare prompt (no rule set)",
+      "mean_reward": -0.4539,
+      "run_sd": 0.0091,
+      "payslip_exact_rate": 0.0,
+      "trap_correct_rate": 0.0526,
+      "twin_score": -0.3908,
+      "tokens_per_rollout": 699.6,
+      "tool_calls_per_rollout": 0,
+      "list_cost_per_correct_payslip": null
+    },
+    {
+      "model": "local/qwen2.5-0.5b",
+      "scaffold": "S4",
+      "scaffold_label": "tools + self-check + checklist",
+      "mean_reward": -0.9969,
+      "run_sd": 0.0043,
+      "payslip_exact_rate": 0.0,
+      "trap_correct_rate": 0.0,
+      "twin_score": -1.0,
+      "tokens_per_rollout": 5170.7,
+      "tool_calls_per_rollout": 1.593,
+      "list_cost_per_correct_payslip": null
+    },
+    {
+      "model": "local/qwen2.5-3b",
+      "scaffold": "S0",
+      "scaffold_label": "bare prompt (no rule set)",
+      "mean_reward": -0.6219,
+      "run_sd": 0.0041,
+      "payslip_exact_rate": 0.0,
+      "trap_correct_rate": 0.1579,
+      "twin_score": -1.0,
+      "tokens_per_rollout": 557.7,
+      "tool_calls_per_rollout": 0,
+      "list_cost_per_correct_payslip": null
+    },
+    {
+      "model": "local/qwen2.5-3b",
+      "scaffold": "S1",
+      "scaffold_label": "rule set in context",
+      "mean_reward": -0.4852,
+      "run_sd": 0.009,
+      "payslip_exact_rate": 0.0,
+      "trap_correct_rate": 0.4737,
+      "twin_score": -0.8908,
+      "tokens_per_rollout": 4639.5,
+      "tool_calls_per_rollout": 0,
+      "list_cost_per_correct_payslip": null
+    },
+    {
+      "model": "local/qwen2.5-3b",
+      "scaffold": "S2",
+      "scaffold_label": "tools",
+      "mean_reward": -0.5262,
+      "run_sd": 0.0282,
+      "payslip_exact_rate": 0.0,
+      "trap_correct_rate": 0.2632,
+      "twin_score": -0.9268,
+      "tokens_per_rollout": 23213.4,
+      "tool_calls_per_rollout": 8.104,
+      "list_cost_per_correct_payslip": null
+    },
+    {
+      "model": "local/qwen2.5-3b",
+      "scaffold": "S3",
+      "scaffold_label": "tools + calc self-check",
+      "mean_reward": -0.4226,
+      "run_sd": 0.02,
+      "payslip_exact_rate": 0.0,
+      "trap_correct_rate": 0.2632,
+      "twin_score": -0.6215,
+      "tokens_per_rollout": 29693.2,
+      "tool_calls_per_rollout": 7.324,
+      "list_cost_per_correct_payslip": null
+    },
+    {
+      "model": "local/qwen2.5-3b",
+      "scaffold": "S4",
+      "scaffold_label": "tools + self-check + checklist",
+      "mean_reward": -0.4117,
+      "run_sd": 0.0176,
+      "payslip_exact_rate": 0.0,
+      "trap_correct_rate": 0.1754,
+      "twin_score": -0.6399,
+      "tokens_per_rollout": 28077.0,
+      "tool_calls_per_rollout": 4.758,
+      "list_cost_per_correct_payslip": null
+    }
+  ],
+  "finding": "Fixed model local/qwen2.5-3b: best scaffold S4 (tools + self-check + checklist) -0.412 vs worst S0 -0.622: scaffold effect +0.210. Model effect (local/qwen2.5-0.5b minus local/qwen2.5-3b) at matched scaffolds: S0 +0.168, S4 -0.585 (mean -0.209, size 0.209). The model effect changes sign across scaffolds (an interaction): neither choice dominates; pick the model and the scaffold together. Fixed model with its best scaffold (-0.412) vs local/qwen2.5-0.5b with a bare prompt (-0.454)."
+}

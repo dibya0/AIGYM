@@ -118,42 +118,42 @@
   "rubric_version": "1.4",
   "schema_version": "1.0",
   "summary": {
-    "tasks": 108,
-    "rollouts_ok": 300,
-    "rollouts_failed": 27,
-    "mean_reward": -0.5075,
-    "run_sd": 0.0341,
-    "rollout_sd": 0.1332,
-    "disagreement_rate": 0.2404
+    "tasks": 109,
+    "rollouts_ok": 327,
+    "rollouts_failed": 0,
+    "mean_reward": -0.5262,
+    "run_sd": 0.0282,
+    "rollout_sd": 0.1309,
+    "disagreement_rate": 0.2385
   },
   "by_tier": {
     "1": 0.4558,
-    "2": -0.9272,
-    "3": 0.0026
+    "2": -0.9306,
+    "3": -0.0702
   },
   "by_component": {
-    "calc_calls": 3.2233,
-    "format_valid": 0.76,
-    "get_employee_record_calls": 1.23,
-    "get_fx_rate_calls": 1.4367,
+    "calc_calls": 3.4801,
+    "format_valid": 0.6972,
+    "get_employee_record_calls": 1.3761,
+    "get_fx_rate_calls": 1.5229,
     "judge_flag_quality": 0.0,
-    "line_accuracy": 0.003,
-    "lookup_rules_calls": 1.58,
+    "line_accuracy": 0.0028,
+    "lookup_rules_calls": 1.7248,
     "net_pay_exact": 0.0,
-    "num_turns": 3.05,
-    "parse_failed": 0.24,
-    "paygym_reward": -0.4836,
-    "refused": 0.56,
-    "tool_errors": 1.72,
-    "total_tool_calls": 7.47,
-    "trap_decision": 0.0467,
-    "value_exact": 0.1333
+    "num_turns": 3.1437,
+    "parse_failed": 0.3028,
+    "paygym_reward": -0.5262,
+    "refused": 0.5138,
+    "tool_errors": 1.8287,
+    "total_tool_calls": 8.104,
+    "trap_decision": 0.0428,
+    "value_exact": 0.1223
   },
   "gates": {
     "refused_determinable": 133,
     "none": 55,
+    "unparseable": 91,
     "wrong_value": 7,
-    "unparseable": 64,
     "wrong_net_capped": 14,
     "wrong_reason": 20,
     "answered_trap": 7
@@ -245,16 +245,18 @@
       "task_seed": 2000007,
       "rewards": [
         -1.0,
+        -1.0,
         -1.0
       ],
       "gates": [
         "refused_determinable",
-        "refused_determinable"
+        "refused_determinable",
+        "unparseable"
       ],
       "statuses": [
         "ok",
         "ok",
-        "error"
+        "ok"
       ],
       "components": {
         "paygym_reward": -1.0,
@@ -262,17 +264,17 @@
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
         "value_exact": 0.0,
-        "format_valid": 1.0,
+        "format_valid": 0.6667,
         "judge_flag_quality": 0.0,
-        "refused": 1.0,
-        "parse_failed": 0.0,
-        "tool_errors": 1.0,
-        "num_turns": 2.0,
-        "total_tool_calls": 3.0,
-        "get_employee_record_calls": 1.0,
-        "lookup_rules_calls": 1.0,
-        "get_fx_rate_calls": 1.0,
-        "calc_calls": 0.0
+        "refused": 0.6667,
+        "parse_failed": 0.3333,
+        "tool_errors": 3.3333,
+        "num_turns": 3.3333,
+        "total_tool_calls": 9.0,
+        "get_employee_record_calls": 1.6667,
+        "lookup_rules_calls": 2.3333,
+        "get_fx_rate_calls": 1.3333,
+        "calc_calls": 3.6667
       },
       "mean": -1.0,
       "sd": 0.0
@@ -322,15 +324,19 @@
       "kind": "payslip",
       "task_seed": 2000005,
       "rewards": [
+        -1.0,
+        -1.0,
         -1.0
       ],
       "gates": [
+        "unparseable",
+        "unparseable",
         "unparseable"
       ],
       "statuses": [
-        "error",
         "ok",
-        "error"
+        "ok",
+        "ok"
       ],
       "components": {
         "paygym_reward": -1.0,
@@ -343,12 +349,12 @@
         "refused": 0.0,
         "parse_failed": 1.0,
         "tool_errors": 0.0,
-        "num_turns": 8.0,
-        "total_tool_calls": 23.0,
-        "get_employee_record_calls": 3.0,
+        "num_turns": 5.3333,
+        "total_tool_calls": 16.3333,
+        "get_employee_record_calls": 3.6667,
         "lookup_rules_calls": 4.0,
-        "get_fx_rate_calls": 2.0,
-        "calc_calls": 14.0
+        "get_fx_rate_calls": 2.6667,
+        "calc_calls": 6.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -399,16 +405,18 @@
       "task_seed": 2000003,
       "rewards": [
         -1.0,
+        -1.0,
         -1.0
       ],
       "gates": [
+        "unparseable",
         "unparseable",
         "unparseable"
       ],
       "statuses": [
         "ok",
         "ok",
-        "error"
+        "ok"
       ],
       "components": {
         "paygym_reward": -1.0,
@@ -421,12 +429,12 @@
         "refused": 0.0,
         "parse_failed": 1.0,
         "tool_errors": 0.0,
-        "num_turns": 6.0,
-        "total_tool_calls": 16.0,
-        "get_employee_record_calls": 5.0,
-        "lookup_rules_calls": 6.0,
-        "get_fx_rate_calls": 0.0,
-        "calc_calls": 5.0
+        "num_turns": 5.6667,
+        "total_tool_calls": 16.6667,
+        "get_employee_record_calls": 4.3333,
+        "lookup_rules_calls": 5.0,
+        "get_fx_rate_calls": 0.3333,
+        "calc_calls": 7.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -997,14 +1005,16 @@
       "task_seed": 2000016,
       "rewards": [
         -1.0,
+        -1.0,
         -1.0
       ],
       "gates": [
+        "unparseable",
         "refused_determinable",
         "refused_determinable"
       ],
       "statuses": [
-        "error",
+        "ok",
         "ok",
         "ok"
       ],
@@ -1014,17 +1024,17 @@
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
         "value_exact": 0.0,
-        "format_valid": 1.0,
+        "format_valid": 0.6667,
         "judge_flag_quality": 0.0,
-        "refused": 1.0,
-        "parse_failed": 0.0,
-        "tool_errors": 2.0,
-        "num_turns": 2.0,
-        "total_tool_calls": 4.5,
-        "get_employee_record_calls": 1.0,
-        "lookup_rules_calls": 1.0,
+        "refused": 0.6667,
+        "parse_failed": 0.3333,
+        "tool_errors": 1.3333,
+        "num_turns": 2.3333,
+        "total_tool_calls": 8.6667,
+        "get_employee_record_calls": 1.3333,
+        "lookup_rules_calls": 1.3333,
         "get_fx_rate_calls": 1.0,
-        "calc_calls": 1.5
+        "calc_calls": 5.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -1355,37 +1365,39 @@
       "task_seed": 2000030,
       "rewards": [
         0.3,
+        -1.0,
         -1.0
       ],
       "gates": [
         "wrong_reason",
+        "unparseable",
         "answered_trap"
       ],
       "statuses": [
         "ok",
-        "error",
+        "ok",
         "ok"
       ],
       "components": {
-        "paygym_reward": -0.35,
+        "paygym_reward": -0.5667,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
-        "trap_decision": -0.35,
+        "trap_decision": -0.2333,
         "value_exact": 0.0,
-        "format_valid": 1.0,
+        "format_valid": 0.6667,
         "judge_flag_quality": 0.0,
-        "refused": 0.5,
-        "parse_failed": 0.0,
-        "tool_errors": 5.5,
-        "num_turns": 4.5,
-        "total_tool_calls": 9.5,
-        "get_employee_record_calls": 1.5,
-        "lookup_rules_calls": 1.5,
-        "get_fx_rate_calls": 1.5,
+        "refused": 0.3333,
+        "parse_failed": 0.3333,
+        "tool_errors": 5.0,
+        "num_turns": 4.0,
+        "total_tool_calls": 10.6667,
+        "get_employee_record_calls": 2.0,
+        "lookup_rules_calls": 2.0,
+        "get_fx_rate_calls": 1.6667,
         "calc_calls": 5.0
       },
-      "mean": -0.35,
-      "sd": 0.65
+      "mean": -0.5667,
+      "sd": 0.6128
     },
     "gen-2000016-trap": {
       "difficulty": 3,
@@ -1553,37 +1565,39 @@
       "task_seed": 2000035,
       "rewards": [
         0.8,
+        -1.0,
         -1.0
       ],
       "gates": [
         null,
+        "unparseable",
         "unparseable"
       ],
       "statuses": [
         "ok",
         "ok",
-        "error"
+        "ok"
       ],
       "components": {
-        "paygym_reward": -0.1,
+        "paygym_reward": -0.4,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
-        "trap_decision": 0.5,
+        "trap_decision": 0.3333,
         "value_exact": 0.0,
-        "format_valid": 0.5,
+        "format_valid": 0.3333,
         "judge_flag_quality": 0.0,
-        "refused": 0.5,
-        "parse_failed": 0.5,
-        "tool_errors": 0.0,
-        "num_turns": 4.5,
-        "total_tool_calls": 3.5,
-        "get_employee_record_calls": 0.5,
-        "lookup_rules_calls": 1.0,
-        "get_fx_rate_calls": 2.0,
-        "calc_calls": 0.0
+        "refused": 0.3333,
+        "parse_failed": 0.6667,
+        "tool_errors": 0.3333,
+        "num_turns": 3.6667,
+        "total_tool_calls": 5.6667,
+        "get_employee_record_calls": 1.3333,
+        "lookup_rules_calls": 1.6667,
+        "get_fx_rate_calls": 1.6667,
+        "calc_calls": 1.0
       },
-      "mean": -0.1,
-      "sd": 0.9
+      "mean": -0.4,
+      "sd": 0.8485
     },
     "gen-2000032": {
       "difficulty": 2,
@@ -1869,16 +1883,41 @@
       "difficulty": 2,
       "kind": "payslip",
       "task_seed": 2000035,
-      "rewards": [],
-      "gates": [],
-      "statuses": [
-        "error",
-        "error",
-        "error"
+      "rewards": [
+        -1.0,
+        -1.0,
+        -1.0
       ],
-      "components": {},
-      "mean": null,
-      "sd": null
+      "gates": [
+        "unparseable",
+        "unparseable",
+        "unparseable"
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": -1.0,
+        "net_pay_exact": 0.0,
+        "line_accuracy": 0.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 1.0,
+        "tool_errors": 2.0,
+        "num_turns": 5.0,
+        "total_tool_calls": 18.0,
+        "get_employee_record_calls": 4.0,
+        "lookup_rules_calls": 4.0,
+        "get_fx_rate_calls": 5.0,
+        "calc_calls": 5.0
+      },
+      "mean": -1.0,
+      "sd": 0.0
     },
     "gen-2000041": {
       "difficulty": 2,
@@ -1926,16 +1965,18 @@
       "task_seed": 2000039,
       "rewards": [
         -1.0,
+        -1.0,
         -1.0
       ],
       "gates": [
         "refused_determinable",
+        "unparseable",
         "unparseable"
       ],
       "statuses": [
         "ok",
         "ok",
-        "error"
+        "ok"
       ],
       "components": {
         "paygym_reward": -1.0,
@@ -1943,17 +1984,17 @@
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
         "value_exact": 0.0,
-        "format_valid": 0.5,
+        "format_valid": 0.3333,
         "judge_flag_quality": 0.0,
-        "refused": 0.5,
-        "parse_failed": 0.5,
-        "tool_errors": 4.5,
-        "num_turns": 2.5,
-        "total_tool_calls": 9.0,
-        "get_employee_record_calls": 1.5,
-        "lookup_rules_calls": 2.0,
-        "get_fx_rate_calls": 1.0,
-        "calc_calls": 4.5
+        "refused": 0.3333,
+        "parse_failed": 0.6667,
+        "tool_errors": 5.3333,
+        "num_turns": 3.0,
+        "total_tool_calls": 11.6667,
+        "get_employee_record_calls": 2.0,
+        "lookup_rules_calls": 2.6667,
+        "get_fx_rate_calls": 1.3333,
+        "calc_calls": 5.6667
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2003,38 +2044,40 @@
       "kind": "refusal",
       "task_seed": 2000039,
       "rewards": [
+        -1.0,
         0.3,
         0.3
       ],
       "gates": [
+        "unparseable",
         "wrong_reason",
         "wrong_reason"
       ],
       "statuses": [
-        "error",
+        "ok",
         "ok",
         "ok"
       ],
       "components": {
-        "paygym_reward": 0.3,
+        "paygym_reward": -0.1333,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
-        "trap_decision": 0.3,
+        "trap_decision": 0.2,
         "value_exact": 0.0,
-        "format_valid": 1.0,
+        "format_valid": 0.6667,
         "judge_flag_quality": 0.0,
-        "refused": 1.0,
-        "parse_failed": 0.0,
-        "tool_errors": 4.0,
-        "num_turns": 3.5,
-        "total_tool_calls": 7.5,
-        "get_employee_record_calls": 1.5,
-        "lookup_rules_calls": 1.5,
+        "refused": 0.6667,
+        "parse_failed": 0.3333,
+        "tool_errors": 2.6667,
+        "num_turns": 2.6667,
+        "total_tool_calls": 8.3333,
+        "get_employee_record_calls": 1.6667,
+        "lookup_rules_calls": 1.6667,
         "get_fx_rate_calls": 1.0,
-        "calc_calls": 3.5
+        "calc_calls": 4.0
       },
-      "mean": 0.3,
-      "sd": 0.0
+      "mean": -0.1333,
+      "sd": 0.6128
     },
     "gen-2000042-trap": {
       "difficulty": 3,
@@ -2202,15 +2245,17 @@
       "task_seed": 2000000,
       "rewards": [
         -1.0,
+        -1.0,
         -1.0
       ],
       "gates": [
+        "unparseable",
         "unparseable",
         "unparseable"
       ],
       "statuses": [
         "ok",
-        "error",
+        "ok",
         "ok"
       ],
       "components": {
@@ -2223,13 +2268,13 @@
         "judge_flag_quality": 0.0,
         "refused": 0.0,
         "parse_failed": 1.0,
-        "tool_errors": 0.0,
-        "num_turns": 1.0,
-        "total_tool_calls": 0.0,
-        "get_employee_record_calls": 0.0,
-        "lookup_rules_calls": 0.0,
-        "get_fx_rate_calls": 0.0,
-        "calc_calls": 0.0
+        "tool_errors": 1.0,
+        "num_turns": 1.6667,
+        "total_tool_calls": 4.3333,
+        "get_employee_record_calls": 0.6667,
+        "lookup_rules_calls": 0.6667,
+        "get_fx_rate_calls": 0.6667,
+        "calc_calls": 2.3333
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2520,14 +2565,16 @@
       "task_seed": 2000048,
       "rewards": [
         -1.0,
+        -1.0,
         -1.0
       ],
       "gates": [
+        "unparseable",
         "refused_determinable",
         "refused_determinable"
       ],
       "statuses": [
-        "error",
+        "ok",
         "ok",
         "ok"
       ],
@@ -2537,17 +2584,17 @@
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
         "value_exact": 0.0,
-        "format_valid": 1.0,
+        "format_valid": 0.6667,
         "judge_flag_quality": 0.0,
-        "refused": 1.0,
-        "parse_failed": 0.0,
-        "tool_errors": 2.0,
-        "num_turns": 3.0,
-        "total_tool_calls": 8.0,
-        "get_employee_record_calls": 1.0,
-        "lookup_rules_calls": 1.0,
-        "get_fx_rate_calls": 1.0,
-        "calc_calls": 5.0
+        "refused": 0.6667,
+        "parse_failed": 0.3333,
+        "tool_errors": 1.3333,
+        "num_turns": 3.6667,
+        "total_tool_calls": 9.6667,
+        "get_employee_record_calls": 1.3333,
+        "lookup_rules_calls": 1.3333,
+        "get_fx_rate_calls": 1.3333,
+        "calc_calls": 5.6667
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2558,14 +2605,16 @@
       "task_seed": 2000047,
       "rewards": [
         -1.0,
+        -1.0,
         -1.0
       ],
       "gates": [
         "unparseable",
+        "unparseable",
         "unparseable"
       ],
       "statuses": [
-        "error",
+        "ok",
         "ok",
         "ok"
       ],
@@ -2579,13 +2628,13 @@
         "judge_flag_quality": 0.0,
         "refused": 0.0,
         "parse_failed": 1.0,
-        "tool_errors": 1.0,
-        "num_turns": 4.0,
-        "total_tool_calls": 11.0,
+        "tool_errors": 0.6667,
+        "num_turns": 3.3333,
+        "total_tool_calls": 12.0,
         "get_employee_record_calls": 1.0,
-        "lookup_rules_calls": 2.0,
-        "get_fx_rate_calls": 2.0,
-        "calc_calls": 6.0
+        "lookup_rules_calls": 1.6667,
+        "get_fx_rate_calls": 1.6667,
+        "calc_calls": 7.6667
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2635,14 +2684,18 @@
       "kind": "payslip",
       "task_seed": 2000054,
       "rewards": [
+        -1.0,
+        -1.0,
         -1.0
       ],
       "gates": [
+        "unparseable",
+        "unparseable",
         "unparseable"
       ],
       "statuses": [
-        "error",
-        "error",
+        "ok",
+        "ok",
         "ok"
       ],
       "components": {
@@ -2655,13 +2708,13 @@
         "judge_flag_quality": 0.0,
         "refused": 0.0,
         "parse_failed": 1.0,
-        "tool_errors": 3.0,
-        "num_turns": 3.0,
-        "total_tool_calls": 9.0,
-        "get_employee_record_calls": 2.0,
-        "lookup_rules_calls": 2.0,
+        "tool_errors": 3.3333,
+        "num_turns": 4.0,
+        "total_tool_calls": 11.6667,
+        "get_employee_record_calls": 2.6667,
+        "lookup_rules_calls": 3.0,
         "get_fx_rate_calls": 2.0,
-        "calc_calls": 3.0
+        "calc_calls": 4.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2672,37 +2725,39 @@
       "task_seed": 2000059,
       "rewards": [
         0.0,
+        -1.0,
         -1.0
       ],
       "gates": [
         "wrong_net_capped",
-        "refused_determinable"
+        "refused_determinable",
+        "unparseable"
       ],
       "statuses": [
         "ok",
         "ok",
-        "error"
+        "ok"
       ],
       "components": {
-        "paygym_reward": -0.5,
+        "paygym_reward": -0.6667,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
         "value_exact": 0.0,
-        "format_valid": 0.5,
+        "format_valid": 0.3333,
         "judge_flag_quality": 0.0,
-        "refused": 0.5,
-        "parse_failed": 0.5,
-        "tool_errors": 1.5,
-        "num_turns": 4.5,
-        "total_tool_calls": 14.5,
-        "get_employee_record_calls": 3.0,
-        "lookup_rules_calls": 3.0,
-        "get_fx_rate_calls": 2.5,
-        "calc_calls": 6.0
+        "refused": 0.3333,
+        "parse_failed": 0.6667,
+        "tool_errors": 3.0,
+        "num_turns": 4.3333,
+        "total_tool_calls": 14.6667,
+        "get_employee_record_calls": 2.6667,
+        "lookup_rules_calls": 2.6667,
+        "get_fx_rate_calls": 2.6667,
+        "calc_calls": 6.6667
       },
-      "mean": -0.5,
-      "sd": 0.5
+      "mean": -0.6667,
+      "sd": 0.4714
     },
     "gen-2000059-trap": {
       "difficulty": 3,
@@ -3229,15 +3284,19 @@
       "kind": "payslip",
       "task_seed": 2000066,
       "rewards": [
+        -1.0,
+        -1.0,
         -1.0
       ],
       "gates": [
+        "unparseable",
+        "unparseable",
         "unparseable"
       ],
       "statuses": [
         "ok",
-        "error",
-        "error"
+        "ok",
+        "ok"
       ],
       "components": {
         "paygym_reward": -1.0,
@@ -3249,13 +3308,13 @@
         "judge_flag_quality": 0.0,
         "refused": 0.0,
         "parse_failed": 1.0,
-        "tool_errors": 5.0,
-        "num_turns": 4.0,
-        "total_tool_calls": 11.0,
-        "get_employee_record_calls": 3.0,
-        "lookup_rules_calls": 3.0,
+        "tool_errors": 4.3333,
+        "num_turns": 3.6667,
+        "total_tool_calls": 12.3333,
+        "get_employee_record_calls": 3.3333,
+        "lookup_rules_calls": 3.3333,
         "get_fx_rate_calls": 1.0,
-        "calc_calls": 4.0
+        "calc_calls": 4.6667
       },
       "mean": -1.0,
       "sd": 0.0
@@ -3265,38 +3324,40 @@
       "kind": "refusal",
       "task_seed": 2000066,
       "rewards": [
+        -1.0,
         0.3,
         -1.0
       ],
       "gates": [
+        "unparseable",
         "wrong_reason",
         "unparseable"
       ],
       "statuses": [
-        "error",
+        "ok",
         "ok",
         "ok"
       ],
       "components": {
-        "paygym_reward": -0.35,
+        "paygym_reward": -0.5667,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
-        "trap_decision": 0.15,
+        "trap_decision": 0.1,
         "value_exact": 0.0,
-        "format_valid": 0.5,
+        "format_valid": 0.3333,
         "judge_flag_quality": 0.0,
-        "refused": 0.5,
-        "parse_failed": 0.5,
+        "refused": 0.3333,
+        "parse_failed": 0.6667,
         "tool_errors": 5.0,
-        "num_turns": 4.5,
-        "total_tool_calls": 13.0,
-        "get_employee_record_calls": 3.5,
+        "num_turns": 5.0,
+        "total_tool_calls": 13.3333,
+        "get_employee_record_calls": 3.6667,
         "lookup_rules_calls": 4.0,
-        "get_fx_rate_calls": 2.5,
+        "get_fx_rate_calls": 2.6667,
         "calc_calls": 3.0
       },
-      "mean": -0.35,
-      "sd": 0.65
+      "mean": -0.5667,
+      "sd": 0.6128
     },
     "gen-2000065-twin": {
       "difficulty": 2,
@@ -3304,14 +3365,16 @@
       "task_seed": 2000065,
       "rewards": [
         -1.0,
+        -1.0,
         -1.0
       ],
       "gates": [
+        "unparseable",
         "refused_determinable",
         "refused_determinable"
       ],
       "statuses": [
-        "error",
+        "ok",
         "ok",
         "ok"
       ],
@@ -3321,17 +3384,17 @@
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
         "value_exact": 0.0,
-        "format_valid": 1.0,
+        "format_valid": 0.6667,
         "judge_flag_quality": 0.0,
-        "refused": 1.0,
-        "parse_failed": 0.0,
-        "tool_errors": 1.0,
-        "num_turns": 2.0,
-        "total_tool_calls": 3.0,
-        "get_employee_record_calls": 1.0,
-        "lookup_rules_calls": 1.0,
-        "get_fx_rate_calls": 1.0,
-        "calc_calls": 0.0
+        "refused": 0.6667,
+        "parse_failed": 0.3333,
+        "tool_errors": 2.6667,
+        "num_turns": 3.3333,
+        "total_tool_calls": 9.6667,
+        "get_employee_record_calls": 2.0,
+        "lookup_rules_calls": 2.3333,
+        "get_fx_rate_calls": 2.6667,
+        "calc_calls": 2.6667
       },
       "mean": -1.0,
       "sd": 0.0
@@ -3742,16 +3805,18 @@
       "task_seed": 2000060,
       "rewards": [
         -1.0,
+        -1.0,
         -1.0
       ],
       "gates": [
+        "unparseable",
         "unparseable",
         "unparseable"
       ],
       "statuses": [
         "ok",
         "ok",
-        "error"
+        "ok"
       ],
       "components": {
         "paygym_reward": -1.0,
@@ -3763,13 +3828,13 @@
         "judge_flag_quality": 0.0,
         "refused": 0.0,
         "parse_failed": 1.0,
-        "tool_errors": 4.0,
-        "num_turns": 6.5,
-        "total_tool_calls": 15.5,
-        "get_employee_record_calls": 3.5,
-        "lookup_rules_calls": 4.0,
-        "get_fx_rate_calls": 1.5,
-        "calc_calls": 6.5
+        "tool_errors": 3.3333,
+        "num_turns": 5.3333,
+        "total_tool_calls": 13.3333,
+        "get_employee_record_calls": 3.0,
+        "lookup_rules_calls": 3.3333,
+        "get_fx_rate_calls": 1.3333,
+        "calc_calls": 5.6667
       },
       "mean": -1.0,
       "sd": 0.0
@@ -3820,37 +3885,39 @@
       "task_seed": 2000078,
       "rewards": [
         -1.0,
+        -1.0,
         0.3
       ],
       "gates": [
         "unparseable",
+        "unparseable",
         "wrong_reason"
       ],
       "statuses": [
-        "error",
+        "ok",
         "ok",
         "ok"
       ],
       "components": {
-        "paygym_reward": -0.35,
+        "paygym_reward": -0.5667,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
-        "trap_decision": 0.15,
+        "trap_decision": 0.1,
         "value_exact": 0.0,
-        "format_valid": 0.5,
+        "format_valid": 0.3333,
         "judge_flag_quality": 0.0,
-        "refused": 0.5,
-        "parse_failed": 0.5,
-        "tool_errors": 0.5,
+        "refused": 0.3333,
+        "parse_failed": 0.6667,
+        "tool_errors": 1.3333,
         "num_turns": 4.0,
-        "total_tool_calls": 8.5,
-        "get_employee_record_calls": 1.5,
-        "lookup_rules_calls": 1.5,
-        "get_fx_rate_calls": 0.5,
+        "total_tool_calls": 11.0,
+        "get_employee_record_calls": 1.6667,
+        "lookup_rules_calls": 2.6667,
+        "get_fx_rate_calls": 1.6667,
         "calc_calls": 5.0
       },
-      "mean": -0.35,
-      "sd": 0.65
+      "mean": -0.5667,
+      "sd": 0.6128
     },
     "gen-2000069-twin": {
       "difficulty": 2,
@@ -3937,15 +4004,19 @@
       "kind": "payslip",
       "task_seed": 2000081,
       "rewards": [
+        -1.0,
+        -1.0,
         -1.0
       ],
       "gates": [
+        "unparseable",
+        "unparseable",
         "unparseable"
       ],
       "statuses": [
         "ok",
-        "error",
-        "error"
+        "ok",
+        "ok"
       ],
       "components": {
         "paygym_reward": -1.0,
@@ -3957,13 +4028,13 @@
         "judge_flag_quality": 0.0,
         "refused": 0.0,
         "parse_failed": 1.0,
-        "tool_errors": 1.0,
-        "num_turns": 4.0,
-        "total_tool_calls": 10.0,
-        "get_employee_record_calls": 2.0,
-        "lookup_rules_calls": 2.0,
-        "get_fx_rate_calls": 2.0,
-        "calc_calls": 4.0
+        "tool_errors": 3.0,
+        "num_turns": 5.3333,
+        "total_tool_calls": 16.0,
+        "get_employee_record_calls": 2.6667,
+        "lookup_rules_calls": 3.0,
+        "get_fx_rate_calls": 2.6667,
+        "calc_calls": 7.6667
       },
       "mean": -1.0,
       "sd": 0.0
@@ -4294,16 +4365,18 @@
       "task_seed": 2000088,
       "rewards": [
         -1.0,
+        -1.0,
         -1.0
       ],
       "gates": [
         "refused_determinable",
+        "unparseable",
         "unparseable"
       ],
       "statuses": [
         "ok",
         "ok",
-        "error"
+        "ok"
       ],
       "components": {
         "paygym_reward": -1.0,
@@ -4311,17 +4384,17 @@
         "line_accuracy": 0.0,
         "trap_decision": 0.0,
         "value_exact": 0.0,
-        "format_valid": 0.5,
+        "format_valid": 0.3333,
         "judge_flag_quality": 0.0,
-        "refused": 0.5,
-        "parse_failed": 0.5,
-        "tool_errors": 11.5,
+        "refused": 0.3333,
+        "parse_failed": 0.6667,
+        "tool_errors": 10.3333,
         "num_turns": 5.0,
-        "total_tool_calls": 18.5,
-        "get_employee_record_calls": 2.5,
-        "lookup_rules_calls": 3.5,
-        "get_fx_rate_calls": 4.0,
-        "calc_calls": 8.5
+        "total_tool_calls": 17.6667,
+        "get_employee_record_calls": 3.0,
+        "lookup_rules_calls": 3.6667,
+        "get_fx_rate_calls": 3.3333,
+        "calc_calls": 7.6667
       },
       "mean": -1.0,
       "sd": 0.0
@@ -4447,5 +4520,5 @@
       "sd": 0.0
     }
   },
-  "twins": -0.9134
+  "twins": -0.9268
 }

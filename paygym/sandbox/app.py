@@ -127,7 +127,10 @@ async def _unexpected(request: Request, exc: Exception):
 @app.get("/health", include_in_schema=False)
 def health():
     rs = load_ruleset()
-    return {"ok": True, "ruleset_version": rs.version, "rubric_version": RUBRIC_VERSION, "paygym_version": __version__}
+    # "store" says where run records and rate limits live: RedisStore (persistent, shared by all instances) or
+    # MemoryStore (per instance: fine locally, but on serverless a cold instance starts empty).
+    return {"ok": True, "ruleset_version": rs.version, "rubric_version": RUBRIC_VERSION, "paygym_version": __version__,
+            "store": type(store).__name__}
 
 
 @app.get("/api/tasks")

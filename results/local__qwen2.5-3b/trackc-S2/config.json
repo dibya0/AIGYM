@@ -149,5 +149,6 @@
   "paygym_version": "0.1.0",
   "verifiers_version": "0.2.1",
   "git_sha": "ff046e526478bece3db7f1ac19a3b0b8291287d8",
-  "python": "3.12.3"
+  "python": "3.12.3",
+  "rescored_from": null
 }
