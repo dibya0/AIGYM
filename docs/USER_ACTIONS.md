@@ -158,27 +158,39 @@ uv run --env-file .env python scripts/probe_models.py gemini/gemini-3.8-flash ge
 ```
 Also open **AI Studio → Dashboard → Usage / Rate limits** (costs no requests) and note the requests-per-day for the models that answered OK. Paste both. Claude picks the eval model and the judge model from them, and sets the daily caps under those limits. The reliability runs (3 repeats + your 15 hand labels) happen after the eval sweep (Step 15), because they need real model refusals to judge.
 
-### Step 12: verifiers environment ⏳
+### Step 12: verifiers environment ✅ (2026-10-19: single-turn on Groq 0 errors; tool mode on Gemini works, 8–17 tool calls per rollout)
 ```bash
 uv sync --extra cpu                       # cpu includes the env extra (verifiers 0.2.1)
 uv run pytest -q tests/test_environment.py tests/test_rubric.py    # expect: all passed
 uv run python -c "import verifiers as vf; e = vf.load_environment('paygym', mode='tool', n_seeds=20); print(type(e).__name__, len(e.get_dataset()))"
 # expect: PaygymToolEnv <~22>
 ```
-Smoke eval on a free model (5 tasks, both modes), once `GROQ_API_KEY` is set. Uses verifiers' own runner, to prove portability:
+Smoke eval through **verifiers' own runner**, to prove portability. 5 tasks per mode, and no Gemini 3.8 Flash quota used:
+- **single-turn on Groq:** 5 requests, ~25K tokens;
+- **tool mode on Gemini 3.5 Flash-Lite:** ~25 requests. Groq cannot do tool mode: one request exceeds its 8K tokens/minute limit, HTTP 413.
 ```bash
 uv run --env-file .env python - <<'PY'
 import verifiers as vf
 from verifiers.types import ClientConfig
-# verifiers 0.2.1 takes a ClientConfig (it builds its own client), not an AsyncOpenAI object
-client = ClientConfig(api_key_var="GROQ_API_KEY", api_base_url="https://api.groq.com/openai/v1", max_retries=3, timeout=120)
-for mode in ("single", "tool"):
+groq = ClientConfig(api_key_var="GROQ_API_KEY", api_base_url="https://api.groq.com/openai/v1", max_retries=3, timeout=120)
+gem = ClientConfig(api_key_var="GEMINI_API_KEY", api_base_url="https://generativelanguage.googleapis.com/v1beta/openai/", max_retries=3, timeout=120)
+for mode, client, model, sampling in (("single", groq, "openai/gpt-oss-120b", {"max_tokens": 3000}),
+                                      ("tool", gem, "gemini-3.5-flash-lite", {"max_tokens": 4096})):
     env = vf.load_environment("paygym", mode=mode, n_seeds=5)
-    out = env.evaluate_sync(client=client, model="openai/gpt-oss-120b", num_examples=5, rollouts_per_example=1, max_concurrent=2)
-    print(mode, "OK", type(out).__name__)
+    out = env.evaluate_sync(client=client, model=model, sampling_args=sampling, num_examples=5, rollouts_per_example=1, max_concurrent=1)
+    rows = out["outputs"]
+    errors = [r.get("error") for r in rows if r.get("error")]
+    print(mode, model, "rewards:", [round(r.get("reward") or 0, 3) for r in rows], "| errors:", len(errors), errors[:1])
 PY
 ```
-Paste the output or the traceback. The `evaluate_sync` / `ClientConfig` signature was checked against the installed verifiers 0.2.1 on 2026-10-19.
+**Expected:** `errors: 0` on both lines, with no `Aborted rollout` lines; rewards may be anything. Pauses are normal.
+
+History (logged in PROGRESS):
+- 1st run: printed "OK" while every rollout had aborted (Groq `service_tier`), so the snippet now prints errors.
+- 2nd run: tool mode failed with Groq 400 `reasoning_content`.
+- 3rd run: tool mode hit Groq 413 (request too large for 8K TPM), so tool mode moved to Gemini Flash-Lite.
+
+Paste both lines. The `evaluate_sync` / `ClientConfig` signature was checked against the installed verifiers 0.2.1 on 2026-10-19.
 
 ### Step 13: fidelity audit worksheet ⏳
 ```bash
@@ -187,22 +199,39 @@ uv run python scripts/fidelity_sample.py      # expect: wrote docs/FIDELITY_AUDI
 Then tell Claude "fidelity worksheet ready". Claude hand-derives all 10 from the RULESET.md prose (Part 1) before reading Part 2, fills in the divergence rate, and fixes any bug found. You then review Claude's hand working (the brief asks for a *hand* check; your review makes it genuine; see §C).
 
 ### Step 14: eval harness ⏳
+Uses about 3 Groq rollouts (~18K tokens) and about 16 Flash-Lite requests. Gemini 3.8 Flash is not used.
 ```bash
-uv sync --extra cpu
-uv run pytest -q tests/test_eval_harness.py      # expect: 7 passed (no network; uses baselines + a fake model)
-# real 2-task smoke against Groq (free), single + tool mode:
+uv run pytest -q tests/test_eval_harness.py      # expect: all passed (no network; baselines + a fake model)
+# our own runner on real providers: single-turn on Groq, tool mode on Gemini Flash-Lite
 uv run python -m paygym.eval --model groq/openai/gpt-oss-120b --limit 2 --rollouts 1 --run-name smoke-single
-uv run python -m paygym.eval --model groq/openai/gpt-oss-120b --mode tool --limit 2 --rollouts 1 --run-name smoke-tool
-ls results/groq__openai__gpt-oss-120b/smoke-single/  # expect: config.json metrics.json scores.json transcript.jsonl
+uv run python -m paygym.eval --model gemini/gemini-3.5-flash-lite --mode tool --limit 2 --rollouts 1 --run-name smoke-tool
+ls results/groq__openai__gpt-oss-120b/smoke-single/      # expect: config.json metrics.json scores.json transcript.jsonl
+cat results/.request_ledger.json                          # today's requests/tokens per model
 ```
-Then, to prove resume, start a run, press Ctrl-C after a few rollouts, and re-run with `--resume results/<model>/<run>`. The second run should say "N already done".
+**Resume demo** (a baseline, so no quota is used). Baselines finish in seconds, so Ctrl-C is optional. Either way the second command should print "N already done, 0 to run" (or the remainder if you interrupted): finished rollouts are never redone.
+```bash
+uv run python -m paygym.eval --model baseline/naive_no_ceiling --rollouts 3 --run-name resume-demo
+uv run python -m paygym.eval --model baseline/naive_no_ceiling --rollouts 3 --resume results/baseline__naive_no_ceiling/resume-demo
+```
+Paste:
+- the first lines each eval prints (the budget line and the task count);
+- `cat results/groq__openai__gpt-oss-120b/smoke-single/metrics.json` and `cat results/gemini__gemini-3.5-flash-lite/smoke-tool/metrics.json`;
+- the ledger.
 
-Paste the two smoke summaries (`cat .../metrics.json`). If Groq's model id differs on your account, use the id from the Groq console.
+### Step 15: full eval sweep ⏳ (run once a day for ~4 days; free tiers by design)
+**Your real free limits** (your dashboards, 2026-10-19) decide the plan. The ledger caps every model at **75%** of its limit, so you always keep a quarter:
 
-### Step 15: full eval sweep ⏳ (hours; spans ~3 days on free tiers by design)
-**Free-quota protection.** Every hosted call is counted in `results/.request_ledger.json`, per model per day (US Pacific). The defaults are **Gemini 120/day** and **Groq 400/day**, well under the free limits, so your accounts keep headroom. A model that reaches its cap stops cleanly and the sweep moves on to the next one. Run the same script again the next day; finished rollouts are skipped. To change the cap, set `PAYGYM_DAILY_CAP=<n>` or pass `--daily-request-cap`.
+| Model | Free limit | Our cap/day | Runs | Days |
+|---|---|---|---|---|
+| gemini-3.5-flash-lite | 500 req/day | 375 | full eval 109×3 + tool mode on core20 | ~2 |
+| gemini-3.8-flash | **20 req/day**, 5/min | 15 | core20 subset ×3 (60 req) | ~4 |
+| groq gpt-oss-120b | **200K tokens/day**, 8K/min | 150K tokens | core20 subset ×3 | ~3 |
+| gemini-3.1-flash-lite (judge) | 500 req/day | 375 | trap explanations | – |
+| local Qwen 3B / 0.5B | unlimited | – | full eval (+ tool mode for 3B) | – |
 
-**Expected Gemini use:** ≈ 330 eval requests (109 tasks × 3 rollouts), single-turn only, plus judge calls on a separate model's quota. Tool mode and Track C use Groq and local Qwen instead.
+**core20** is a fixed, stratified 20-task subset (`tasks/subsets/eval_core20.txt`): 4 retrieval, 6 payslips, 5 traps and their 5 twins. Every full-set model is also scored on it, so the scarce models are compared paired.
+
+**Run the same command once a day.** A model that reaches its cap stops cleanly and the script moves on; finished rollouts are never re-run. Check usage any time with `cat results/.request_ledger.json`.
 ```bash
 GEMINI_MODEL=<strongest free Gemini id from your Step 11 list> ./scripts/sweep.sh
 ```
@@ -305,17 +334,18 @@ Deploy on Vercel (Hobby, free):
 If Vercel rejects the Python function (bundle or runtime errors), paste the build log.
 
 ### Step 20: Track C, scaffold comparison ⏳
-Fixed small model = local Qwen2.5-3B (unlimited, $0). Large model = Groq `gpt-oss-120b` at S0 and S4 only. This is changed from Gemini to spare the scarcer Gemini quota: S4 is multi-turn, ≈ 5 requests per rollout.
+Fixed small model = local Qwen2.5-3B (unlimited, $0). Large comparator = **Gemini 3.5 Flash-Lite** at S0 and S4 on core20 (≈ 60 + 300 requests, about a day of its quota). Groq was planned, but S2–S4 use tools, and a tool-mode request exceeds Groq's 8K tokens/minute (HTTP 413).
 ```bash
 uv run pytest -q tests/test_environment.py                 # includes the scaffold test
 LLM_MODEL=Qwen/Qwen2.5-3B-Instruct LLM_SERVED_NAME=qwen2.5-3b docker compose --profile gpu up -d llm
 for S in S0 S1 S2 S3 S4; do
-  uv run python -m paygym.eval --model local/qwen2.5-3b --scaffold $S --split eval --n-seeds 45 --rollouts 3 --concurrency 8 --run-name trackc-$S
+  uv run python -m paygym.eval --model local/qwen2.5-3b --scaffold $S --split eval --n-seeds 95 --rollouts 3 --concurrency 8 --run-name trackc-$S
 done
 for S in S0 S4; do
-  uv run python -m paygym.eval --model groq/openai/gpt-oss-120b --scaffold $S --split eval --n-seeds 45 --rollouts 3 --run-name trackc-$S
+  uv run python -m paygym.eval --model gemini/gemini-3.5-flash-lite --scaffold $S --split eval --n-seeds 95 --ids tasks/subsets/eval_core20.txt \
+      --rollouts 3 --run-name trackc-$S
 done
-uv run python scripts/track_c.py --small local/qwen2.5-3b --frontier groq/openai/gpt-oss-120b
+uv run python scripts/track_c.py --small local/qwen2.5-3b --frontier gemini/gemini-3.5-flash-lite
 ```
 Paste the printed finding. Claude writes `docs/TRACK_C.md` from `results/track_c/summary.json`. If Qwen-3B scores near 0 on every scaffold, use `--small groq/openai/gpt-oss-20b` (free) instead (plan fallback).
 

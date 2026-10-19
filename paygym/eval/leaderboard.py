@@ -5,6 +5,12 @@ fingerprint and rubric version. A run scored under a different rule-set version 
 compared with one scored under another (brief P08 edge case: version skew). Within a group, every pair
 of runs gets a paired bootstrap CI over shared tasks, and pairs whose CI contains 0 are listed as
 indistinguishable (brief §10: "honesty about noise").
+
+Subsets: models whose free tier cannot afford the full eval run on a fixed subset (``--ids
+tasks/subsets/<name>.txt``). Such runs are grouped as ``subset:<name>``, and every full-set run that
+covers those tasks also gets a *subset view* (its own rollouts on exactly those tasks, re-summarised) in
+the same group, so the scarce models are compared paired, on identical tasks, never against a mean
+over a different task mix.
 """
 
 from __future__ import annotations
@@ -12,8 +18,9 @@ from __future__ import annotations
 import json
 from itertools import combinations
 from pathlib import Path
+from statistics import mean
 
-from paygym.eval.stats import paired_bootstrap, task_means
+from paygym.eval.stats import paired_bootstrap, run_summary, task_means
 
 
 def load_runs(root: Path) -> list[dict]:
@@ -36,7 +43,10 @@ def load_runs(root: Path) -> list[dict]:
             "split": cfg.get("split"),
             "taskset_hash": cfg["taskset_hash"],
             "scaffold": cfg.get("scaffold"),
-            "group": f"{cfg['taskset_hash']}|{cfg['mode']}|{cfg.get('scaffold')}|{cfg['ruleset_fingerprint']}|{cfg['rubric_version']}",
+            "group": (f"subset:{Path(cfg['ids']).stem}" if cfg.get("ids") else cfg["taskset_hash"])
+                     + f"|{cfg['mode']}|{cfg.get('scaffold')}|{cfg['ruleset_fingerprint']}|{cfg['rubric_version']}",
+            "subset": Path(cfg["ids"]).stem if cfg.get("ids") else None,
+            "_key": f"|{cfg['mode']}|{cfg.get('scaffold')}|{cfg['ruleset_fingerprint']}|{cfg['rubric_version']}",
             "ruleset_version": cfg["ruleset_version"],
             "status": metrics["status"],
             "rollouts": cfg["rollouts"],
@@ -51,12 +61,36 @@ def load_runs(root: Path) -> list[dict]:
             "tool_calls_mean": metrics["tool_calls_mean"],
             "parse_fail_rate": metrics["parse_fail_rate"],
             "task_means": task_means(rows),
+            "_rows": rows,
         })
     return runs
 
 
-def build(root: Path = Path("results")) -> dict:
+def subset_views(runs: list[dict], subsets: dict[str, set[str]]) -> list[dict]:
+    """Full-set runs re-summarised on each subset they fully cover."""
+    views = []
+    for name, ids in subsets.items():
+        for run in runs:
+            if run["subset"] or not ids <= set(run["task_means"]):
+                continue
+            rows = [r for r in run["_rows"] if r["task_id"] in ids]
+            by_tier = {}
+            for d in (1, 2, 3):
+                tm = task_means([r for r in rows if r.get("difficulty") == d])
+                by_tier[str(d)] = round(mean(tm.values()), 4) if tm else None
+            views.append({**run, **run_summary(rows), "run": f"{run['run']}@{name}", "subset": name, "subset_view_of": run["run"],
+                          "group": f"subset:{name}" + run["_key"], "by_tier": by_tier, "task_means": task_means(rows),
+                          "by_component": None, "gates": None, "twins": None})
+    return views
+
+
+def load_subsets(root: Path = Path("tasks/subsets")) -> dict[str, set[str]]:
+    return {p.stem: {line.strip() for line in p.read_text().splitlines() if line.strip()} for p in sorted(root.glob("*.txt"))}
+
+
+def build(root: Path = Path("results"), subsets_dir: Path = Path("tasks/subsets")) -> dict:
     runs = load_runs(root)
+    runs += subset_views(runs, load_subsets(subsets_dir))
     groups: dict[str, list[dict]] = {}
     for run in runs:
         groups.setdefault(run["group"], []).append(run)
@@ -66,7 +100,8 @@ def build(root: Path = Path("results")) -> dict:
             result = paired_bootstrap(a["task_means"], b["task_means"])
             comparisons.append({"group": group, "a": a["run"], "b": b["run"], **result})
     for run in runs:
-        run.pop("task_means")
+        for key in ("task_means", "_rows", "_key"):
+            run.pop(key, None)
     return {
         "runs": sorted(runs, key=lambda r: (r["group"], -(r["mean_reward"] or -9))),
         "comparisons": comparisons,

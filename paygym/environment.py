@@ -23,12 +23,15 @@ from pathlib import Path
 import verifiers as vf
 from datasets import Dataset
 
+from paygym import compat
 from paygym.generator import generate_split
 from paygym.prompting import SCAFFOLDS, messages_for
 from paygym.rubric import Score, score_answer
 from paygym.schema import Task
 from paygym.tools import HIDDEN_ARGS, TOOLS
 from paygym.validate import read_tasks
+
+compat.apply()  # verifiers 0.2.1 rejects Groq's service_tier="on_demand"; see paygym/compat.py
 
 LOOP_LIMIT = 3  # the same tool call (name + arguments) this many times in a row ends the rollout
 

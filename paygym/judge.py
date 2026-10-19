@@ -27,7 +27,10 @@ from paygym.render import JURISDICTION_NAMES, ruleset_section
 from paygym.schema import Task
 
 JUDGE_PROMPT_VERSION = "1"
-DEFAULT_MODEL = os.environ.get("PAYGYM_JUDGE_MODEL", "gemini-flash-latest")
+# Probed 2026-10-19 on the free tier (1.5 s, 500 requests/day). Its own quota bucket: the eval models are
+# gemini-3.8-flash and gemini-3.5-flash-lite, so judging never competes with an eval for requests. A pinned
+# id, not a "-latest" alias, so the judge cannot silently change between runs.
+DEFAULT_MODEL = os.environ.get("PAYGYM_JUDGE_MODEL", "gemini-3.1-flash-lite")
 DEFAULT_BASE_URL = os.environ.get("PAYGYM_JUDGE_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
 
 # Each criterion is derived from GEN-§9 and is answerable pass/fail from the explanation alone.
@@ -110,9 +113,12 @@ class GeminiJudge:
         self.calls = 0
         self.ledger = None
         if ledger:  # local runs: count judge calls against the same daily free-tier budget (not the sandbox)
-            from paygym.eval.budget import RequestLedger, cap_for
+            from paygym.eval.budget import RequestLedger, caps_for
 
-            self.ledger = RequestLedger(f"gemini/{model}", cap_for("gemini"))
+            self.ledger = RequestLedger(f"gemini/{model}", caps_for(f"gemini/{model}"))
+        caps = self.ledger.caps if self.ledger else None
+        self.min_interval = 60.0 / caps.rpm if caps and caps.rpm else 0.0  # free tiers limit requests/minute
+        self._last_call = 0.0
         self.cache_path = Path(cache_path) if cache_path else None
         self.cache: dict[str, dict] = {}
         if self.cache_path and self.cache_path.exists():
@@ -134,6 +140,10 @@ class GeminiJudge:
         for attempt in range(self.max_retries):
             if self.ledger and not self.ledger.reserve(1):
                 raise JudgeError(f"daily request budget for gemini/{self.model} reached ({self.ledger.cap}/day)")
+            wait = self._last_call + self.min_interval - time.monotonic()
+            if wait > 0:
+                time.sleep(wait)
+            self._last_call = time.monotonic()
             try:
                 self.calls += 1
                 extra = {"response_format": {"type": "json_object"}} if self.json_mode else {}

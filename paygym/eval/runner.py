@@ -39,7 +39,7 @@ from pathlib import Path
 from statistics import mean
 
 from paygym import __version__
-from paygym.eval.budget import RequestLedger, cap_for
+from paygym.eval.budget import RequestLedger, caps_for
 from paygym.eval.providers import ModelSpec, resolve
 from paygym.eval.stats import percentile, run_summary
 from paygym.prompting import prompt_hash
@@ -97,6 +97,11 @@ def _compact_prompt(prompt: list[dict], mode: str) -> list[dict]:
     return out
 
 
+def _prompt_tokens(row: dict) -> int:
+    """Conservative token estimate (≈3.2 chars/token for JSON- and number-heavy text)."""
+    return int(len(json.dumps(row["prompt"])) / 3.2)
+
+
 class RateLimiter:
     def __init__(self, rpm: int):
         self.interval = 60.0 / rpm if rpm and rpm > 0 else 0.0
@@ -112,6 +117,39 @@ class RateLimiter:
             self.next_at = max(now, self.next_at) + self.interval
         if delay:
             await asyncio.sleep(delay)
+
+
+class TokenLimiter:
+    """Sliding 60 s window on tokens per minute (Groq's free tier limits TPM, not just RPM). A rollout
+    reserves an estimate before it starts and is corrected to its real usage afterwards, so the window
+    tracks what the provider actually counted."""
+
+    def __init__(self, tpm: int, headroom: float = 0.9):
+        self.limit = tpm * headroom if tpm else 0.0
+        self.events: list[list[float]] = []  # [timestamp, tokens]
+        self.lock = asyncio.Lock()
+
+    def _used(self, now: float) -> float:
+        self.events = [e for e in self.events if now - e[0] < 60.0]
+        return sum(e[1] for e in self.events)
+
+    async def acquire(self, estimate: float) -> list[float] | None:
+        if not self.limit:
+            return None
+        estimate = min(estimate, self.limit)  # an oversized request waits for an empty window, never forever
+        while True:
+            async with self.lock:
+                now = time.monotonic()
+                if self._used(now) + estimate <= self.limit:
+                    event = [now, estimate]
+                    self.events.append(event)
+                    return event
+                wait = max(0.5, 60.0 - (now - self.events[0][0])) if self.events else 0.5
+            await asyncio.sleep(wait)
+
+    def settle(self, event: list[float] | None, actual: float) -> None:
+        if event is not None and actual:
+            event[1] = actual
 
 
 # --------------------------------------------------------------------------- the run
@@ -131,6 +169,13 @@ class EvalRun:
 
             args.mode = SCAFFOLDS[args.scaffold]["mode"]
         rows = list(self.env.get_eval_dataset())
+        if args.ids:  # a fixed subset (e.g. tasks/subsets/eval_core20.txt): same tasks for every model
+            wanted = [line.strip() for line in Path(args.ids).read_text().splitlines() if line.strip()]
+            have = {_info(r)["task_id"] for r in rows}
+            missing = [i for i in wanted if i not in have]
+            if missing:
+                raise SystemExit(f"--ids: {len(missing)} ids not in this taskset, e.g. {missing[:3]}")
+            rows = [r for r in rows if _info(r)["task_id"] in set(wanted)]
         if args.limit:
             rows = rows[: args.limit]
         self.rows = rows
@@ -141,14 +186,26 @@ class EvalRun:
         self.dir = Path(args.resume) if args.resume else Path(args.out) / self.spec.slug / name
         self.transcript = self.dir / "transcript.jsonl"
         self.write_lock = asyncio.Lock()
-        self.limiter = RateLimiter(self.spec.rpm)
+        # Per-model free-tier limits (paygym.eval.budget.FREE_TIER_LIMITS) set the pacing and the daily caps.
         uncapped = self.spec.is_baseline or self.spec.provider == "local"
-        self.ledger = None if uncapped else RequestLedger(self.spec.name, cap_for(self.spec.provider, args.daily_request_cap))
+        self.caps = None if uncapped else caps_for(self.spec.name, args.daily_request_cap)
+        rpm = args.rpm if args.rpm is not None else (self.caps.rpm if self.caps else self.spec.rpm)
+        self.tpm = args.tpm if args.tpm is not None else (self.caps.tpm if self.caps else self.spec.tpm)
+        if self.caps and self.spec.provider in ("gemini", "groq"):
+            # Hosted free tiers are paced per *request* inside paygym.compat (tool rollouts make several
+            # requests); pacing whole rollouts here as well would only double the wait.
+            from paygym import compat
+
+            compat.set_rpm(self.spec.model_id, rpm)
+            rpm = 0
+        self.limiter = RateLimiter(rpm)
+        self.tokens = TokenLimiter(self.tpm)
+        self.ledger = RequestLedger(self.spec.name, self.caps) if self.caps else None
         self.judge_ledger = None
         if args.judge:
             from paygym.judge import DEFAULT_MODEL as JUDGE_MODEL
 
-            self.judge_ledger = RequestLedger(f"gemini/{JUDGE_MODEL}", cap_for("gemini", args.daily_request_cap))
+            self.judge_ledger = RequestLedger(f"gemini/{JUDGE_MODEL}", caps_for(f"gemini/{JUDGE_MODEL}"))
         self.cost_list = 0.0
         self.abort: str | None = None
         self.consecutive_errors = 0
@@ -164,7 +221,7 @@ class EvalRun:
             "model": self.spec.name, "provider": self.spec.provider, "model_id": self.spec.model_id,
             "base_url": self.spec.base_url, "free_tier": self.spec.free_tier, "list_price_usd_per_mtok": self.spec.price,
             "mode": self.args.mode, "scaffold": self.args.scaffold, "split": self.args.split, "tasks_path": self.args.tasks, "n_seeds": self.args.n_seeds,
-            "tier": self.args.tier, "limit": self.args.limit, "n_tasks": len(self.rows), "rollouts": self.args.rollouts,
+            "tier": self.args.tier, "limit": self.args.limit, "ids": self.args.ids, "n_tasks": len(self.rows), "rollouts": self.args.rollouts,
             "seed": self.args.seed, "sampling": self.sampling_args(), "max_turns": self.args.max_turns,
             "timeout_s": self.args.timeout, "max_cost_usd": self.args.max_cost, "concurrency": self.args.concurrency,
             "judge": self.args.judge, "taskset_hash": self.taskset_hash, "task_seeds": sorted(
@@ -187,8 +244,12 @@ class EvalRun:
                 "taskset_hash": self.taskset_hash, "ruleset_version": rs.version, "ruleset_fingerprint": rs.fingerprint,
                 "rubric_version": RUBRIC_VERSION, "schema_version": SCHEMA_VERSION}
 
-    def sampling_args(self) -> dict:
-        args = {"temperature": self.args.temperature, "max_tokens": self.args.max_tokens}
+    def sampling_args(self, row: dict | None = None) -> dict:
+        max_tokens = self.args.max_tokens
+        if row is not None and self.tpm:
+            # Groq rejects (413) any request whose input + max_tokens exceeds its tokens-per-minute limit.
+            max_tokens = min(max_tokens, int(self.tpm * 0.95) - _prompt_tokens(row))
+        args = {"temperature": self.args.temperature, "max_tokens": max_tokens}
         if self.args.seed is not None and self.spec.provider not in ("gemini",):  # Gemini's compat layer rejects seed
             args["seed"] = self.args.seed
         return args
@@ -237,8 +298,10 @@ class EvalRun:
 
         if self.spec.provider == "local":
             os.environ.setdefault("LOCAL_API_KEY", "local")  # vLLM accepts any key
+        # SDK-level retries honour the provider's retry-after on 429s for *each* request, including the inner
+        # turns of a tool rollout (which a rollout-level retry would otherwise redo from scratch).
         client = ClientConfig(api_key_var=self.spec.api_key_var or "LOCAL_API_KEY", api_base_url=self.spec.base_url,
-                              max_retries=0, timeout=float(self.args.timeout) + 30)
+                              max_retries=self.args.max_retries, timeout=float(self.args.timeout) + 30)
         rollout_input = {"prompt": row["prompt"], "example_id": index, "answer": row.get("answer", ""), "info": row["info"]}
         retried, out, err = 0, None, None
         per_attempt = self.args.max_turns if self.args.mode == "tool" else 1
@@ -250,18 +313,28 @@ class EvalRun:
             if self.judge_ledger and self.judge_ledger.remaining() is not None and self.judge_ledger.remaining() < 3:
                 self.abort = "aborted_budget"
                 return None
-            if self.ledger and not self.ledger.reserve(per_attempt):
+            sampling = self.sampling_args(row)
+            if sampling["max_tokens"] < 512:  # the prompt alone nearly fills the provider's per-minute window
+                return {"status": "error", "error": f"prompt too large for {self.spec.name} at {self.tpm} TPM", "retried": retried,
+                        "reward": None, "metrics": {}, "input_tokens": 0, "output_tokens": 0, "cost_list_usd": 0.0}
+            # Providers count input + max_tokens against the per-minute window at request time.
+            estimate = (_prompt_tokens(row) + sampling["max_tokens"]) * per_attempt
+            if self.ledger and not self.ledger.reserve(per_attempt, int(estimate)):
                 self.abort = "aborted_budget"
                 return None
             await self.limiter.wait()
+            reservation = await self.tokens.acquire(_prompt_tokens(row) + sampling["max_tokens"])
             try:
-                out = await self.env.run_rollout(rollout_input, client, self.spec.model_id, self.sampling_args())
+                out = await self.env.run_rollout(rollout_input, client, self.spec.model_id, sampling)
                 err = _error_text(out.get("error"))
             except Exception as exc:  # the environment raised instead of recording the error
                 out, err = None, f"{type(exc).__name__}: {exc}"
+            usage = (out or {}).get("token_usage") or {}
+            used_tokens = float(usage.get("input_tokens", 0) or 0) + float(usage.get("output_tokens", 0) or 0)
+            self.tokens.settle(reservation, used_tokens)
             if self.ledger:
                 turns = int(((out or {}).get("metrics") or {}).get("num_turns") or 1)
-                self.ledger.settle(per_attempt, min(per_attempt, max(1, turns)))
+                self.ledger.settle(per_attempt, min(per_attempt, max(1, turns)), int(estimate), int(used_tokens))
             if err and _is_transient(err) and attempt < self.args.max_retries:
                 retried += 1
                 await asyncio.sleep(min(60.0, 2.0 ** attempt + random.random()))
@@ -334,8 +407,8 @@ class EvalRun:
         planned = len(self.rows) * self.args.rollouts
         est = self.estimate_cost(len(work))
         for led in (self.ledger, self.judge_ledger):
-            if led and led.cap is not None:
-                print(f"daily request budget {led.model}: {led.used_today()}/{led.cap} used today (US Pacific)")
+            if led:
+                print("daily budget " + led.describe())
         print(f"{self.spec.name}: {len(self.rows)} tasks x {self.args.rollouts} rollouts = {planned} "
               f"({len(done)} already done, {len(work)} to run); list-price estimate ${est:.2f}, cap ${self.args.max_cost:.2f}"
               + ("  [baseline: no model calls]" if self.spec.is_baseline else ""))
@@ -449,6 +522,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--tasks", help="task .jsonl file or directory instead of generating the split")
     ap.add_argument("--tier", default="all", help='"all" or e.g. "2,3"')
     ap.add_argument("--limit", type=int, help="only the first N tasks (debugging)")
+    ap.add_argument("--ids", help="file of task ids to run (a fixed subset, e.g. tasks/subsets/eval_core20.txt)")
     ap.add_argument("--rollouts", type=int, default=3)
     ap.add_argument("--seed", type=int, default=7, help="sampling seed where the provider supports it")
     ap.add_argument("--temperature", type=float, default=1.0)
@@ -458,6 +532,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--max-cost", type=float, default=2.00, help="hard cap in USD at list prices")
     ap.add_argument("--concurrency", type=int, default=4)
     ap.add_argument("--rpm", type=int, help="requests per minute (default per provider)")
+    ap.add_argument("--tpm", type=int, help="tokens per minute (default per provider; Groq free tier 8000; 0 = off)")
     ap.add_argument("--daily-request-cap", type=int,
                     help="max requests per model per day across all runs (0 = no cap; default per provider, see paygym.eval.budget)")
     ap.add_argument("--max-retries", type=int, default=4)

@@ -585,3 +585,95 @@ Re-read the PDF (pp.7–14 phase specs, plus §§9–11) line by line against th
   - `scripts/sweep.sh`: Gemini single-turn only; Groq single + tool mode; a budget stop moves on to the next model instead of aborting the sweep.
   - Track C large model changed from Gemini to Groq `gpt-oss-120b` (S4 is ≈ 5 requests per rollout), so the brief's question "does scaffold matter more than model choice" is still answered.
 - Docs: USER_ACTIONS Steps 11/15/20, TRADEOFFS #8.
+
+**Model probe (2026-10-19, 5 requests):** `gemini-3.8-flash` OK (21.9 s: a reasoning model), `groq/openai/gpt-oss-120b` OK (0.4 s). `gemini-3.1-pro-preview` and `gemini-4-argon` → **429: listed, but no free quota** on this key. `gemma-4-31b-it` → 500 (to retry). Both OK replies were empty because the probe's 16-token cap was consumed by hidden reasoning tokens. The probe now uses 512 and reports reasoning tokens; the eval's 4096 cap is unaffected. **Decision:** the frontier config is `gemini/gemini-3.8-flash` (the strongest Gemini this free key serves; stated as such in EVAL_REPORT, not called "Pro"). `sweep.sh` default updated. Judge model: chosen after probing the lite/Gemma models, which have separate quota buckets.
+
+**Judge model (2026-10-19, 3 more probe requests):** `gemini-3.1-flash-lite` OK 1.5 s, `gemini-3.5-flash-lite` OK 1.3 s, `gemma-4-31b-it` 500 again (dropped). **Decision:** the judge is `gemini-3.5-flash-lite`, a pinned id rather than a `-latest` alias, so it cannot change between runs. It is in a separate free-quota bucket from the eval model, and is a smaller sibling model judging a checklist of verifiable criteria; its reliability is measured anyway (3-repeat disagreement + 15 hand labels).
+
+---
+
+## Step 12: verifiers smoke eval on Groq, and two provider bugs (2026-10-19)
+
+**User run** (verifiers' own `evaluate_sync`, 5 tasks × single + tool mode, Groq gpt-oss-120b): both loops printed "OK", but **every rollout was aborted with reward 0**. Two causes:
+
+1. **`service_tier` validation (blocking, all rollouts).** `1 validation error for ChatCompletion / service_tier: Input should be 'auto', 'default', 'flex', 'scale', 'priority' or 'fast' [input_value='on_demand']`.
+   - **Root cause:** read in the installed source. `verifiers/utils/client_utils.py::post_chat_completion_with_routed_experts_sidecar` calls `ChatCompletion.model_validate_json`, and openai 3.33's `ChatCompletion.service_tier` is a closed `Literal`. Groq returns `"on_demand"`. verifiers' v1 stack already widens this field (`verifiers/v1/dialects/chat.py`); the pinned v0 path does not.
+   - **Fix:** `paygym/compat.py` wraps the response-stripping step to blank an unknown `service_tier` before validation (only that field, only when unknown). It is applied when `paygym.environment` is imported, so it covers the eval runner, verifiers' own runner and the trainer.
+   - **Guard:** `test_groq_service_tier_is_accepted`.
+   - **Why not upgrade verifiers:** 0.3.0+ removed the v0 API the brief specifies (TRADEOFFS #7).
+2. **Groq free-tier TPM (1 of 10 rollouts).** `Limit 8000, Used 6659, Requested 6533`. One single-turn rollout is ~3–6.5k tokens, so even concurrency 2 overruns the per-minute window.
+   - **Fix:** a `TokenLimiter` in the runner, a sliding 60 s window at 90% of the provider TPM (Groq 8000). Each rollout reserves an estimate and is corrected to its real usage. A `--tpm` override was added.
+   - **Fix:** the client's SDK-level `max_retries` was raised from 0 to `--max-retries`, so each request, including inner turns of a tool rollout, honours the provider's `retry-after` instead of failing the whole rollout.
+   - **Guard:** `test_token_limiter_waits_for_the_window`.
+   - **Consequence:** the Groq single-turn eval (≈ 330 rollouts) paces itself to ~1–2 rollouts/min, so it is an overnight run. Planned for in the sweep.
+- **Test regression caught during the fix:** the existing harness tests' fake rollouts report 1M tokens each, so the new limiter (correctly) made them wait 60 s per rollout and the suite hung. Fixed by passing `--tpm 0` in those tests. Full suite **212 passed**.
+- **Lesson:** "OK" from a runner is not evidence. The re-run must show non-zero rewards and no `Aborted rollout` lines; the eval harness already records `status=error` separately rather than as 0.
+- `EDGE_CASES.md` now keeps a running list of edge cases hit in real runs, for the final top-5 selection.
+
+**Step 12 re-run (2026-10-19): `service_tier` fixed, a third provider incompatibility found in tool mode.** All 5 tool rollouts failed with `400 'messages.2': property 'reasoning_content' is unsupported`.
+- **Root cause:** when replaying earlier assistant turns, `verifiers/clients/openai_chat_completions_client.py` (line ~234) attaches `reasoning_content`, the model's hidden reasoning, to each assistant message. Groq rejects the field, so every tool rollout failed at its second request.
+- **Fix:** `paygym.compat` also wraps the chat client's request call and drops `reasoning_content` from outgoing *assistant* messages, without mutating the caller's object. The model still sees its visible replies and tool calls. Hidden reasoning is not scored, and no evaluated model needs it replayed.
+- **Guard:** `test_replayed_assistant_reasoning_is_not_sent`. Suite **213 passed**.
+- **Lesson:** single-turn success says nothing about multi-turn. The provider contract differs on turn 2.
+
+---
+
+## Free-tier limits from the user's dashboards → eval redesign (2026-10-19)
+
+**Step 12, 3rd run:** tool mode on Groq → `413 Request too large … TPM: Limit 8000, Requested 8226`. Groq counts input + `max_tokens` against the per-minute window *per request*, and a multi-turn tool request is larger than the whole window. No amount of waiting fixes it.
+
+**The user's limit pages** (no requests used):
+
+| Model | Free limit |
+|---|---|
+| gemini-3.8-flash | 5 RPM, **20 RPD**, 250K TPM |
+| gemini-3.5-flash-lite, 3.1-flash-lite | 15 RPM, 500 RPD each |
+| gemma-4-31b-it | 30 RPM, 14.4K RPD, 16K TPM |
+| groq gpt-oss-120b (also 20b, qwen3.8-27b) | 30 RPM, 1K RPD, **8K TPM, 200K TPD** |
+
+**What was wrong in my earlier plan:** default caps of Gemini 120/day and Groq 400/day were guesses. The real Gemini 3.8 Flash limit is 20/day, so the first sweep would have exhausted it in minutes, and the tokens-per-day limit was not counted at all. Fixed by replacing guesses with the measured numbers.
+
+**Changes:**
+- `paygym/eval/budget.py`:
+  - `FREE_TIER_LIMITS` per model, from the dashboards; caps = **75%** of each (`CAP_FRACTION`), so the user keeps a quarter.
+  - The ledger now counts **requests and tokens**, and refuses a call if either daily cap would be exceeded.
+  - Unknown hosted models get the strictest known limits.
+  - Pacing (RPM, TPM) comes from the same table.
+- Runner:
+  - per-request `max_tokens` is clamped so input + max_tokens fits the provider's TPM window (the 413 cause);
+  - a prompt that cannot fit is recorded as an error, not sent;
+  - `--ids` runs a fixed task subset.
+- Judge: pinned to **gemini-3.1-flash-lite** (own 500/day bucket, separate from both eval models) and paced to its RPM.
+- **core20 subset** (`scripts/make_core_subset.py` → `tasks/subsets/eval_core20.txt`):
+  - composition: 4 retrieval, 6 payslips, 5 traps + their 5 twins;
+  - a fixed-seed stratified pick, chosen before any model was scored;
+  - stored as **ids**, because a first version copied the tasks into a second JSONL and `paygym validate tasks/` (correctly) failed with 20 duplicate ids;
+  - leaderboard: subset runs are grouped as `subset:eval_core20`, and every full-set run gets a **subset view** on the same 20 tasks, so the scarce models are compared paired.
+- **Model allocation:**
+  - Gemini 3.5 Flash-Lite: full eval + tool mode on core20 + Track C comparator;
+  - Gemini 3.8 Flash: core20, ~4 days at 15/day;
+  - Groq gpt-oss-120b: core20 single-turn, ~3 days at 150K tokens/day;
+  - local Qwen: everything else, unlimited.
+- **Tests:**
+  - new: `test_caps_come_from_the_published_free_limits_with_headroom`, `test_ids_subset_runs_exactly_those_tasks`, `test_subset_run_is_compared_with_subset_views_of_full_runs`;
+  - harness tests now set their own limits, because their fake 1M-token rollouts would (correctly) trip the real Groq token cap.
+  - Suite **216 passed**.
+- Docs: USER_ACTIONS Steps 12 / 15 / 20, TRADEOFFS #8.
+
+**Step 12, 4th run (2026-10-19):**
+- **Single-turn on Groq gpt-oss-120b: ✅ `errors: 0`, rewards `[0, 0, 0, 1.0, 0.8]`.** The verifiers environment runs end to end through verifiers' own runner on a real provider, and the rewards are non-degenerate. It took 2 min 41 s for 5 rollouts (≈ 32 s each), as Groq's 8K TPM paced it via `retry-after`.
+- **Tool mode on Gemini 3.5 Flash-Lite: ❌ every rollout 400** `Function call is missing a thought_signature in functionCall parts … position 2`.
+  - **Root cause:** Gemini 3.x returns an opaque `thought_signature` per function call (`tool_calls[i].extra_content.google.thought_signature`) and requires it back on the next turn. verifiers 0.2.1 has no reference to `extra_content` (grep of `verifiers/clients`); it rebuilds tool calls as its own `ToolCall` and drops the field.
+  - **Fix:** `paygym.compat` remembers each signature by tool-call id when a response arrives and re-attaches it to that call when the conversation is replayed, as Google's docs specify. Nothing is invented: a call without a known signature is sent unchanged. The store is bounded.
+  - **Guard:** `test_gemini_thought_signatures_are_replayed`. Suite **217 passed**.
+- **Running count:** four provider incompatibilities in the pinned verifiers v0 client, three on Groq and one on Gemini, all fixed in one documented shim (`paygym/compat.py`) with a test each. This is the price of pinning v0 for spec fidelity (TRADEOFFS #7), and it is the strongest evidence in the project for "test against the real provider, on turn 2".
+
+**Step 12, 5th run: tool mode on Gemini 3.5 Flash-Lite works (2026-10-19).** **4/5 rollouts OK** (the `thought_signature` fix holds). Rewards `[0, 1.0, 0, 0, 0]`; **tool calls per rollout `[12, 10, 16, 17, 8]`**, so the model really uses the tools.
+- **The 1 error:** `429 … GenerateRequestsPerMinutePerProjectPerModel-FreeTier, limit 15 … retry in 53s`.
+  - **Root cause:** a tool rollout makes ~8 requests back to back inside verifiers; a per-rollout limiter cannot hold a per-minute quota.
+  - **Root cause:** Gemini states the delay in the error *body*, not a `Retry-After` header, so the SDK's short backoff gave up.
+- **Fix (`paygym.compat`):**
+  - every outgoing request is paced per model at the free-tier RPM from `paygym.eval.budget`. This also applies when verifiers' own runner is used. The runner hands its RPM to the shim instead of pacing whole rollouts, to avoid a double wait;
+  - a 429 that names "retry in Ns" is waited out and retried (≤ 3 times, ≤ 90 s each).
+- **Guard:** `test_requests_are_paced_per_model_and_named_retry_delays_honoured`. Suite **218 passed**.
+- **Step 12 status: ✅.** Both modes run through verifiers' own runner on real providers (single-turn: Groq, 0 errors; tool mode: Gemini, signature fixed, the remaining failure mode now handled). Not re-run, to save Flash-Lite quota; the sweep's first tool-mode run (Step 15) exercises the pacing, and the runner records any error as `status=error`, never as 0.

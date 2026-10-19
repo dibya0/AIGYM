@@ -37,13 +37,18 @@ Living document (brief §9 #11; §11: "Scope down loudly, not silently"). Each e
 - **Decision:** pin the last release with the brief's v0 API.
 - **Why:** the spec in the brief is v0, and v0 was removed in 0.3.0 (Aug 2026).
 - **Cost:** not on the current verifiers line. The README maps the design onto v1 for a port.
+- **Cost found in practice (2026-10-19):** the v0 OpenAI-chat client broke on real providers in four ways: Groq `service_tier`, Groq rejecting replayed `reasoning_content`, Gemini's required `thought_signature`, and Groq's per-request TPM (413). The first three are patched in `paygym/compat.py`, each with a test; the fourth changed which provider runs tool mode. A port to verifiers v1 would remove the shim.
 
 ### 8. Free tiers and list prices
 - **Decision:** the `--max-cost` guardrail runs on *list prices* even though actual spend is $0.
 - **Why:** it proves the guardrail works and reports what a paid run would cost.
 - **Cost:** a sweep can stop on the list-price cap even when it is free, so the cap is set per run.
-- **Second guardrail, in requests:** list-price dollars never protect a free quota, so a daily per-model **request ledger** (`paygym.eval.budget`) caps hosted calls (Gemini 120/day, Groq 400/day, below the free limits) across all runs and the judge. A capped run stops before the call that would exceed the cap (`aborted_budget`) and resumes the next day. The sweep takes ~3 days instead of one; no account is drained.
-- **Quota allocation:** Gemini, the scarcest quota, runs single-turn eval only. Groq covers tool mode and the Track C large-model comparison; local Qwen covers everything high-volume. The judge runs on a separate model so it draws on its own quota.
+- **Second guardrail, the free quota itself:** list-price dollars never protect a free quota, so a daily per-model **ledger** (`paygym.eval.budget`) caps requests *and* tokens at 75% of each model's published free limit, read from the user's own dashboards. That covers all eval runs, the judge and the probe. A capped run stops before the call that would exceed the cap (`aborted_budget`) and resumes the next day.
+- **The limits shaped the eval design** (2026-10-19):
+  - **Gemini 3.8 Flash** allows 20 requests/day and **Groq gpt-oss-120b** 200K tokens/day (≈ 40 single-turn rollouts). Neither can afford 109 tasks × 3 rollouts. They run on **core20**, a stratified subset fixed in advance (`scripts/make_core_subset.py`: every trap with its twin). The leaderboard compares them only against the other models' rollouts on those same 20 tasks (subset views, paired bootstrap), never against a full-set mean. **Cost:** wider CIs for those two models, stated in EVAL_REPORT.
+  - **Tool mode cannot run on Groq.** Each request counts input + max_tokens against an 8K tokens/minute window, and a multi-turn tool request exceeds it (HTTP 413). Tool mode and the Track C comparator therefore use **Gemini 3.5 Flash-Lite** (500 requests/day), and Groq is single-turn only.
+  - **The judge** (Gemini 3.1 Flash-Lite) has its own 500/day bucket, so it never competes with an eval.
+  - **Wall clock:** the sweep takes ~4 days of once-a-day runs instead of one sitting.
 
 ## What we mocked (brief §11.5)
 - **The rule set and jurisdictions (fictional):** so answers cannot be recalled from pre-training (brief p.4). Real version: statutory tables per country with effective dates, maintained against official sources.

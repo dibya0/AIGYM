@@ -18,7 +18,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 PROVIDERS = {
-    "groq": {"base_url": "https://api.groq.com/openai/v1", "api_key_var": "GROQ_API_KEY", "free": True, "rpm": 25},
+    # tpm: tokens per minute. Groq free tier for gpt-oss-120b is 8,000 TPM (from its own 429 message, 2026-10-19);
+    # one single-turn rollout here is ~3-6.5k tokens, so tokens, not requests, are the binding limit.
+    "groq": {"base_url": "https://api.groq.com/openai/v1", "api_key_var": "GROQ_API_KEY", "free": True, "rpm": 25, "tpm": 8000},
     "gemini": {"base_url": "https://generativelanguage.googleapis.com/v1beta/openai/", "api_key_var": "GEMINI_API_KEY",
                "free": True, "rpm": 8},
     "local": {"base_url": "http://localhost:8000/v1", "api_key_var": "LOCAL_API_KEY", "free": True, "rpm": 0},
@@ -45,6 +47,7 @@ class ModelSpec:
     free_tier: bool
     rpm: int
     price: tuple[float, float]
+    tpm: int = 0
 
     @property
     def is_baseline(self) -> bool:
@@ -63,10 +66,12 @@ def resolve(name: str, base_url: str | None = None, api_key_var: str | None = No
     provider, _, rest = name.partition("/")
     if provider == "baseline":
         return ModelSpec(name, "baseline", rest, None, None, True, 0, (0.0, 0.0))
+    tpm = 0
     if provider in PROVIDERS and rest:
         cfg = PROVIDERS[provider]
         model_id = rest
         url, key, free, default_rpm = cfg["base_url"], cfg["api_key_var"], cfg["free"], cfg["rpm"]
+        tpm = cfg.get("tpm", 0)
     else:
         if not base_url:
             raise ValueError(f"unknown provider for {name!r}: use groq/, gemini/, local/, baseline/ or pass --base-url")
@@ -74,4 +79,4 @@ def resolve(name: str, base_url: str | None = None, api_key_var: str | None = No
     price = next((p for prefix, p in LIST_PRICES.items() if name == prefix or (prefix.endswith("/") and name.startswith(prefix))),
                  DEFAULT_PRICE)
     return ModelSpec(name, provider if provider in PROVIDERS else "custom", model_id, base_url or url,
-                     api_key_var or key, free and not paid, rpm if rpm is not None else default_rpm, price)
+                     api_key_var or key, free and not paid, rpm if rpm is not None else default_rpm, price, tpm)

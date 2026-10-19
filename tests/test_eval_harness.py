@@ -62,7 +62,12 @@ class FakeEnvRollouts:
 
 def _model_run(tmp_path, monkeypatch, script, *extra):
     monkeypatch.setenv("GROQ_API_KEY", "test")
-    args = _args(tmp_path, "--model", "groq/openai/gpt-oss-120b", "--rpm", "0", "--concurrency", "1", *extra)
+    from paygym.eval import budget
+
+    # The fakes report 1M tokens per rollout (to exercise the cost cap), which the real Groq daily token cap
+    # would stop at once; these tests are about the runner, so give the model generous request-only limits.
+    monkeypatch.setitem(budget.FREE_TIER_LIMITS, "groq/openai/gpt-oss-120b", {"rpd": 1_000_000})
+    args = _args(tmp_path, "--model", "groq/openai/gpt-oss-120b", "--rpm", "0", "--tpm", "0", "--concurrency", "1", *extra)
     run = EvalRun(args)
     fake = FakeEnvRollouts(script)
     run.env.run_rollout = fake
@@ -124,6 +129,25 @@ def test_leaderboard_groups_and_compares(tmp_path):
     assert {r["model"] for r in board["runs"]} == {"baseline/naive_no_ceiling", "baseline/always_abstain"}
 
 
+def test_subset_run_is_compared_with_subset_views_of_full_runs(tmp_path):
+    """A scarce model run on --ids is ranked only against other models' rollouts on the same tasks."""
+    from paygym.environment import load_tasks
+
+    subsets = tmp_path / "subsets"
+    subsets.mkdir()
+    ids = [t.id for t in load_tasks(split="eval", n_seeds=12)][:4]
+    (subsets / "core4.txt").write_text("\n".join(ids))
+    out = tmp_path / "results"
+    main(["--model", "baseline/always_abstain", "--n-seeds", "12", "--rollouts", "1", "--out", str(out), "--run-name", "full"])
+    main(["--model", "baseline/naive_no_ceiling", "--n-seeds", "12", "--rollouts", "1", "--ids", str(subsets / "core4.txt"),
+          "--out", str(out), "--run-name", "core4"])
+    board = leaderboard.build(out, subsets)
+    sub = [r for r in board["runs"] if r["group"].startswith("subset:core4")]
+    assert {r["run"] for r in sub} == {"baseline__naive_no_ceiling/core4", "baseline__always_abstain/full@core4"}
+    assert all(r["tasks"] == 4 for r in sub)
+    assert any(c["group"].startswith("subset:core4") for c in board["comparisons"])
+
+
 def test_daily_request_budget_stops_cleanly_and_resume_continues(tmp_path, monkeypatch):
     """Free-tier protection: the run stops *before* a call that would exceed the day's cap."""
     run, fake, code = _model_run(tmp_path, monkeypatch, [], "--max-cost", "100", "--limit", "3", "--daily-request-cap", "4")
@@ -141,12 +165,145 @@ def test_daily_request_budget_stops_cleanly_and_resume_continues(tmp_path, monke
 
 
 def test_request_ledger_counts_across_instances_and_settles_actual_use(tmp_path):
-    from paygym.eval.budget import RequestLedger, cap_for
+    from paygym.eval.budget import RequestLedger, caps_for
 
     path = tmp_path / "l.json"
-    a, b = RequestLedger("gemini/x", 5, path), RequestLedger("gemini/x", 5, path)
+    from paygym.eval.budget import Caps
+
+    five = Caps(requests=5, tokens=None, rpm=0, tpm=0)
+    a, b = RequestLedger("gemini/x", five, path), RequestLedger("gemini/x", five, path)
     assert a.reserve(4) and not b.reserve(2)  # shared file: a second process sees the first one's use
     a.settle(4, 1)  # a tool rollout reserved max_turns but used 1 turn
     assert b.used_today() == 1 and b.reserve(4) and b.remaining() == 0
-    assert RequestLedger("gemini/y", 5, path).used_today() == 0  # per model
-    assert cap_for("local") is None and cap_for("gemini") == 120 and cap_for("gemini", 0) is None
+    assert RequestLedger("gemini/y", five, path).used_today() == 0  # per model
+
+
+def test_caps_come_from_the_published_free_limits_with_headroom(tmp_path):
+    from paygym.eval.budget import Caps, RequestLedger, caps_for
+
+    assert caps_for("local/qwen2.5-3b") is None and caps_for("baseline/format_only") is None
+    flash = caps_for("gemini/gemini-3.8-flash")  # 20 requests/day, 5/min on the free tier
+    assert flash.requests == 15 and flash.rpm == 4
+    groq = caps_for("groq/openai/gpt-oss-120b")  # 200K tokens/day, 8K/min
+    assert groq.tokens == 150_000 and groq.tpm == 8000
+    assert caps_for("gemini/some-typo").requests == 15  # unknown models get the strictest limits
+    assert caps_for("gemini/gemini-3.8-flash", 0).requests is None
+    # The token cap binds independently of the request cap.
+    led = RequestLedger("groq/openai/gpt-oss-120b", Caps(requests=100, tokens=10_000, rpm=0, tpm=0), tmp_path / "l.json")
+    assert led.reserve(1, 6000) and not led.reserve(1, 6000)
+    led.settle(1, 1, 6000, 2000)  # actual use was lower
+    assert led.reserve(1, 6000)
+
+
+def test_groq_service_tier_is_accepted():
+    """verifiers 0.2.1 validated responses against the OpenAI SDK's closed service_tier Literal, so every
+    Groq response ("on_demand") was rejected (Step 12 smoke eval). paygym.compat widens it."""
+    from openai.types.chat import ChatCompletion
+
+    import paygym.environment  # noqa: F401  (applies the shim on import)
+    from verifiers.utils import client_utils
+
+    body = {"id": "x", "object": "chat.completion", "created": 0, "model": "openai/gpt-oss-120b", "service_tier": "on_demand",
+            "choices": [{"index": 0, "finish_reason": "stop", "message": {"role": "assistant", "content": "hi"}}]}
+    stripped, _ = client_utils.strip_routed_experts_data(json.dumps(body).encode())
+    assert ChatCompletion.model_validate_json(stripped).choices[0].message.content == "hi"
+    ok = json.dumps({**body, "service_tier": "default"}).encode()
+    assert client_utils.strip_routed_experts_data(ok)[0] == ok  # known tiers pass through untouched
+
+
+def test_token_limiter_waits_for_the_window(monkeypatch):
+    from paygym.eval import runner as runner_module
+
+    clock = {"t": 1000.0}
+    monkeypatch.setattr(runner_module.time, "monotonic", lambda: clock["t"])
+
+    async def fake_sleep(seconds):
+        clock["t"] += seconds
+
+    monkeypatch.setattr(runner_module.asyncio, "sleep", fake_sleep)
+    lim = runner_module.TokenLimiter(8000)  # 7,200 usable with headroom
+
+    async def go():
+        a = await lim.acquire(5000)
+        lim.settle(a, 6000)  # real usage was higher than the estimate
+        start = clock["t"]
+        await lim.acquire(5000)  # 6000 + 5000 > 7200: must wait for the first to leave the window
+        return clock["t"] - start
+
+    assert asyncio.run(go()) >= 59.0
+
+
+def test_replayed_assistant_reasoning_is_not_sent():
+    """Groq 400s on assistant messages carrying reasoning_content (tool mode, turn 2+)."""
+    import paygym.environment  # noqa: F401
+    from verifiers.clients import openai_chat_completions_client as chat_client
+
+    from paygym.compat import strip_replayed_reasoning
+
+    assert chat_client.post_chat_completion_with_routed_experts_sidecar.__name__ == "post_without_replayed_reasoning"
+    body = {"model": "m", "messages": [{"role": "user", "content": "q"},
+                                       {"role": "assistant", "content": "", "tool_calls": [{"id": "1"}], "reasoning_content": "think"},
+                                       {"role": "tool", "tool_call_id": "1", "content": "r"}]}
+    out = strip_replayed_reasoning(body)
+    assert "reasoning_content" not in out["messages"][1] and out["messages"][1]["tool_calls"] == [{"id": "1"}]
+    assert body["messages"][1]["reasoning_content"] == "think"  # caller's object not mutated
+    assert out["messages"][0] is body["messages"][0] and out["messages"][2] is body["messages"][2]
+
+
+def test_ids_subset_runs_exactly_those_tasks(tmp_path):
+    ids = tmp_path / "ids.txt"
+    from paygym.environment import load_tasks
+
+    chosen = [t.id for t in load_tasks(split="eval", n_seeds=12)][:3]
+    ids.write_text("\n".join(chosen) + "\n")
+    assert main(["--model", "baseline/format_only", "--n-seeds", "12", "--rollouts", "1", "--ids", str(ids),
+                 "--out", str(tmp_path), "--run-name", "r"]) == 0
+    rows = [json.loads(l) for l in (tmp_path / "baseline__format_only" / "r" / "transcript.jsonl").read_text().splitlines()]
+    assert sorted(r["task_id"] for r in rows) == sorted(chosen)
+
+
+def test_gemini_thought_signatures_are_replayed():
+    """Gemini 3.x 400s on turn 2 unless each function call's thought_signature is sent back; verifiers
+    0.2.1 drops it. paygym.compat remembers it by tool-call id and re-attaches it."""
+    from openai.types.chat import ChatCompletion
+
+    from paygym import compat
+
+    sig = {"google": {"thought_signature": "abc123"}}
+    resp = ChatCompletion.model_validate({
+        "id": "r", "object": "chat.completion", "created": 0, "model": "gemini",
+        "choices": [{"index": 0, "finish_reason": "tool_calls", "message": {"role": "assistant", "content": None, "tool_calls": [
+            {"id": "call-1", "type": "function", "function": {"name": "get_employee_record", "arguments": "{}"}, "extra_content": sig}]}}]})
+    compat.remember_signatures(resp)
+    body = {"messages": [{"role": "user", "content": "q"},
+                         {"role": "assistant", "tool_calls": [{"id": "call-1", "type": "function", "function": {"name": "x", "arguments": "{}"}},
+                                                              {"id": "call-unknown", "type": "function", "function": {"name": "y", "arguments": "{}"}}]}]}
+    out = compat.reattach_signatures(body)
+    calls = out["messages"][1]["tool_calls"]
+    assert calls[0]["extra_content"] == sig and "extra_content" not in calls[1]  # never invented
+    assert "extra_content" not in body["messages"][1]["tool_calls"][0]  # caller's object not mutated
+
+
+def test_requests_are_paced_per_model_and_named_retry_delays_honoured(monkeypatch):
+    from paygym import compat
+
+    clock = {"t": 0.0}
+    monkeypatch.setattr(compat.time, "monotonic", lambda: clock["t"])
+
+    async def fake_sleep(s):
+        clock["t"] += s
+
+    monkeypatch.setattr(compat.asyncio, "sleep", fake_sleep)
+    compat._NEXT_SLOT.clear()
+    compat.set_rpm("m", 12)  # one request every 5 s
+
+    async def three():
+        for _ in range(3):
+            await compat._pace("https://generativelanguage.googleapis.com/v1beta/openai/", "m")
+
+    asyncio.run(three())
+    assert clock["t"] == 10.0  # requests at t = 0, 5, 10
+    # Free-tier defaults apply even when verifiers' own runner is used (no runner to set them).
+    assert compat._rpm_for("https://generativelanguage.googleapis.com/v1beta/openai/", "gemini-3.5-flash-lite") == 14
+    assert compat._retry_delay(Exception("Error code: 429 ... Please retry in 53.57s.")) == 54.57
+    assert compat._retry_delay(Exception("Error code: 400 bad request")) is None
