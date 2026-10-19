@@ -103,6 +103,15 @@ def _cmd_judge(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_rescore(args: argparse.Namespace) -> int:
+    from paygym.eval.runner import rescore
+
+    dirs = [Path(d) for d in args.runs] or sorted(p.parent for p in Path(args.results).glob("*/*/config.json"))
+    for d in dirs:
+        print(json.dumps(rescore(d)))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="paygym", description="PayGym command-line tools.")
     parser.add_argument("--version", action="version", version=f"paygym {__version__}")
@@ -136,6 +145,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--repeats", type=int, default=3)
     p.add_argument("--out")
     p.set_defaults(func=_cmd_judge)
+
+    p = sub.add_parser("rescore", help="re-score saved runs under the current rubric version (no model calls)")
+    p.add_argument("runs", nargs="*", help="run directories (default: every run under --results)")
+    p.add_argument("--results", default="results")
+    p.set_defaults(func=_cmd_rescore)
 
     p = sub.add_parser("schema", help="print the task JSON Schema")
     p.set_defaults(func=_cmd_schema)

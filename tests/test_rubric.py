@@ -71,8 +71,10 @@ def test_refusing_a_determinable_payslip_scores_like_a_wrong_answer():
     t = SEED["seed-t2-07"]  # twin
     refusal = "```json\n" + json.dumps({"decision": "refuse", "reason_code": "CONFLICTING_RECORDS", "lines": None}) + "\n```"
     s = score_answer(t, refusal)
-    assert s.gate == "refused_determinable" and s.total == pytest.approx(0.05)
-    assert s.total <= score_answer(t, answer_with(t, net_pay=1.0)).total
+    assert s.gate == "refused_determinable" and s.total == 0.0
+    # v1.1: strictly below any valid-format wrong answer, so refusing is never a low-variance harbour
+    # (the exploit GRPO found in v1.0, where a refusal kept the 0.05 format credit).
+    assert s.total < score_answer(t, answer_with(t, net_pay=1.0)).total
 
 
 def test_answering_a_trap_is_negative_never_partial():
@@ -161,7 +163,21 @@ def test_training_reward_matches_rubric_and_logs_monitors():
     logged = {}
     infos = [json.dumps({"task_json": t.model_dump_json()}) for t in tasks]  # the environment's info column
     rewards = rubric_reward(completions, infos, log_metric=lambda k, v: logged.__setitem__(k, v))
-    assert rewards == pytest.approx([-1.0, 0.05, 1.0])
+    assert rewards == pytest.approx([-1.0, 0.0, 1.0])
     assert logged["monitor/trap_answer_rate"] == 1.0
     assert logged["monitor/twin_refusal_rate"] == 1.0
     assert logged["monitor/pass_rate_tier2"] == pytest.approx(0.5)
+
+
+def test_modal_net_monitor_counts_distinct_tasks_only():
+    """The v1.0 monitor counted completions, so 8 agreeing answers to ONE task (or 1 answer among
+    refusals) read as 100% modal and safety-stopped the first GRPO run at step 6."""
+    t1, t2 = SEED["seed-t2-01"], SEED["seed-t2-07"]
+    same = [[{"role": "assistant", "content": perfect(t1)}] for _ in range(8)]
+    logged = {}
+    rubric_reward(same, [json.dumps({"task_json": t1.model_dump_json()})] * 8, log_metric=lambda k, v: logged.__setitem__(k, v))
+    assert "monitor/modal_net_share" not in logged  # one task: nothing to measure
+    one_answer_for_both = [[{"role": "assistant", "content": perfect(t1)}]] * 2  # t1's payslip given for t2 too
+    infos = [json.dumps({"task_json": t.model_dump_json()}) for t in (t1, t2)]
+    rubric_reward(one_answer_for_both, infos, log_metric=lambda k, v: logged.__setitem__(k, v))
+    assert logged["monitor/modal_net_share"] == 1.0

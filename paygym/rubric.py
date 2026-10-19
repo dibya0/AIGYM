@@ -11,9 +11,15 @@ Determinable payslip (Tier 2):
                would pass payroll review under the rules.
   0.75-0.99    net pay correct, some intermediate lines wrong (net right for partly wrong reasons).
   <= 0.25      net pay wrong: capped at the floor, however many other lines are right.
-  0.05         refused a payslip the rules determine. Scored exactly as a wrong answer with no
-               correct lines (brief p.10: "penalised exactly like a wrong answer").
+  0.00         refused a payslip the rules determine (v1.1; was 0.05 in v1.0). Scored like an unusable
+               answer, the bottom of the wrong-answer range (brief p.10: "penalised exactly like a wrong
+               answer"), and the same as a refused Tier-1 retrieval already was in v1.0.
   0.00         no parseable answer.
+
+  Why v1.1 (2026-10-19, reward gaming found by GRPO, docs/RL_REPORT.md B6): in v1.0 a refusal kept the
+  0.05 format credit, so on a payslip it beat broken JSON (0.00) and roughly matched a typical wrong
+  answer (~0.05-0.12) at much lower variance. Within 5 steps the 0.5B policy was refusing 5-6 of 8
+  determinable payslips. Format credit is for a payslip; a refusal of a payable payslip is not one.
 
 Trap (Tier 3, the rules do not determine the payslip, GEN-§9):
   1.00         refused with the correct reason code and a useful explanation (judge).
@@ -43,7 +49,7 @@ from paygym.parser import ParsedAnswer, parse_answer
 from paygym.reference.calculator import LINES
 from paygym.schema import Task
 
-RUBRIC_VERSION = "1.0"
+RUBRIC_VERSION = "1.1"  # 1.1: a refused determinable payslip scores 0.00 (was 0.05); see docstring
 
 W_NET, W_LINES, W_FORMAT = Decimal("0.70"), Decimal("0.25"), Decimal("0.05")
 WRONG_NET_CAP = Decimal("0.25")
@@ -119,7 +125,8 @@ def _score_payslip(task: Task, parsed: ParsedAnswer) -> Score:
     raw_total = W_NET * (1 if net_ok else 0) + W_LINES * Decimal(str(accuracy)) + W_FORMAT * Decimal(str(fmt.score))
     gate = None
     if parsed.decision == "refuse":
-        gate = "refused_determinable"  # scored through the wrong-answer path: no correct lines
+        gate = "refused_determinable"  # bottom of the wrong-answer range: no lines, and no format credit (v1.1)
+        raw_total = Decimal(0)
         driving = ["GEN-§9"] + list(gt.line_clauses["net_pay"])
     elif not net_ok:
         gate = "wrong_net_capped"

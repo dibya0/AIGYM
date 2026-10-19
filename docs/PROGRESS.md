@@ -777,3 +777,16 @@ Re-read the PDF (pp.7–14 phase specs, plus §§9–11) line by line against th
 **First β run OOMed (2026-10-19):** `memory allocation failed with OOM … trying to allocate 1.3 GB (free 0.7 GB)`. The process held 12.4 GB. The user stopped it.
 - **Cause:** micro-batch = G = 8 completions, each ~4.9k tokens (a ~4.5k-token prompt with the rule book + up to 384 completion), with logits over a 152k vocabulary. The smoke test fit only because it used G = 4.
 - **Fix:** `--micro-batch 4` (default). Gradients are accumulated over `prompts_per_step × G / micro_batch` = 4 micro-batches. The generation batch (16 completions, generated together once per step) and the objective are unchanged; this is a memory setting, not a method change. The aborted run's directory was deleted (it had no completed step).
+
+---
+
+## Reward gaming found by GRPO → rubric v1.1 (2026-10-19)
+
+- **Training OOM, round 2:** the user pressed Ctrl-Z (suspends; the process kept 13.5 GB), so the next run had 160 MB. I killed the suspended process (PID 406021). The user now knows Ctrl-C vs Ctrl-Z.
+- **First real GRPO run** (v1.0 rubric, β = 0.001, `easy`, micro-batch 4): **~46 s/step**. KL 0 → 0.005; entropy 0.86 → 0.38; `frac_reward_zero_std` 0 (every group had spread). Safety-stopped at **step 6**.
+- **Two findings** (details in RL_REPORT B6):
+  1. **Reward gaming:** refusals of payable payslips went from 1/8 to 5–6/8 of saved samples within 5 steps, because a v1.0 refusal kept the 0.05 format credit. **Fix: rubric 1.1**, refused determinable payslip = 0.00 (consistent with Tier-1 refusals).
+  2. **False-positive safety stop:** `modal_net_share` counted completions, not distinct tasks. **Fix:** one vote per task, ≥ 2 tasks.
+- The auto-started β = 0.04 run (also v1.0) was stopped at step 4 (SIGINT). Both v1.0 runs are kept as evidence: `results/train/v1.0-grpo-b0.*`.
+- **Re-scoring:** `paygym rescore` (new) re-scores saved eval completions under the current rubric with no model calls and records `rescored_from`; trap rows are untouched (1.1 changed only the payslip refusal branch, and judge calls must not be repeated). `scripts/sweep.sh` runs it first, so resumed runs pass the rubric-version check and the leaderboard never mixes versions. Test: `test_rescore_moves_a_run_to_the_current_rubric_without_model_calls`.
+- Suite **224 passed**.

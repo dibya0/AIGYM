@@ -123,5 +123,24 @@ If one is found: transcript evidence → rubric fix (version bump) → rerun →
 - B4. Stop reasons (`stop_reason.json`) and best checkpoints (`best_checkpoint.json`):
 - B5. Held-out before/after (`results/train/rl_summary.json`):
 - B6. Reward gaming found (transcripts, fix, rerun) or what was searched:
+
+  **Found in the first 6 steps: "refuse the payable payslip", the abstention harbour, under rubric v1.0.**
+  - **Evidence** (`results/train/v1.0-grpo-b0.001/`, `metrics.csv` + `train_samples.jsonl`, 8 saved completions per step):
+    - refusals of *determinable* payslips went from 1/8 (step 0) and 0/8 (step 1) to **5/8, 6/8 and 5/8** at steps 2, 4 and 5;
+    - `monitor/twin_refusal_rate` rose 0.50 → 0.625 → 0.75 → 0.625;
+    - mean reward rose from −0.08 to +0.04, mostly from no longer answering traps and from refusing.
+    - **Example, step 5, `gen-easy-0000005-twin`, a payable payslip:** `{"decision": "refuse", "reason_code": "NO_APPLICABLE_TABLE", "lines": {…a payslip anyway…}}`, scored **0.05**.
+    - The `β = 0.04` run (`v1.0-grpo-b0.04`) showed 5/8 at its step 2 before it was stopped.
+  - **Why it pays:**
+    - in v1.0 a refusal of a determinable payslip kept the 0.05 format credit, a *guaranteed* 0.05;
+    - the base policy's alternatives were broken JSON (0.00, 16–38 % of outputs) or a wrong answer (≈ 0.05–0.12, high variance);
+    - GRPO's group-relative advantage favours the low-variance option whenever the group contains broken JSON.
+    - The always-abstain *baseline* stayed under its floor (refusing every trap and twin averages out), but a policy that refuses only payslips it would otherwise botch is a sharper exploit than any hand-written baseline found. This is the brief's point (p.12): "a trained policy attacks your reward far harder than you can by hand."
+  - **Honest limits:** 6 steps, 8 saved samples per step, and each step samples different tasks. It is a consistent early signal plus a verified incentive, not a long collapse curve.
+  - **Fix: rubric v1.1** (`paygym/rubric.py`): a refused determinable payslip scores **0.00**, the bottom of the wrong-answer range. That is strictly below any valid-format wrong answer, and the same as a refused Tier-1 retrieval already scored in v1.0, so v1.0 was internally inconsistent.
+    - Tests: `test_refusing_a_determinable_payslip_scores_like_a_wrong_answer` (now strict); baseline floors unchanged and passing.
+    - Every saved eval run was re-scored under v1.1 with `paygym rescore` (saved completions, no model calls), so no leaderboard row mixes rubric versions.
+  - **A second finding from the same run, a broken monitor, not gaming:** the safety stop at step 6 (`modal_net_share` 0.57 > 0.5) was a false positive. The monitor counted completions, so with mostly refusals one or two answers read as "100 % identical", and eight agreeing answers to one task looked like the modal-answer exploit. Fixed: one vote per distinct task, logged only with ≥ 2 tasks answered (`test_modal_net_monitor_counts_distinct_tasks_only`).
+  - **Rerun under v1.1:** see B3–B5.
 - B7. Degenerate groups (`frac_reward_zero_std`) and what we would change about the taskset:
 - B8. What we would do with two more days:

@@ -539,6 +539,56 @@ class EvalRun:
         (self.dir / "metrics.json").write_text(json.dumps(metrics, indent=2, default=str))
 
 
+# --------------------------------------------------------------------------- rescoring
+
+
+def rescore(run_dir: Path) -> dict:
+    """Re-score a finished run's saved completions under the *current* rubric, with no model calls.
+
+    Used when the rubric version changes (1.0 -> 1.1, 2026-10-19), so every run on the leaderboard is
+    scored under one rubric version instead of silently mixing versions or paying for the calls again.
+    Only payslip and retrieval rows are re-scored: 1.1 changed the payslip refusal branch only, and trap
+    rows carry judge results that must not be re-requested. The config records ``rescored_from``.
+    """
+    run_dir = Path(run_dir)
+    cfg = json.loads((run_dir / "config.json").read_text())
+    old_metrics = json.loads((run_dir / "metrics.json").read_text()) if (run_dir / "metrics.json").exists() else {}
+    if cfg.get("rubric_version") == RUBRIC_VERSION:
+        return {"run": str(run_dir), "changed": 0, "note": f"already rubric {RUBRIC_VERSION}"}
+    args = build_parser().parse_args(["--model", cfg["model"]])
+    for key, attr in (("mode", "mode"), ("scaffold", "scaffold"), ("split", "split"), ("n_seeds", "n_seeds"),
+                      ("tasks_path", "tasks"), ("tier", "tier"), ("limit", "limit"), ("ids", "ids"),
+                      ("rollouts", "rollouts"), ("seed", "seed"), ("max_turns", "max_turns"), ("judge", "judge")):
+        if key in cfg:
+            setattr(args, attr, cfg[key])
+    args.resume = str(run_dir)
+    if cfg.get("base_url") and cfg.get("provider") == "custom":
+        args.base_url = cfg["base_url"]
+    run = EvalRun(args)
+    from paygym.environment import completion_text
+
+    rows = [json.loads(line) for line in run.transcript.read_text().splitlines() if line.strip()]
+    changed = 0
+    for row in rows:
+        task = run.tasks.get(row["task_id"])
+        if row.get("status") != "ok" or task is None or task.ground_truth.kind == "refusal":
+            continue
+        score = score_answer(task, completion_text(row.get("completion")))
+        if abs((row.get("reward") or 0.0) - score.total) > 1e-9:
+            changed += 1
+        row["reward"], row["gate"], row["driving_clauses"] = score.total, score.gate, score.driving_clauses
+        metrics = dict(row.get("metrics") or {})
+        metrics.update({c.name: c.score for c in score.components})
+        metrics["paygym_reward"] = score.total
+        row["metrics"] = metrics
+    run.transcript.write_text("".join(json.dumps(r, default=str) + "\n" for r in rows))
+    cfg["rescored_from"] = cfg.get("rubric_version")
+    cfg["rubric_version"] = RUBRIC_VERSION
+    (run_dir / "config.json").write_text(json.dumps(cfg, indent=2, default=str))
+    run.finalise(old_metrics.get("status", "completed"), old_metrics.get("rollouts_planned", len(rows)))
+    return {"run": str(run_dir), "changed": changed, "rescored_from": cfg["rescored_from"], "rubric_version": RUBRIC_VERSION}
+
+
 # --------------------------------------------------------------------------- CLI
 
 

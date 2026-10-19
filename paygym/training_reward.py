@@ -8,7 +8,7 @@ brief-required curves come with the signals that reveal a gamed reward:
   monitor/twin_refusal_rate     refusing determinable twins: the "refuse everything" collapse
   monitor/trap_answer_rate      computing payslips the rules do not determine
   monitor/parse_fail_rate       format collapse
-  monitor/modal_net_share       share of completions in the batch with the single most common net pay
+  monitor/modal_net_share       share of distinct tasks (>= 2) whose answers include the batch's most common net pay
   monitor/len_reward_corr       correlation of completion length with reward: length hacking
   monitor/pass_rate_tier{2,3}   per-tier pass rate (total >= 0.95 on Tier 2; correct refusal on Tier 3)
 """
@@ -66,8 +66,14 @@ def rubric_reward(completions, info=None, log_metric=None, **kwargs) -> list[flo
         twins = [s for t, s in zip(tasks, scores) if t.twin_of]
         traps = [s for t, s in zip(tasks, scores) if t.difficulty == 3]
         tier2 = [s for t, s in zip(tasks, scores) if t.difficulty == 2]
-        nets = [_net(text) for text, s in zip(texts, scores) if s.decision == "answer"]
-        nets = [n for n in nets if n is not None]
+        # Modal answer across *different* tasks (the "same answer for every prompt" exploit). Completions
+        # of one task agreeing is normal, and with few answers in a batch "1 of 1 identical" is 100%:
+        # that false positive stopped the first GRPO run at step 6 (2026-10-19). One vote per task.
+        by_task: dict[str, set[str]] = {}
+        for t, text, s in zip(tasks, texts, scores):
+            n = _net(text) if s.decision == "answer" else None
+            if n is not None:
+                by_task.setdefault(t.id, set()).add(n)
         if twins:
             log_metric("monitor/twin_refusal_rate", sum(s.decision == "refuse" for s in twins) / len(twins))
         if traps:
@@ -76,8 +82,9 @@ def rubric_reward(completions, info=None, log_metric=None, **kwargs) -> list[flo
         if tier2:
             log_metric("monitor/pass_rate_tier2", sum(s.total >= 0.95 for s in tier2) / len(tier2))
         log_metric("monitor/parse_fail_rate", sum(s.parse_error is not None for s in scores) / len(scores))
-        if nets:
-            log_metric("monitor/modal_net_share", Counter(nets).most_common(1)[0][1] / len(nets))
+        if len(by_task) >= 2:
+            votes = Counter(n for values in by_task.values() for n in values)
+            log_metric("monitor/modal_net_share", votes.most_common(1)[0][1] / len(by_task))
         log_metric("monitor/len_reward_corr", _corr([float(len(t)) for t in texts], rewards))
     _save_samples(kwargs.get("trainer_state"), tasks, texts, scores)
     return rewards

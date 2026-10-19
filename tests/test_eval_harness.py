@@ -340,3 +340,25 @@ def test_a_run_where_nothing_succeeded_is_never_completed(tmp_path, monkeypatch)
                                  "--rollouts", "1", "--max-consecutive-errors", "100")
     metrics = json.loads((run.dir / "metrics.json").read_text())
     assert code == 3 and metrics["status"] == "unavailable" and metrics["rollouts_ok"] == 0
+
+
+def test_rescore_moves_a_run_to_the_current_rubric_without_model_calls(tmp_path):
+    from paygym.eval.runner import rescore
+    from paygym.rubric import RUBRIC_VERSION
+
+    assert main(["--model", "baseline/always_abstain", "--n-seeds", "12", "--rollouts", "1", "--out", str(tmp_path), "--run-name", "r"]) == 0
+    run_dir = tmp_path / "baseline__always_abstain" / "r"
+    cfg = json.loads((run_dir / "config.json").read_text())
+    cfg["rubric_version"] = "1.0"  # pretend it was scored under the old rubric, with v1.0's 0.05 for a refused payslip
+    (run_dir / "config.json").write_text(json.dumps(cfg))
+    rows = [json.loads(l) for l in (run_dir / "transcript.jsonl").read_text().splitlines()]
+    for r in rows:
+        if r["gate"] == "refused_determinable":
+            r["reward"] = 0.05
+    (run_dir / "transcript.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
+    out = rescore(run_dir)
+    assert out["changed"] > 0 and out["rubric_version"] == RUBRIC_VERSION
+    rows = [json.loads(l) for l in (run_dir / "transcript.jsonl").read_text().splitlines()]
+    assert all(r["reward"] == 0.0 for r in rows if r["gate"] == "refused_determinable")
+    assert json.loads((run_dir / "config.json").read_text())["rescored_from"] == "1.0"
+    assert json.loads((run_dir / "scores.json").read_text())["rubric_version"] == RUBRIC_VERSION

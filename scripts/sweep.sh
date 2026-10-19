@@ -37,6 +37,7 @@ ev() {  # run one eval; a budget stop (6) or an unavailable provider (3) does no
     0) ;;
     6) echo "   -> daily budget reached for this model; re-run after midnight US Pacific to finish" ;;
     3) echo "   -> provider unavailable (for local models: start the vLLM server); re-run later" ;;
+    4) echo "   -> refused to resume (config changed); run: uv run paygym rescore, then re-run" ;;
     *) echo "   -> failed with exit $c"; exit $c ;;
   esac
 }
@@ -46,6 +47,9 @@ resume() {  # continue an existing run directory instead of starting a fresh one
 }
 
 [ -f tasks/subsets/eval_core6.txt ] || uv run python scripts/make_core_subset.py
+# Rubric 1.1 (2026-10-19): bring finished runs scored under an older rubric up to date ($0, no model calls),
+# so the leaderboard never mixes versions and resumed runs pass the version check.
+uv run paygym rescore >/dev/null
 
 echo "== adversarial baselines (no model calls)"
 for b in format_only always_abstain modal_answer naive_no_ceiling gross_as_net; do
