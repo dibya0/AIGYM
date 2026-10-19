@@ -16,7 +16,7 @@
   "lora_r": 16,
   "save_steps": 10,
   "use_vllm": false,
-  "resume": false,
+  "resume": true,
   "seed": 7,
   "val_tasks": "tasks/generated/val_easy.jsonl",
   "val_every": 20,

@@ -87,6 +87,63 @@ def build_dataset(tasks_path: str, n_tasks: int | None) -> Dataset:
     return dataset.select_columns(["prompt", "info"])
 
 
+# --------------------------------------------------------------------------- attention fallback
+
+
+def install_sdpa_fallback(log_path: Path, chunk: int = 256) -> None:
+    """Make attention robust to the one call per run that no fused kernel accepts (step 14, 2026-10-19:
+    `Invalid backend` with the math kernel disabled; 16.5 GB with it enabled). Fused SDPA is tried first; if it
+    refuses, the call's shapes/dtypes/strides are logged once to ``log_path`` (so the cause is on record), and
+    the call is computed exactly in query chunks: softmax((q_c k^T) * scale + mask_c) v, in float32, with memory
+    O(B * H * chunk * L) instead of O(B * H * L^2). Numerically the same function; only the memory profile differs.
+    """
+    import torch
+    import torch.nn.functional as F
+
+    original = F.scaled_dot_product_attention
+    seen = {"logged": False, "calls": 0}
+
+    def chunked(q, k, v, attn_mask=None, dropout_p=0.0, is_causal=False, scale=None, enable_gqa=False):
+        if enable_gqa and k.shape[1] != q.shape[1]:
+            rep = q.shape[1] // k.shape[1]
+            k, v = k.repeat_interleave(rep, dim=1), v.repeat_interleave(rep, dim=1)
+        scale = scale if scale is not None else q.shape[-1] ** -0.5
+        L, S = q.shape[-2], k.shape[-2]
+        outs = []
+        for i in range(0, L, chunk):
+            qc = q[..., i:i + chunk, :].float()
+            scores = (qc @ k.float().transpose(-2, -1)) * scale
+            if is_causal:
+                rows = torch.arange(i, min(i + chunk, L), device=q.device)[:, None]
+                scores = scores.masked_fill(torch.arange(S, device=q.device)[None, :] > rows + (S - L), float("-inf"))
+            if attn_mask is not None:
+                m = attn_mask[..., i:i + chunk, :] if attn_mask.shape[-2] > 1 else attn_mask
+                scores = scores.masked_fill(~m, float("-inf")) if m.dtype == torch.bool else scores + m.float()
+            probs = torch.softmax(scores, dim=-1).nan_to_num(0.0)  # fully masked (padding) rows -> 0, as fused kernels do
+            outs.append((probs @ v.float()).to(q.dtype))
+        return torch.cat(outs, dim=-2)
+
+    def patched(q, k, v, attn_mask=None, dropout_p=0.0, is_causal=False, scale=None, enable_gqa=False):
+        try:
+            return original(q, k, v, attn_mask=attn_mask, dropout_p=dropout_p, is_causal=is_causal, scale=scale,
+                            enable_gqa=enable_gqa)
+        except RuntimeError as exc:
+            if "Invalid backend" not in str(exc) and "No available kernel" not in str(exc):
+                raise
+            seen["calls"] += 1
+            if not seen["logged"]:
+                seen["logged"] = True
+                desc = lambda t: None if t is None else {"shape": list(t.shape), "dtype": str(t.dtype),
+                                                          "stride": list(t.stride()), "contiguous": t.is_contiguous()}
+                log_path.write_text(json.dumps({"error": str(exc).splitlines()[0], "q": desc(q), "k": desc(k), "v": desc(v),
+                                                "mask": desc(attn_mask), "is_causal": is_causal, "enable_gqa": enable_gqa,
+                                                "dropout_p": dropout_p, "grad": torch.is_grad_enabled()}, indent=2))
+            return chunked(q, k, v, attn_mask, dropout_p, is_causal, scale, enable_gqa)
+
+    F.scaled_dot_product_attention = patched
+    torch.nn.functional.scaled_dot_product_attention = patched
+
+
 # --------------------------------------------------------------------------- logging
 
 
@@ -291,6 +348,7 @@ def main() -> None:
     torch.backends.cuda.enable_cudnn_sdp(True)
 
     run_dir = ROOT / "results" / "train" / args.run_name
+    install_sdpa_fallback(run_dir / "sdpa_fallback.json")
     run_dir.mkdir(parents=True, exist_ok=True)
     os.environ["PAYGYM_SAMPLES_PATH"] = str(run_dir / "train_samples.jsonl")  # read by paygym.training_reward
     dataset = build_dataset(args.tasks, args.n_tasks)
