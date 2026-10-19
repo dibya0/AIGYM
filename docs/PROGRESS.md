@@ -677,3 +677,33 @@ Re-read the PDF (pp.7–14 phase specs, plus §§9–11) line by line against th
   - a 429 that names "retry in Ns" is waited out and retried (≤ 3 times, ≤ 90 s each).
 - **Guard:** `test_requests_are_paced_per_model_and_named_retry_delays_honoured`. Suite **218 passed**.
 - **Step 12 status: ✅.** Both modes run through verifiers' own runner on real providers (single-turn: Groq, 0 errors; tool mode: Gemini, signature fixed, the remaining failure mode now handled). Not re-run, to save Flash-Lite quota; the sweep's first tool-mode run (Step 15) exercises the pacing, and the runner records any error as `status=error`, never as 0.
+
+---
+
+## Steps 13–14: fidelity worksheet + eval harness on real providers (2026-10-19)
+
+**Step 13:** `fidelity_sample.py` wrote `docs/FIDELITY_AUDIT.md` with 10 eval tasks: 2005-twin, 2000, 2007, 2002, 2009, 2015, 2003, 2011, 2005-trap, 2004-trap.
+
+**Step 14, user run:** `test_eval_harness.py` 17 passed.
+- **Groq smoke** (`--limit 2`, single-turn): completed, 2/2 ok, 0 errors. 9.1K input / 3.0K output tokens; mean latency 4.2 s. Wall clock 63 s: TPM pacing works, no 429/413.
+- **Gemini Flash-Lite smoke** (tool mode): completed, 2/2 ok, 0 errors. **11 tool calls per rollout**; 75K input tokens for 2 rollouts (≈ 37K each, because tool results accumulate across turns); mean latency 46 s. Per-request pacing works: no 429.
+- **Resume:** the second baseline run printed `327 already done, 0 to run`.
+- **Ledger** recorded requests and tokens per model; the early probe entries are in the old int format and are read correctly.
+
+**Reading the transcripts (not just the summaries) found two problems:**
+1. **Transcripts stored messages as Python repr strings.** `json.dumps(record, default=str)` turned verifiers' pydantic message objects into `"role='assistant' content=None reasoning_content=…"`, which the transcript viewer and failure analysis cannot parse. Scoring was unaffected: it happens on the objects before writing. **Fix:** `_jsonable()` (recursive `model_dump`). Guard: `test_transcript_stores_messages_as_json_not_repr`. The two smoke runs predate the fix; they are smoke only and are not used in any report.
+2. **One Groq rollout truncated at 1,906 output tokens** (`is_truncated`, gate `unparseable`). gpt-oss spent its reply budget on hidden reasoning (default *medium*), and the budget is bounded by the 8K TPM window. That is a limit of our setup, not a model error.
+   - **Fix:** gpt-oss on Groq runs with `reasoning_effort="low"`, recorded in `config.json` → `sampling` and overridable with `--reasoning-effort`.
+   - **Fix:** the prompt-token estimate was recalibrated from the measured 3.7 chars/token (was 3.2, which over-reserved and shrank the reply budget).
+   - Guard: `test_gpt_oss_on_groq_uses_low_reasoning_effort`.
+   - EVAL_REPORT will state that gpt-oss ran at low reasoning effort because of the free tier's TPM.
+- **Not a bug, noted:** single-turn rollouts report `stop_condition=max_turns_reached`. That is verifiers' label for a single-turn env finishing its one turn; tool mode shows `no_tools_called` (the model answered).
+- Suite **220 passed**.
+
+**Step 13 result: fidelity audit 0 / 50 divergences** (`docs/FIDELITY_AUDIT.md`).
+- **Method:** Part 1 was hand-derived from `RULESET.md` prose before Part 2 was opened, using a per-task calculator script written from the clauses (in the session scratchpad, not the reference code).
+- **Result:** all 48 payslip lines matched to the exact minor unit, and both trap decisions matched (reason code, clause, named input).
+- **Gaps stated in the doc:**
+  - rules this sample did not exercise: KES non-resident, exhausted annual ceiling, out-of-period salary change, table/currency traps, reason precedence;
+  - one author wrote the rule book, the reference and the check, which is why the user's review of the working is the independent check (§C);
+  - the worksheet shows normalised inputs. Improvement for next time: print the raw prompt fields.

@@ -307,3 +307,22 @@ def test_requests_are_paced_per_model_and_named_retry_delays_honoured(monkeypatc
     assert compat._rpm_for("https://generativelanguage.googleapis.com/v1beta/openai/", "gemini-3.5-flash-lite") == 14
     assert compat._retry_delay(Exception("Error code: 429 ... Please retry in 53.57s.")) == 54.57
     assert compat._retry_delay(Exception("Error code: 400 bad request")) is None
+
+
+def test_transcript_stores_messages_as_json_not_repr(tmp_path, monkeypatch):
+    from verifiers.types import AssistantMessage
+
+    run, fake, _ = _model_run(tmp_path, monkeypatch, [], "--max-cost", "100", "--limit", "1", "--rollouts", "1")
+    from paygym.eval.runner import _jsonable
+
+    dumped = _jsonable([AssistantMessage(content="hi")])
+    assert dumped[0]["role"] == "assistant" and dumped[0]["content"] == "hi"
+    row = json.loads(run.transcript.read_text().splitlines()[0])
+    assert isinstance(row["completion"][0], dict)
+
+
+def test_gpt_oss_on_groq_uses_low_reasoning_effort(tmp_path, monkeypatch):
+    run, _, _ = _model_run(tmp_path, monkeypatch, [], "--max-cost", "100", "--limit", "1", "--rollouts", "1")
+    assert run.sampling_args()["reasoning_effort"] == "low"
+    cfg = json.loads((run.dir / "config.json").read_text())
+    assert cfg["sampling"]["reasoning_effort"] == "low"  # recorded, so the config is honest about it

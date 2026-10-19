@@ -56,7 +56,7 @@ Status: ☐ not started · ◐ partly met · ☑ met (with evidence). Every row 
 | P04.6 | ≥1 graded partial-credit reward | 10 | ☑ (tests pass) | `line_accuracy` (10 lines) |
 | P04.7 | ≥1 LLM-judge reward; criteria from the rule set; prompt versioned; reliability measured (3-run disagreement and/or 15 hand labels) | 11 | ◐ (run pending) | `paygym/judge.py` (GEN-§9-derived pass/fail criteria, versioned prompt hash); both reliability measures in `paygym/judge_reliability.py`; numbers after Step 15 |
 | P04.8 | Calibration reward; reason recorded for every trap; abstaining on determined tasks penalised like a wrong answer | 5, 10 | ☑ (tests pass) | trap ladder (−1 / 0.3 / 0.8 / +0.2 judge); refusal on a determinable case = wrong-answer path |
-| P04.9 | Rule-set fidelity audit: ≥10 generated tasks hand-checked; divergence rate reported | 13 | ☐ | |
+| P04.9 | Rule-set fidelity audit: ≥10 generated tasks hand-checked; divergence rate reported | 13 | ☑ (2026-10-19; user review pending) | `docs/FIDELITY_AUDIT.md`: 10 tasks, 0/50 divergences, coverage gaps and limits stated |
 | P04.10 | Weights documented and defended | 10, 22 | ◐ (run pending) | weights + rationale in `paygym/rubric.py`; README in Step 22 |
 | P04.11 | Adversarial / hand-written baselines probe the reward (p.12, p.11) | 10 | ☑ (tests pass) | 5 baselines with floors (`paygym/baselines.py`, `tests/test_rubric.py`) |
 
@@ -64,13 +64,13 @@ Status: ☐ not started · ◐ partly met · ☑ met (with evidence). Every row 
 
 | ID | Requirement | Step | Status | Evidence |
 |---|---|---|---|---|
-| P05.1 | One command runs an evaluation | 14 | ☑ (tests pass) | `python -m paygym.eval --model … --tier all --rollouts 3 --seed 7 --max-cost 2.00` |
+| P05.1 | One command runs an evaluation | 14 | ☑ (real runs 2026-10-19: Groq + Gemini) | `python -m paygym.eval --model … --tier all --rollouts 3 --seed 7 --max-cost 2.00` |
 | P05.2 | ≥3 model configs incl. one frontier and one small/cheap | 15 | ☐ | |
 | P05.3 | ≥3 rollouts per task at non-zero temperature; mean ± SD | 14, 15 | ◐ (run pending) | `--rollouts 3 --temperature 1.0`; `paygym/eval/stats.py` (mean, run SD, rollout SD) |
-| P05.4 | Per run: `config.json`, `transcript.jsonl`, `metrics.json` (tokens, latency, cost, tool calls), `scores.json` | 14 | ☑ (tests pass) | `paygym/eval/runner.py` writes config/transcript/metrics/scores; `test_baseline_run_writes_the_four_files` |
+| P05.4 | Per run: `config.json`, `transcript.jsonl`, `metrics.json` (tokens, latency, cost, tool calls), `scores.json` | 14 | ☑ (real runs 2026-10-19; transcript JSON fix) | `paygym/eval/runner.py` writes config/transcript/metrics/scores; `test_baseline_run_writes_the_four_files` |
 | P05.5 | Hard `--max-cost` cap that aborts cleanly with partial results | 14 | ☑ (tests pass) | `--max-cost` (list price) → `aborted_cost`; `test_cost_cap_aborts_cleanly_with_partial_results` |
 | P05.6 | Bounded-concurrency worker pool; actual spend reported | 14 | ☑ (tests pass) | semaphore `--concurrency` + rate limiter; `metrics.json` list vs actual cost |
-| P05.E1 | Edge: crash mid-run is resumable without paying twice | 14 | ☑ (tests pass) | resume from transcript; `test_resume_does_not_pay_twice` |
+| P05.E1 | Edge: crash mid-run is resumable without paying twice | 14 | ☑ (real run: '327 already done, 0 to run') | resume from transcript; `test_resume_does_not_pay_twice` |
 | P05.E2 | Edge: one provider down while others work | 14 | ☑ (tests pass) | `--max-consecutive-errors` → `unavailable`; other providers are separate runs; `test_provider_down_is_marked_unavailable` |
 | P05.E3 | Edge: non-determinism reported honestly, not hidden in a mean | 14 | ☑ (tests pass) | per-task rollout disagreement rate + paired bootstrap 'indistinguishable' list |
 

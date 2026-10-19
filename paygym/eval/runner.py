@@ -98,8 +98,21 @@ def _compact_prompt(prompt: list[dict], mode: str) -> list[dict]:
 
 
 def _prompt_tokens(row: dict) -> int:
-    """Conservative token estimate (≈3.2 chars/token for JSON- and number-heavy text)."""
-    return int(len(json.dumps(row["prompt"])) / 3.2)
+    """Conservative token estimate. Measured on real prompts (Groq gpt-oss tokenizer, 2026-10-19): ≈3.7
+    chars/token; 3.4 keeps a margin without starving the reply budget."""
+    return int(len(json.dumps(row["prompt"])) / 3.4)
+
+
+def _jsonable(value):
+    """verifiers returns pydantic message objects; ``json.dumps(default=str)`` would store their repr
+    (found in the Step 14 smoke transcripts), which the transcript viewer cannot read."""
+    if hasattr(value, "model_dump"):
+        return {k: _jsonable(v) for k, v in value.model_dump(exclude_none=True).items()}
+    if isinstance(value, dict):
+        return {k: _jsonable(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_jsonable(v) for v in value]
+    return value
 
 
 class RateLimiter:
@@ -250,6 +263,13 @@ class EvalRun:
             # Groq rejects (413) any request whose input + max_tokens exceeds its tokens-per-minute limit.
             max_tokens = min(max_tokens, int(self.tpm * 0.95) - _prompt_tokens(row))
         args = {"temperature": self.args.temperature, "max_tokens": max_tokens}
+        effort = self.args.reasoning_effort
+        if effort is None and self.spec.provider == "groq" and "gpt-oss" in self.spec.model_id:
+            # gpt-oss defaults to medium reasoning, which can spend the whole reply budget a 8K-TPM window
+            # allows on hidden reasoning (one Step 14 rollout was truncated at 1,906 tokens). Recorded in config.
+            effort = "low"
+        if effort:
+            args["reasoning_effort"] = effort
         if self.args.seed is not None and self.spec.provider not in ("gemini",):  # Gemini's compat layer rejects seed
             args["seed"] = self.args.seed
         return args
@@ -377,7 +397,7 @@ class EvalRun:
             "input_tokens": tin, "output_tokens": tout, "cost_list_usd": round(cost, 6),
             "tool_calls": metrics.get("total_tool_calls", 0),
             "prompt": _compact_prompt(row["prompt"], self.args.mode),
-            "completion": (out or {}).get("completion"),
+            "completion": _jsonable((out or {}).get("completion")),
         }
 
     async def write(self, record: dict) -> None:
@@ -528,6 +548,8 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--temperature", type=float, default=1.0)
     ap.add_argument("--max-tokens", type=int, default=4096)
     ap.add_argument("--max-turns", type=int, default=8)
+    ap.add_argument("--reasoning-effort", choices=["low", "medium", "high"],
+                    help="for reasoning models (default: provider default; Groq gpt-oss: low, see sampling_args)")
     ap.add_argument("--timeout", type=float, default=180.0, help="per-rollout wall-clock limit (s)")
     ap.add_argument("--max-cost", type=float, default=2.00, help="hard cap in USD at list prices")
     ap.add_argument("--concurrency", type=int, default=4)

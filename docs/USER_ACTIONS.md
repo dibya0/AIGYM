@@ -192,13 +192,13 @@ History (logged in PROGRESS):
 
 Paste both lines. The `evaluate_sync` / `ClientConfig` signature was checked against the installed verifiers 0.2.1 on 2026-10-19.
 
-### Step 13: fidelity audit worksheet ⏳
+### Step 13: fidelity audit worksheet ✅ (2026-10-19: 0/50 divergences; your review of the hand working is pending, §C)
 ```bash
 uv run python scripts/fidelity_sample.py      # expect: wrote docs/FIDELITY_AUDIT.md with 10 tasks
 ```
 Then tell Claude "fidelity worksheet ready". Claude hand-derives all 10 from the RULESET.md prose (Part 1) before reading Part 2, fills in the divergence rate, and fixes any bug found. You then review Claude's hand working (the brief asks for a *hand* check; your review makes it genuine; see §C).
 
-### Step 14: eval harness ⏳
+### Step 14: eval harness ✅ (2026-10-19: Groq + Gemini real runs, resume shown; transcript JSON + gpt-oss truncation fixed)
 Uses about 3 Groq rollouts (~18K tokens) and about 16 Flash-Lite requests. Gemini 3.8 Flash is not used.
 ```bash
 uv run pytest -q tests/test_eval_harness.py      # expect: all passed (no network; baselines + a fake model)
