@@ -230,6 +230,8 @@ def main() -> None:
     ap.add_argument("--max-steps", type=int, default=150)
     ap.add_argument("--num-generations", type=int, default=8, help="G, completions per prompt (brief: >= 4)")
     ap.add_argument("--prompts-per-step", type=int, default=4)
+    ap.add_argument("--micro-batch", type=int, default=4,
+                    help="completions per forward/backward pass (memory only; prompts_per_step*G must be divisible by it)")
     ap.add_argument("--max-completion-length", type=int, default=384)
     ap.add_argument("--learning-rate", type=float, default=2e-5)
     ap.add_argument("--lora-r", type=int, default=16)
@@ -245,6 +247,8 @@ def main() -> None:
     ap.add_argument("--entropy-floor", type=float, default=0.05, help="safety stop if rolling mean entropy falls below this")
     ap.add_argument("--run-name", required=True)
     args = ap.parse_args()
+    if (args.prompts_per_step * args.num_generations) % args.micro_batch:
+        raise SystemExit("--prompts-per-step × --num-generations must be divisible by --micro-batch")
 
     if args.beta <= 0:
         raise SystemExit("--beta must be > 0: with beta=0 TRL skips the reference model and logs no KL (brief P07)")
@@ -286,9 +290,12 @@ def main() -> None:
         # probe (RL_REPORT A8) would not transfer to the 150-step runs, and plateau stops would land at different LRs.
         lr_scheduler_type="constant",
         warmup_steps=0,
-        # One prompt group (G completions) per micro-batch; accumulate `prompts_per_step` groups per step.
-        per_device_train_batch_size=args.num_generations,
-        gradient_accumulation_steps=args.prompts_per_step,
+        # Memory: each completion carries a ~4.5k-token prompt (rule book in context), and the loss needs the
+        # policy's logits over a 152k vocabulary, so a micro-batch of all G = 8 completions OOMed on 16 GB
+        # (2026-10-19). Micro-batches of `micro_batch` completions, gradients accumulated: the same objective
+        # and the same generation batch (prompts_per_step × G completions, generated together once per step).
+        per_device_train_batch_size=args.micro_batch,
+        gradient_accumulation_steps=(args.prompts_per_step * args.num_generations) // args.micro_batch,
         num_generations=args.num_generations,
         max_completion_length=args.max_completion_length,
         temperature=1.0,

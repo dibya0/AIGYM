@@ -773,3 +773,7 @@ Re-read the PDF (pp.7–14 phase specs, plus §§9–11) line by line against th
 - **Decision, logged as pre-registration amendment A11 before training:** A4's rule assumed some preset reaches a 20–60 % pass rate; none does with a fixed 0.5B. So we pick the preset with the most within-group reward spread, which is **`easy`** (30 % of G = 4 groups; trap refusal 44 %; valid JSON 76 %).
 - **Stated in advance:** RL is expected to improve format and refuse/compute decisions, not exact arithmetic. The documented fallback is Qwen2.5-1.5B (brief band 0.5–2B), only with the user's go-ahead.
 - New train files `train_easy.jsonl` / `train_easier.jsonl` validate: `paygym validate tasks/` → **1031 tasks OK** (ids prefixed per preset, so no collisions).
+
+**First β run OOMed (2026-10-19):** `memory allocation failed with OOM … trying to allocate 1.3 GB (free 0.7 GB)`. The process held 12.4 GB. The user stopped it.
+- **Cause:** micro-batch = G = 8 completions, each ~4.9k tokens (a ~4.5k-token prompt with the rule book + up to 384 completion), with logits over a 152k vocabulary. The smoke test fit only because it used G = 4.
+- **Fix:** `--micro-batch 4` (default). Gradients are accumulated over `prompts_per_step × G / micro_batch` = 4 micro-batches. The generation batch (16 completions, generated together once per step) and the objective are unchanged; this is a memory setting, not a method change. The aborted run's directory was deleted (it had no completed step).
