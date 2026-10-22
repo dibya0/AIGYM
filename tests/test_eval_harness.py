@@ -370,6 +370,22 @@ def test_rescore_moves_a_run_to_the_current_rubric_without_model_calls(tmp_path)
     assert json.loads((run_dir / "scores.json").read_text())["rubric_version"] == RUBRIC_VERSION
 
 
+def test_rescore_refreshes_stale_monitor_columns(tmp_path):
+    """A row recorded under an older parser keeps parse_failed=1; rescore --force must recompute it (2026-10-20)."""
+    from paygym.eval.runner import rescore
+
+    assert main(["--model", "baseline/naive_no_ceiling", "--n-seeds", "12", "--rollouts", "1", "--out", str(tmp_path), "--run-name", "r"]) == 0
+    run_dir = tmp_path / "baseline__naive_no_ceiling" / "r"
+    rows = [json.loads(l) for l in (run_dir / "transcript.jsonl").read_text().splitlines()]
+    for r in rows:
+        r["metrics"] = {**r["metrics"], "parse_failed": 1.0, "refused": 1.0}  # what the old parser recorded
+    (run_dir / "transcript.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
+    assert rescore(run_dir, force=True)["changed"] == len(rows)
+    rows = [json.loads(l) for l in (run_dir / "transcript.jsonl").read_text().splitlines()]
+    assert all(r["metrics"]["parse_failed"] == 0.0 and r["metrics"]["refused"] == 0.0 for r in rows)  # naive never refuses
+    assert json.loads((run_dir / "metrics.json").read_text())["parse_fail_rate"] == 0.0
+
+
 def test_leaderboard_excludes_pilots_and_runs_with_no_successes(tmp_path):
     main(["--model", "baseline/naive_no_ceiling", "--n-seeds", "12", "--rollouts", "1", "--out", str(tmp_path), "--run-name", "r"])
     from paygym.eval.leaderboard import is_leaderboard_run

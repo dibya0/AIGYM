@@ -6,7 +6,10 @@
       "baseline/gross_as_net": -0.0273,
       "baseline/modal_answer": -0.0945,
       "baseline/naive_no_ceiling": 0.2486,
-      "gemini/gemini-3.5-flash-lite": 0.3141
+      "gemini/gemini-3.5-flash-lite": 0.3141,
+      "local/qwen2.5-0.5b": -0.6524,
+      "local/qwen2.5-0.5b-grpo-b0.04": -0.3314,
+      "local/qwen2.5-3b": -0.4852
     },
     "net-heavy (0.85/0.10/0.05)": {
       "baseline/always_abstain": -0.7367,
@@ -14,7 +17,10 @@
       "baseline/gross_as_net": -0.0855,
       "baseline/modal_answer": -0.1124,
       "baseline/naive_no_ceiling": 0.2183,
-      "gemini/gemini-3.5-flash-lite": 0.2714
+      "gemini/gemini-3.5-flash-lite": 0.2714,
+      "local/qwen2.5-0.5b": -0.6597,
+      "local/qwen2.5-0.5b-grpo-b0.04": -0.3472,
+      "local/qwen2.5-3b": -0.4875
     },
     "lines-heavy (0.50/0.45/0.05)": {
       "baseline/always_abstain": -0.7367,
@@ -22,7 +28,10 @@
       "baseline/gross_as_net": 0.0041,
       "baseline/modal_answer": -0.0706,
       "baseline/naive_no_ceiling": 0.2587,
-      "gemini/gemini-3.5-flash-lite": 0.3372
+      "gemini/gemini-3.5-flash-lite": 0.3372,
+      "local/qwen2.5-0.5b": -0.6433,
+      "local/qwen2.5-0.5b-grpo-b0.04": -0.3103,
+      "local/qwen2.5-3b": -0.4822
     },
     "no format (0.72/0.28/0.00)": {
       "baseline/always_abstain": -0.7367,
@@ -30,7 +39,10 @@
       "baseline/gross_as_net": -0.0478,
       "baseline/modal_answer": -0.123,
       "baseline/naive_no_ceiling": 0.2395,
-      "gemini/gemini-3.5-flash-lite": 0.2953
+      "gemini/gemini-3.5-flash-lite": 0.2953,
+      "local/qwen2.5-0.5b": -0.6644,
+      "local/qwen2.5-0.5b-grpo-b0.04": -0.3588,
+      "local/qwen2.5-3b": -0.4911
     }
   },
   "ranking_by_weighting": {
@@ -40,6 +52,9 @@
       "baseline/gross_as_net",
       "baseline/modal_answer",
       "baseline/format_only",
+      "local/qwen2.5-0.5b-grpo-b0.04",
+      "local/qwen2.5-3b",
+      "local/qwen2.5-0.5b",
       "baseline/always_abstain"
     ],
     "net-heavy (0.85/0.10/0.05)": [
@@ -48,6 +63,9 @@
       "baseline/gross_as_net",
       "baseline/modal_answer",
       "baseline/format_only",
+      "local/qwen2.5-0.5b-grpo-b0.04",
+      "local/qwen2.5-3b",
+      "local/qwen2.5-0.5b",
       "baseline/always_abstain"
     ],
     "lines-heavy (0.50/0.45/0.05)": [
@@ -56,6 +74,9 @@
       "baseline/gross_as_net",
       "baseline/modal_answer",
       "baseline/format_only",
+      "local/qwen2.5-0.5b-grpo-b0.04",
+      "local/qwen2.5-3b",
+      "local/qwen2.5-0.5b",
       "baseline/always_abstain"
     ],
     "no format (0.72/0.28/0.00)": [
@@ -64,6 +85,9 @@
       "baseline/gross_as_net",
       "baseline/modal_answer",
       "baseline/format_only",
+      "local/qwen2.5-0.5b-grpo-b0.04",
+      "local/qwen2.5-3b",
+      "local/qwen2.5-0.5b",
       "baseline/always_abstain"
     ]
   },

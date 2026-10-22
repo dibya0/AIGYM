@@ -194,3 +194,37 @@ def test_brief_api_shape_paths_work_without_api_prefix(client):
     assert {"run_id", "mean_reward", "per_task"} <= set(result)
     assert client.get(f"/runs/{batch['run_id']}").status_code == 200
     assert client.get("/health").json()["ok"] is True
+
+
+def test_trap_feedback_does_not_reveal_the_expected_reason_and_seed_reuse_is_flagged(client):
+    """Manual test 2026-10-22: a wrong-reason refusal returned GEN-§9.4, i.e. the expected UNSUPPORTED_CURRENCY, and the
+    same public seed regenerates the same tasks, so probe-then-resubmit beat every trap in two requests."""
+    from paygym.reference.calculator import REASON_CLAUSES
+
+    first = client.get("/api/tasks", params={"tier": "3", "n": 4, "seed": 11}).json()
+    tasks = _server_tasks(first["run_id"])
+    wrong = {t.id: next(c for c in REASON_CLAUSES if c != t.ground_truth.reason_code) for t in tasks}
+    body = {"run_id": first["run_id"], "answers": [{"id": t.id, "answer": {"decision": "refuse", "reason_code": wrong[t.id]}} for t in tasks]
+}
+    result = client.post("/api/submit", json=body).json()
+    specific = set(REASON_CLAUSES.values())
+    for row in result["per_task"]:
+        assert row["gate"] == "wrong_reason" and row["score"] == pytest.approx(0.3)
+        assert row["clause"] == "GEN-§9" and not specific & set(row["clauses"])  # no sub-clause, so no expected code
+    answered = client.post("/api/submit", json={"run_id": client.get("/api/tasks", params={"tier": "3", "n": 4, "seed": 12}).json()["run_id"],
+                                                "answers": []}).json()
+    assert all(r["clause"] == "GEN-§9" for r in answered["per_task"])  # unanswered = unparseable: generic too
+    assert result["repeat_seed"] is False
+    import time
+
+    time.sleep(1.1)  # a run_id carries its issue time in seconds: fetched within the same second it is the same run
+    second = client.get("/api/tasks", params={"tier": "3", "n": 4, "seed": 11}).json()  # same seed, new run_id
+    assert second["run_id"] != first["run_id"]
+    again = client.post("/api/submit", json={"run_id": second["run_id"], "answers": []}).json()
+    assert again["repeat_seed"] is True
+    board = client.get("/api/leaderboard").json()["runs"]
+    assert [r["repeat_seed"] for r in board if r["seed"] == 11] == [True, False]  # newest first
+    correct = client.post("/api/submit", json={"run_id": client.get("/api/tasks", params={"tier": "3", "n": 4, "seed": 13}).json()["run_id"],
+                                               "answers": [{"id": t.id, "answer": _perfect(t)} for t in _server_tasks(
+                                                   client.get("/api/tasks", params={"tier": "3", "n": 4, "seed": 13}).json()["run_id"])]}).json()
+    assert all(r["clause"] in specific for r in correct["per_task"])  # a correct refusal still gets its specific clause

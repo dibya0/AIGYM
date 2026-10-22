@@ -174,4 +174,148 @@ no format (0.72/0.28/0.00)       tau=0.9556  ranking=['groq/openai/gpt-oss-120b'
    "tokens": 174435
   }
  }
+}== adversarial baselines (no model calls)
+baseline/format_only: 109 tasks x 3 rollouts = 327 (327 already done, 0 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
+completed: results in results/baseline__format_only/eval-single
+baseline/always_abstain: 109 tasks x 3 rollouts = 327 (327 already done, 0 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
+completed: results in results/baseline__always_abstain/eval-single
+baseline/modal_answer: 109 tasks x 3 rollouts = 327 (327 already done, 0 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
+completed: results in results/baseline__modal_answer/eval-single
+baseline/naive_no_ceiling: 109 tasks x 3 rollouts = 327 (327 already done, 0 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
+completed: results in results/baseline__naive_no_ceiling/eval-single
+baseline/gross_as_net: 109 tasks x 3 rollouts = 327 (327 already done, 0 to run); list-price estimate $0.00, cap $25.00  [baseline: no model calls]
+completed: results in results/baseline__gross_as_net/eval-single
+== Gemini 3.5 Flash-Lite (frontier lab, highest free quota): full eval, single-turn
+daily budget gemini/gemini-3.5-flash-lite: requests 0/450 today (US Pacific)
+daily budget gemini/gemini-3.1-flash-lite: requests 0/450 today (US Pacific)
+gemini/gemini-3.5-flash-lite: 109 tasks x 3 rollouts = 327 (327 already done, 0 to run); list-price estimate $0.00, cap $25.00
+completed: results in results/gemini__gemini-3.5-flash-lite/eval-single
+== Gemini 3.8 Flash (strongest Gemini on the free tier, 20 req/day): core6
+daily budget gemini/gemini-3.8-flash: requests 0/19 today (US Pacific)
+daily budget gemini/gemini-3.1-flash-lite: requests 0/450 today (US Pacific)
+gemini/gemini-3.8-flash: 6 tasks x 3 rollouts = 18 (6 already done, 12 to run); list-price estimate $0.05, cap $25.00
+completed: results in results/gemini__gemini-3.8-flash/core6-single
+== Groq gpt-oss-120b (large open-weight; 200K tokens/day): core10
+daily budget groq/openai/gpt-oss-120b: requests 0/900, tokens 0/180000 today (US Pacific)
+daily budget gemini/gemini-3.1-flash-lite: requests 6/450 today (US Pacific)
+groq/openai/gpt-oss-120b: 10 tasks x 3 rollouts = 30 (20 already done, 10 to run); list-price estimate $0.02, cap $25.00
+completed: results in results/groq__openai__gpt-oss-120b/core10-single
+== hosted tool mode (tools are the only data source): Gemini 3.1 Flash-Lite on core6
+   (not on Groq: one tool-mode request exceeds its 8K tokens/minute limit, HTTP 413)
+daily budget gemini/gemini-3.1-flash-lite: requests 9/450 today (US Pacific)
+daily budget gemini/gemini-3.1-flash-lite: requests 9/450 today (US Pacific)
+gemini/gemini-3.1-flash-lite: 6 tasks x 3 rollouts = 18 (18 already done, 0 to run); list-price estimate $0.00, cap $25.00
+completed: results in results/gemini__gemini-3.1-flash-lite/core6-tool
+== local open-weight models (start the server first, one model at a time):
+   (Qwen-3B's leaderboard rows come from its Track C runs: S1 and S2 send exactly the default single/tool
+    prompts, so they are the same configuration; see docs/USER_ACTIONS.md Step 20)
+   LLM_MODEL=Qwen/Qwen2.5-0.5B-Instruct LLM_SERVED_NAME=qwen2.5-0.5b docker compose --profile gpu up -d llm
+local/qwen2.5-0.5b: 109 tasks x 3 rollouts = 327 (327 already done, 0 to run); list-price estimate $0.00, cap $25.00
+completed: results in results/local__qwen2.5-0.5b/eval-single
+== aggregate
+gemini/gemini-3.5-flash-lite             single mean=0.3141 run_sd=0.0243 status=completed
+baseline/naive_no_ceiling                single mean=0.2486 run_sd=0.0 status=completed
+baseline/gross_as_net                    single mean=-0.0273 run_sd=0.0 status=completed
+baseline/modal_answer                    single mean=-0.0945 run_sd=0.0 status=completed
+baseline/format_only                     single mean=-0.1039 run_sd=0.0 status=completed
+local/qwen2.5-0.5b-grpo-b0.04            single mean=-0.3314 run_sd=0.0049 status=completed
+local/qwen2.5-3b                         single mean=-0.4852 run_sd=0.009 status=completed
+local/qwen2.5-0.5b                       single mean=-0.6524 run_sd=0.0086 status=completed
+baseline/always_abstain                  single mean=-0.7367 run_sd=0.0 status=completed
+local/qwen2.5-0.5b                       single mean=-0.4539 run_sd=0.0091 status=completed
+local/qwen2.5-3b                         single mean=-0.6219 run_sd=0.0041 status=completed
+local/qwen2.5-3b                         tool   mean=-0.5262 run_sd=0.0282 status=completed
+local/qwen2.5-3b                         tool   mean=-0.4226 run_sd=0.02 status=completed
+local/qwen2.5-3b                         tool   mean=-0.4117 run_sd=0.0176 status=completed
+local/qwen2.5-0.5b                       tool   mean=-0.9969 run_sd=0.0043 status=completed
+groq/openai/gpt-oss-120b                 single mean=0.665 run_sd=0.1002 status=completed
+gemini/gemini-3.5-flash-lite             single mean=0.3781 run_sd=0.0031 status=completed
+baseline/naive_no_ceiling                single mean=0.255 run_sd=0.0 status=completed
+baseline/gross_as_net                    single mean=-0.07 run_sd=0.0 status=completed
+baseline/format_only                     single mean=-0.135 run_sd=0.0 status=completed
+baseline/modal_answer                    single mean=-0.135 run_sd=0.0 status=completed
+local/qwen2.5-0.5b-grpo-b0.04            single mean=-0.3433 run_sd=0.0012 status=completed
+local/qwen2.5-3b                         single mean=-0.57 run_sd=0.0 status=completed
+local/qwen2.5-0.5b                       single mean=-0.64 run_sd=0.0514 status=completed
+baseline/always_abstain                  single mean=-0.74 run_sd=0.0 status=completed
+local/qwen2.5-0.5b                       single mean=-0.2925 run_sd=0.0 status=completed
+local/qwen2.5-3b                         single mean=-0.53 run_sd=0.0 status=completed
+local/qwen2.5-3b                         tool   mean=-0.3767 run_sd=0.0613 status=completed
+local/qwen2.5-3b                         tool   mean=-0.1642 run_sd=0.1186 status=completed
+local/qwen2.5-3b                         tool   mean=-0.04 run_sd=0.1219 status=completed
+local/qwen2.5-0.5b                       tool   mean=-1.0 run_sd=0.0 status=completed
+gemini/gemini-3.5-flash-lite             single mean=0.2982 run_sd=0.0642 status=completed
+baseline/naive_no_ceiling                single mean=0.1613 run_sd=0.0 status=completed
+baseline/gross_as_net                    single mean=-0.0825 run_sd=0.0 status=completed
+baseline/modal_answer                    single mean=-0.1412 run_sd=0.0 status=completed
+baseline/format_only                     single mean=-0.1888 run_sd=0.0 status=completed
+local/qwen2.5-3b                         single mean=-0.3975 run_sd=0.0 status=completed
+local/qwen2.5-0.5b-grpo-b0.04            single mean=-0.3987 run_sd=0.0 status=completed
+local/qwen2.5-0.5b                       single mean=-0.6221 run_sd=0.0434 status=completed
+baseline/always_abstain                  single mean=-0.625 run_sd=0.0 status=completed
+local/qwen2.5-3b                         single mean=-0.465 run_sd=0.0 status=completed
+local/qwen2.5-0.5b                       single mean=-0.4788 run_sd=0.0 status=completed
+local/qwen2.5-3b                         tool   mean=-0.2942 run_sd=0.0481 status=completed
+local/qwen2.5-3b                         tool   mean=-0.2042 run_sd=0.1137 status=completed
+local/qwen2.5-3b                         tool   mean=-0.0512 run_sd=0.0689 status=completed
+local/qwen2.5-0.5b                       tool   mean=-1.0 run_sd=0.0 status=completed
+gemini/gemini-3.8-flash                  single mean=0.8852 run_sd=0.1624 status=completed
+groq/openai/gpt-oss-120b                 single mean=0.5319 run_sd=0.1123 status=completed
+gemini/gemini-3.5-flash-lite             single mean=0.2625 run_sd=0.0 status=completed
+baseline/naive_no_ceiling                single mean=0.25 run_sd=0.0 status=completed
+baseline/gross_as_net                    single mean=-0.025 run_sd=0.0 status=completed
+baseline/format_only                     single mean=-0.0958 run_sd=0.0 status=completed
+baseline/modal_answer                    single mean=-0.0958 run_sd=0.0 status=completed
+local/qwen2.5-0.5b-grpo-b0.04            single mean=-0.2597 run_sd=0.002 status=completed
+local/qwen2.5-0.5b                       single mean=-0.6389 run_sd=0.0052 status=completed
+baseline/always_abstain                  single mean=-0.7833 run_sd=0.0 status=completed
+local/qwen2.5-3b                         single mean=-0.8333 run_sd=0.0 status=completed
+local/qwen2.5-0.5b                       single mean=-0.1625 run_sd=0.0 status=completed
+local/qwen2.5-3b                         single mean=-0.6083 run_sd=0.0 status=completed
+local/qwen2.5-3b                         tool   mean=-0.3667 run_sd=0.0 status=completed
+gemini/gemini-3.1-flash-lite             tool   mean=-0.3796 run_sd=0.0498 status=completed
+local/qwen2.5-3b                         tool   mean=-0.3 run_sd=0.1414 status=completed
+local/qwen2.5-3b                         tool   mean=-0.0333 run_sd=0.2032 status=completed
+local/qwen2.5-0.5b                       tool   mean=-1.0 run_sd=0.0 status=completed
+61 indistinguishable pair(s) -> results/leaderboard.json
+shipped (0.70/0.25/0.05)         tau=1.0  ranking=['gemini/gemini-3.5-flash-lite', 'baseline/naive_no_ceiling', 'baseline/gross_as_net', 'baseline/modal_answer', 'baseline/format_only', 'local/qwen2.5-0.5b-grpo-b0.04', 'local/qwen2.5-3b', 'local/qwen2.5-0.5b', 'baseline/always_abstain']
+net-heavy (0.85/0.10/0.05)       tau=1.0  ranking=['gemini/gemini-3.5-flash-lite', 'baseline/naive_no_ceiling', 'baseline/gross_as_net', 'baseline/modal_answer', 'baseline/format_only', 'local/qwen2.5-0.5b-grpo-b0.04', 'local/qwen2.5-3b', 'local/qwen2.5-0.5b', 'baseline/always_abstain']
+lines-heavy (0.50/0.45/0.05)     tau=1.0  ranking=['gemini/gemini-3.5-flash-lite', 'baseline/naive_no_ceiling', 'baseline/gross_as_net', 'baseline/modal_answer', 'baseline/format_only', 'local/qwen2.5-0.5b-grpo-b0.04', 'local/qwen2.5-3b', 'local/qwen2.5-0.5b', 'baseline/always_abstain']
+no format (0.72/0.28/0.00)       tau=1.0  ranking=['gemini/gemini-3.5-flash-lite', 'baseline/naive_no_ceiling', 'baseline/gross_as_net', 'baseline/modal_answer', 'baseline/format_only', 'local/qwen2.5-0.5b-grpo-b0.04', 'local/qwen2.5-3b', 'local/qwen2.5-0.5b', 'baseline/always_abstain']
+{
+ "2026-10-19": {
+  "gemini/gemini-3.1-flash-lite": {
+   "requests": 246,
+   "tokens": 562275
+  },
+  "gemini/gemini-3.1-pro-preview": 1,
+  "gemini/gemini-3.5-flash-lite": {
+   "requests": 345,
+   "tokens": 1719497
+  },
+  "gemini/gemini-3.8-flash": {
+   "requests": 20,
+   "tokens": 28565
+  },
+  "gemini/gemini-4-argon": 1,
+  "gemini/gemma-4-31b-it": 2,
+  "groq/openai/gpt-oss-120b": {
+   "requests": 33,
+   "tokens": 174435
+  }
+ },
+ "2026-10-20": {
+  "gemini/gemini-3.1-flash-lite": {
+   "requests": 9,
+   "tokens": 0
+  },
+  "gemini/gemini-3.8-flash": {
+   "requests": 12,
+   "tokens": 59060
+  },
+  "groq/openai/gpt-oss-120b": {
+   "requests": 10,
+   "tokens": 69145
+  }
+ }
 }

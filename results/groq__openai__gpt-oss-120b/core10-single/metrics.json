@@ -18,33 +18,27 @@
   "ruleset_fingerprint": "42b009c25d689c46",
   "rubric_version": "1.4",
   "schema_version": "1.0",
-  "status": "unavailable",
+  "status": "completed",
   "rollouts_planned": 30,
   "rollouts_recorded": 30,
-  "rollouts_ok": 20,
-  "rollouts_error": 10,
+  "rollouts_ok": 30,
+  "rollouts_error": 0,
   "retried_rollouts": 0,
-  "errors_sample": [
-    "ModelError: ModelError",
-    "ModelError: ModelError",
-    "ModelError: ModelError",
-    "ModelError: ModelError",
-    "ModelError: ModelError"
-  ],
-  "input_tokens": 89811.0,
-  "output_tokens": 10472.0,
-  "cost_list_usd": 0.0213,
+  "errors_sample": [],
+  "input_tokens": 134655.0,
+  "output_tokens": 15020.0,
+  "cost_list_usd": 0.0315,
   "cost_actual_usd": 0.0,
   "latency_s": {
-    "mean": 2.01,
-    "p50": 1.9779999999999998,
-    "p95": 3.363400000000002
+    "mean": 1.854,
+    "p50": 1.7355,
+    "p95": 3.5292499999999984
   },
   "tool_calls_total": 0,
   "tool_calls_mean": 0,
   "stop_conditions": {
-    "max_turns_reached": 20
+    "max_turns_reached": 30
   },
-  "parse_fail_rate": 0.5,
+  "parse_fail_rate": 0.0,
   "wall_clock_s": 0.0
 }

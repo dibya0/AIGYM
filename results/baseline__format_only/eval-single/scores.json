@@ -135,7 +135,9 @@
     "format_valid": 1.0,
     "line_accuracy": 0.1814,
     "net_pay_exact": 0.0,
+    "parse_failed": 0.0,
     "paygym_reward": -0.1039,
+    "refused": 0.0,
     "trap_decision": -1.0,
     "value_exact": 0.0
   },
@@ -168,7 +170,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -196,7 +200,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.3,
         "format_valid": 1.0,
-        "paygym_reward": 0.125
+        "paygym_reward": 0.125,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.125,
       "sd": 0.0
@@ -224,7 +230,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.3,
         "format_valid": 1.0,
-        "paygym_reward": 0.125
+        "paygym_reward": 0.125,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.125,
       "sd": 0.0
@@ -252,7 +260,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -279,7 +289,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -307,7 +319,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -334,7 +348,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -362,7 +378,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -390,7 +408,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.5,
         "format_valid": 1.0,
-        "paygym_reward": 0.175
+        "paygym_reward": 0.175,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.175,
       "sd": 0.0
@@ -418,7 +438,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -445,7 +467,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -473,7 +497,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -501,7 +527,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -529,7 +557,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -556,7 +586,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -583,7 +615,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -611,7 +645,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -638,7 +674,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -666,7 +704,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.3,
         "format_valid": 1.0,
-        "paygym_reward": 0.125
+        "paygym_reward": 0.125,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.125,
       "sd": 0.0
@@ -693,7 +733,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -721,7 +763,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -749,7 +793,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -776,7 +822,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -803,7 +851,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -831,7 +881,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -858,7 +910,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -886,7 +940,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -914,7 +970,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -941,7 +999,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -968,7 +1028,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -995,7 +1057,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -1023,7 +1087,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -1051,7 +1117,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -1078,7 +1146,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -1105,7 +1175,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -1132,7 +1204,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -1160,7 +1234,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -1188,7 +1264,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -1216,7 +1294,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -1243,7 +1323,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -1271,7 +1353,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.3,
         "format_valid": 1.0,
-        "paygym_reward": 0.125
+        "paygym_reward": 0.125,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.125,
       "sd": 0.0
@@ -1298,7 +1382,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -1326,7 +1412,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -1354,7 +1442,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.3,
         "format_valid": 1.0,
-        "paygym_reward": 0.125
+        "paygym_reward": 0.125,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.125,
       "sd": 0.0
@@ -1381,7 +1471,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -1409,7 +1501,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -1436,7 +1530,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -1464,7 +1560,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -1492,7 +1590,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.3,
         "format_valid": 1.0,
-        "paygym_reward": 0.125
+        "paygym_reward": 0.125,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.125,
       "sd": 0.0
@@ -1520,7 +1620,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -1547,7 +1649,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -1575,7 +1679,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.3,
         "format_valid": 1.0,
-        "paygym_reward": 0.125
+        "paygym_reward": 0.125,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.125,
       "sd": 0.0
@@ -1602,7 +1708,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -1630,7 +1738,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -1658,7 +1768,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -1686,7 +1798,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.3,
         "format_valid": 1.0,
-        "paygym_reward": 0.125
+        "paygym_reward": 0.125,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.125,
       "sd": 0.0
@@ -1714,7 +1828,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -1742,7 +1858,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -1770,7 +1888,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -1798,7 +1918,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -1825,7 +1947,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -1853,7 +1977,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.3,
         "format_valid": 1.0,
-        "paygym_reward": 0.125
+        "paygym_reward": 0.125,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.125,
       "sd": 0.0
@@ -1881,7 +2007,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -1908,7 +2036,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -1936,7 +2066,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.3,
         "format_valid": 1.0,
-        "paygym_reward": 0.125
+        "paygym_reward": 0.125,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.125,
       "sd": 0.0
@@ -1964,7 +2096,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -1991,7 +2125,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2019,7 +2155,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -2047,7 +2185,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.3,
         "format_valid": 1.0,
-        "paygym_reward": 0.125
+        "paygym_reward": 0.125,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.125,
       "sd": 0.0
@@ -2074,7 +2214,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2102,7 +2244,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -2129,7 +2273,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2157,7 +2303,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -2184,7 +2332,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2212,7 +2362,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -2240,7 +2392,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -2267,7 +2421,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2295,7 +2451,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -2322,7 +2480,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2350,7 +2510,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -2377,7 +2539,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -2404,7 +2568,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2432,7 +2598,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -2459,7 +2627,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -2487,7 +2657,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.3,
         "format_valid": 1.0,
-        "paygym_reward": 0.125
+        "paygym_reward": 0.125,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.125,
       "sd": 0.0
@@ -2515,7 +2687,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -2543,7 +2717,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -2571,7 +2747,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -2599,7 +2777,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -2627,7 +2807,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -2654,7 +2836,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -2681,7 +2865,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2709,7 +2895,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -2737,7 +2925,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.3,
         "format_valid": 1.0,
-        "paygym_reward": 0.125
+        "paygym_reward": 0.125,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.125,
       "sd": 0.0
@@ -2765,7 +2955,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.5,
         "format_valid": 1.0,
-        "paygym_reward": 0.175
+        "paygym_reward": 0.175,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.175,
       "sd": 0.0
@@ -2793,7 +2985,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -2820,7 +3014,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -2848,7 +3044,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -2875,7 +3073,9 @@
       "components": {
         "trap_decision": -1.0,
         "format_valid": 1.0,
-        "paygym_reward": -1.0
+        "paygym_reward": -1.0,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": -1.0,
       "sd": 0.0
@@ -2903,7 +3103,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -2931,7 +3133,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -2959,7 +3163,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -2987,7 +3193,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -3015,7 +3223,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -3042,7 +3252,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -3070,7 +3282,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.1,
         "format_valid": 1.0,
-        "paygym_reward": 0.075
+        "paygym_reward": 0.075,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.075,
       "sd": 0.0
@@ -3097,7 +3311,9 @@
       "components": {
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "paygym_reward": 0.05
+        "paygym_reward": 0.05,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.05,
       "sd": 0.0
@@ -3125,7 +3341,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.2,
         "format_valid": 1.0,
-        "paygym_reward": 0.1
+        "paygym_reward": 0.1,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.1,
       "sd": 0.0
@@ -3153,7 +3371,9 @@
         "net_pay_exact": 0.0,
         "line_accuracy": 0.3,
         "format_valid": 1.0,
-        "paygym_reward": 0.125
+        "paygym_reward": 0.125,
+        "refused": 0.0,
+        "parse_failed": 0.0
       },
       "mean": 0.125,
       "sd": 0.0

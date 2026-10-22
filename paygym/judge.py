@@ -168,7 +168,10 @@ class GeminiJudge:
                 return row
             except Exception as exc:  # rate limits, 5xx, malformed verdicts: retry with backoff
                 last_error = exc
-                time.sleep(min(30, 2 ** attempt))
+                # A 503 "high demand" from the provider lasts tens of seconds, not 1-8 s (2026-10-20: four quick
+                # retries all failed and ended the reliability run), so overload errors wait longer.
+                overloaded = any(s in str(exc) for s in ("503", "UNAVAILABLE", "high demand", "overloaded"))
+                time.sleep(min(90, 15 * 2 ** attempt) if overloaded else min(30, 2 ** attempt))
         raise JudgeError(f"judge failed after {self.max_retries} attempts: {last_error}")
 
     def __call__(self, task: Task, parsed: ParsedAnswer) -> tuple[float, str]:

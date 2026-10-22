@@ -17,30 +17,24 @@
   "status": "completed",
   "rollouts_planned": 18,
   "rollouts_recorded": 18,
-  "rollouts_ok": 6,
-  "rollouts_error": 12,
+  "rollouts_ok": 18,
+  "rollouts_error": 0,
   "retried_rollouts": 0,
-  "errors_sample": [
-    "rollout timeout with no model output (reclassified)",
-    "rollout timeout with no model output (reclassified)",
-    "rollout timeout with no model output (reclassified)",
-    "rollout timeout with no model output (reclassified)",
-    "rollout timeout with no model output (reclassified)"
-  ],
-  "input_tokens": 27786.0,
-  "output_tokens": 779.0,
-  "cost_list_usd": 0.0103,
+  "errors_sample": [],
+  "input_tokens": 84582.0,
+  "output_tokens": 3043.0,
+  "cost_list_usd": 0.033,
   "cost_actual_usd": 0.0,
   "latency_s": {
-    "mean": 137.023,
-    "p50": 136.4365,
-    "p95": 158.7165
+    "mean": 103.103,
+    "p50": 102.97749999999999,
+    "p95": 148.16249999999997
   },
   "tool_calls_total": 0,
   "tool_calls_mean": 0,
   "stop_conditions": {
-    "max_turns_reached": 6
+    "max_turns_reached": 18
   },
-  "parse_fail_rate": 0.0,
+  "parse_fail_rate": 0.0556,
   "wall_clock_s": 0.0
 }

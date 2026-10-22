@@ -11,8 +11,8 @@ Living document (brief §9 #11; §11: "Scope down loudly, not silently"). Each e
 
 ### 2. The LLM judge is excluded from the RL reward
 - **Decision:** training uses the rubric's programmatic components; the judge (0.2 of a correct trap refusal) is used in eval and the sandbox only.
-- **Why:** free-tier judge quota and latency (8 judge calls per group × 4 groups per step), and the risk of the policy learning to please the judge rather than refuse correctly.
-- **Cost:** the policy gets no gradient towards *better-written* refusals, only correct ones. A real version would distil the judge into a small reward model or batch judge calls.
+- **Why:** free-tier judge quota and latency (up to 3 judge calls per correct refusal, 16 completions per step), and the risk of the policy learning to please the judge rather than refuse correctly.
+- **Cost:** the policy gets no gradient towards *better-written* refusals, only correct ones. The judge was also off for local Qwen runs and baselines, so hosted models get up to +0.2 per correct refusal that local ones cannot (measured +0.02–0.04 on mean reward; no ranking changes; EVAL_REPORT Setup). A real version would distil the judge into a small reward model or batch judge calls.
 
 ### 3. Single-turn RL only (no multi-turn tool RL)
 - **Decision:** the GRPO policy trains with the rule set in context, not in tool mode.
@@ -45,7 +45,7 @@ Living document (brief §9 #11; §11: "Scope down loudly, not silently"). Each e
 - **Decision:** the `--max-cost` guardrail runs on *list prices* even though actual spend is $0.
 - **Why:** it proves the guardrail works and reports what a paid run would cost.
 - **Cost:** a sweep can stop on the list-price cap even when it is free, so the cap is set per run.
-- **Second guardrail, the free quota itself:** list-price dollars never protect a free quota, so a daily per-model **ledger** (`paygym.eval.budget`) caps requests *and* tokens at 75% of each model's published free limit, read from the user's own dashboards. That covers all eval runs, the judge and the probe. A capped run stops before the call that would exceed the cap (`aborted_budget`) and resumes the next day.
+- **Second guardrail, the free quota itself:** list-price dollars never protect a free quota, so a daily per-model **ledger** (`paygym.eval.budget`) caps requests *and* tokens at 90% of each model's published free limit (75% at first; raised when the user chose a one-day hosted sweep), read from the user's own dashboards. That covers all eval runs, the judge and the probe. A capped run stops before the call that would exceed the cap (`aborted_budget`) and resumes the next day.
 - **The limits shaped the eval design** (2026-10-19):
   - **Gemini 3.8 Flash** allows 20 requests/day and **Groq gpt-oss-120b** 200K tokens/day (≈ 40 single-turn rollouts). Neither can afford 109 tasks × 3 rollouts. They run on **core20**, a stratified subset fixed in advance (`scripts/make_core_subset.py`: every trap with its twin). The leaderboard compares them only against the other models' rollouts on those same 20 tasks (subset views, paired bootstrap), never against a full-set mean. **Cost:** wider CIs for those two models, stated in EVAL_REPORT.
   - **Tool mode cannot run on Groq.** Each request counts input + max_tokens against an 8K tokens/minute window, and a multi-turn tool request exceeds it (HTTP 413). Tool mode and the Track C comparator therefore use **Gemini 3.5 Flash-Lite** (500 requests/day), and Groq is single-turn only.
@@ -85,7 +85,8 @@ Living document (brief §9 #11; §11: "Scope down loudly, not silently"). Each e
 - the sandbox driving the caller's agent from their base URL + key (optional in the brief; would mean handling others' keys);
 - a judge-distilled reward model;
 - Supabase/Postgres (nothing relational to store);
-- a third β value.
+- a third β value;
+- **at the deadline:** the judge's hand-label agreement check (sheet prepared, `docs/judge_labels.csv`). The judge's reliability is reported from 3 repeats only.
 
 **With two more days:**
 1. **Qwen2.5-1.5B under rubric 1.4,** β ∈ {0.001, 0.04, 0.1}, 2 seeds each. Does trap discrimination become learnable once some answers in a group are right?

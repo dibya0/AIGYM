@@ -1,0 +1,87 @@
+{
+  "path": "tasks/generated/eval.jsonl",
+  "leakage": {
+    "literal_leaks": [],
+    "literal_leak_count": 0,
+    "classifier": {
+      "n": 89,
+      "labels": {
+        "ANSWER": 70,
+        "MISSING_INPUT": 8,
+        "CONFLICTING_RECORDS": 3,
+        "NO_APPLICABLE_TABLE": 5,
+        "UNSUPPORTED_CURRENCY": 3
+      },
+      "majority_baseline": 0.7865,
+      "chance_balanced": 0.2,
+      "cv_accuracy": 0.6743,
+      "cv_std": 0.0293,
+      "lift_over_majority": -0.1122,
+      "cv_balanced_accuracy": 0.2019,
+      "lift_over_chance_balanced": 0.0019,
+      "top_ngrams_per_label": {
+        "ANSWER": [
+          "2025",
+          "2022",
+          "pell",
+          "2025 2025",
+          "start_date 2025",
+          "viggo",
+          "start_date 2022",
+          "ines"
+        ],
+        "CONFLICTING_RECORDS": [
+          "2026 05",
+          "greta quayle",
+          "val 7352",
+          "7352",
+          "05 07",
+          "niko lowell",
+          "nrd 7822",
+          "7822"
+        ],
+        "MISSING_INPUT": [
+          "ksd ytd_contributory_earnings",
+          "lowell",
+          "quill lowell",
+          "kes 6642",
+          "6642",
+          "00 start_date",
+          "monthly transport",
+          "transport allowance"
+        ],
+        "NO_APPLICABLE_TABLE": [
+          "2027",
+          "2027 2027",
+          "2027 01",
+          "01",
+          "1588",
+          "maren quayle",
+          "kes 1588",
+          "quayle"
+        ],
+        "UNSUPPORTED_CURRENCY": [
+          "sek",
+          "sek start_date",
+          "salary_currency sek",
+          "maren kestwick",
+          "kes 5391",
+          "5391",
+          "2023 04",
+          "3760 00"
+        ]
+      },
+      "verdict": "no phrasing signal beyond chance"
+    }
+  },
+  "dedup": {
+    "n": 109,
+    "threshold": 0.9,
+    "exact_duplicate_cases": [],
+    "exact_duplicate_prompts": [],
+    "near_duplicates": [],
+    "trap_twin_pairs": 19,
+    "trap_twin_mean_jaccard": 0.802,
+    "unique_tasks_after_dedup": 109
+  }
+}

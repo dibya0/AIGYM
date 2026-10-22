@@ -29,11 +29,15 @@ Kept here deliberately: the record should show what the AI got wrong, not only w
 6. **Track C's one-line verdict declared a winner from a tie** (+0.210 vs 0.209) whose model effect changes sign. Caught while writing the report.
 7. **Smaller ones, each caught before it reached a report:**
    - a denominator error in the failure analysis (210 vs 270);
-   - a README claim of "mutation checks" that do not exist;
+   - a README claim of "mutation checks" as if they were a test suite (there was only one manual check during development);
    - TRL's silent LR decay;
    - a TPM guard that rejected every local request;
    - a test fake with the wrong error shape;
    - the sensitivity table's copy of the weighting drifting from the rubric.
+
+8. **"No model computes payroll reliably."** I wrote this headline into the README, eval report, Loom script and walkthrough from the full-eval model (Flash-Lite, 6/210 exact). When Gemini 3.8 Flash's top-up finished (2026-10-20), it got 11/12 exact on the same 4 payslip tasks where Flash-Lite got 0/12. The claim was rewritten everywhere to "arithmetic separates the models", with the 4-task sample stated. Caught by recounting exact net pay per model on the same tasks before updating the reports.
+
+9. **The sandbox leaked a trap's expected reason through its clause.** I designed the per-task "clause that drove the mark" (a brief requirement) without noticing that, on a trap refused for the wrong reason, the specific clause *is* the answer, and that same-seed reproducibility makes it exploitable. Caught by the user in a manual sandbox test (two refusals with wrong codes came back with GEN-§9.4 and GEN-§9.1). Fixed with a regression test; the residual is stated in the README.
 
 ## Where AI was deliberately *not* trusted
 

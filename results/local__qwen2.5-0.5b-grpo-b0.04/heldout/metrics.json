@@ -139,5 +139,5 @@
     "max_turns_reached": 327
   },
   "parse_fail_rate": 0.1865,
-  "wall_clock_s": 12.4
+  "wall_clock_s": 0.1
 }

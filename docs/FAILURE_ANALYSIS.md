@@ -1,6 +1,6 @@
 # Failure analysis (brief §9 #8)
 
-*11 failed transcripts read in full, from 5 configurations: Gemini 3.5 Flash-Lite, gpt-oss-120b, Qwen-3B with tools, the GRPO-trained Qwen-0.5B, and Gemini 3.1 Flash-Lite with tools. For each, the expected payslip and the reason a trap is a trap were taken from the reference and compared line by line. Each pattern was then **counted across every scored rollout** of that configuration, so the categories are measured failure modes, not anecdotes. Rubric 1.4; transcripts in `results/<model>/<run>/transcript.jsonl` (task id and rollout given), also clickable on the dashboard.*
+*13 failed transcripts read in full, from 6 configurations: Gemini 3.5 Flash-Lite, Gemini 3.8 Flash, gpt-oss-120b, Qwen-3B with tools, the GRPO-trained Qwen-0.5B, and Gemini 3.1 Flash-Lite with tools. For each, the expected payslip and the reason a trap is a trap were taken from the reference and compared line by line. Each pattern was then **counted across every scored rollout** of that configuration, so the categories are measured failure modes, not anecdotes. Rubric 1.4; transcripts in `results/<model>/<run>/transcript.jsonl` (task id and rollout given), also clickable on the dashboard.*
 
 ## Categories
 
@@ -11,6 +11,8 @@
 | 3 | **Answering a trap** | 2 | Flash-Lite 12/57 trap rollouts; trained 0.5B **56/57, all 56 while naming a refusal reason code** | `gen-2000039-trap` r0, trained 0.5B `gen-2000013-trap` r0 |
 | 4 | **Output-contract violation with a correct value** | 1 | trained 0.5B: **60/60 Tier-1 rollouts** are a bare number with no JSON object | trained 0.5B `gen-2000008` r0 |
 | 5 | **Tool loop: no final answer** | 1 | Gemini 3.1 Flash-Lite tool mode: 12/18 rollouts end at the 8-turn limit with an empty answer | `gen-2000048` r0 |
+| 6 | **Allowances of one type read as conflicting records** (a misread rule, and a wording weakness in our task) | 1 | gpt-oss-120b: 3/3 rollouts of `gen-2000049`, its only refusals of determinable tasks (3/24) | gpt-oss `gen-2000049` r0 |
+| 7 | **Answer cut off: the reasoning budget ran out** | 1 | Gemini 3.8 Flash: 1/18 rollouts (its only failure) | 3.8 Flash `gen-2000049` r1 |
 
 ## The transcripts
 
@@ -29,7 +31,7 @@
   - Earned salary is 4,576.00 vs 4,400.00. 4,400 = 3,520 USD × 1.25 (the 2025 rate) and 4,576 = 3,520 × 1.30 (the 2026 rate).
   - It used the wrong effective-dated FX row (FX-§1.1, GEN-§4.1), and every downstream line inherits the error.
 
-**What it says.** These are the gym working as designed. Each error is pinned to one clause by the line-level comparison (`driving_clauses`), and the net-pay gate caps the score at ≤ 0.25 however many other lines are right. Commercially, an LLM computing payslips directly makes *rule-application* errors a calculator would not. The `naive_no_ceiling` script baseline gets 111/210 payslips exact vs Flash-Lite's 6/210 (EVAL_REPORT).
+**What it says.** These are the gym working as designed. Each error is pinned to one clause by the line-level comparison (`driving_clauses`), and the net-pay gate caps the score at ≤ 0.25 however many other lines are right. Commercially, a cheap LLM computing payslips directly makes *rule-application* errors a calculator would not. The `naive_no_ceiling` script baseline gets 111/210 payslips exact vs Flash-Lite's 6/210. Capability matters: on the same 4 core6 payslip tasks, Gemini 3.8 Flash gets 11/12 exact, Flash-Lite 0/12 (EVAL_REPORT).
 
 ### 2. Over-refusal on a misread rule (the twins catch it)
 
@@ -78,6 +80,29 @@ With the FX rule's text in context, the 3B stops misreading it; through the `get
 - The environment records it (`stop_condition: max_turns_reached`) and scores it as no answer, not as a crash.
 
 **What it says.** Tool access without a stopping discipline costs more tokens and produces less. In Track C, the self-check and checklist scaffolds (S3/S4) reduced Qwen-3B's tool calls per rollout (8.1 → 4.8) and improved its score.
+
+### 6. Two allowances of one type read as a conflict
+
+- **gpt-oss-120b, `gen-2000049`** (NRD 2026-07, USD salary). The payroll note says: *"The employee receives a monthly housing allowance of NMK 250.00. The employee receives a monthly housing allowance of NMK 400.00."*
+- All 3 rollouts refuse with `CONFLICTING_RECORDS`: *"Conflicting values for the housing allowance amount (250 vs 400) across sources"*.
+- **The rules say otherwise.**
+  - GEN-§7.4: *"Several allowances of the same type are added together"*, so taxable housing is 650.
+  - GEN-§9.2 needs **two sources** stating different values; here one document lists two allowances.
+  - Reference net pay: 5,659. Gemini 3.8 Flash computed exactly that on both of its complete rollouts.
+
+**What it says.** It is a genuine misreading: the model did not apply GEN-§7.4. It is also **a fair criticism of our rendering**: two separate sentences about the same allowance type can read like a correction, and a clearer template would say "two housing allowances: NMK 250.00 and NMK 400.00".
+- We left the task unchanged, because editing a scored task would break every comparison on it.
+- The fix belongs in the next rule-set/template version, with a version bump.
+- Of the categories here, this is the one where a failure is partly the gym's.
+
+### 7. Answer cut off while reasoning
+
+- **Gemini 3.8 Flash, `gen-2000049` rollout 1.** The answer stops after the `lines` object, before the closing brace, so it is unparseable and scores −1.
+  - The text that did arrive already holds the **correct** net pay, 5,659.
+  - It is marked `is_truncated` at 160 visible output tokens of a 4,096 budget, at about 103 s per rollout. Most likely hidden reasoning used the rest of the budget; the provider's usage field reports visible tokens only.
+- This is its only failure in 18 rollouts.
+
+**What it says.** It is scored as the rubric says: no usable answer is −1. But it is a *budget* failure, not a rule failure, and a production setting would need a reasoning budget sized for the model. We did not re-run it with a larger budget, because that would mix two settings in one run. It is reported here instead.
 
 ## What the failures say about the gym
 

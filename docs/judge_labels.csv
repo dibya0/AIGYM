@@ -1,0 +1,46 @@
+task_id,reason_code,criterion,explanation,human_pass,judge_pass
+gen-2000005-trap,CONFLICTING_RECORDS,names_the_input,"The HR record and employment contract state conflicting values for the required monthly_salary input (VAL-§1.2, GEN-§2.3, GEN-§9.2).",,1
+gen-2000005-trap,CONFLICTING_RECORDS,states_why_rules_do_not_determine,"The HR record and employment contract state conflicting values for the required monthly_salary input (VAL-§1.2, GEN-§2.3, GEN-§9.2).",,1
+gen-2000005-trap,CONFLICTING_RECORDS,actionable_for_operator,"The HR record and employment contract state conflicting values for the required monthly_salary input (VAL-§1.2, GEN-§2.3, GEN-§9.2).",,1
+gen-2000004-trap,MISSING_INPUT,names_the_input,The required input ytd_contributory_earnings is missing for Kestrel Isles in a non-January period under KES-§1.2.,,1
+gen-2000004-trap,MISSING_INPUT,states_why_rules_do_not_determine,The required input ytd_contributory_earnings is missing for Kestrel Isles in a non-January period under KES-§1.2.,,1
+gen-2000004-trap,MISSING_INPUT,actionable_for_operator,The required input ytd_contributory_earnings is missing for Kestrel Isles in a non-January period under KES-§1.2.,,1
+gen-2000013-trap,NO_APPLICABLE_TABLE,names_the_input,There is no rate table for the calendar year 2024 under Nordmark (NRD-§4.2).,,1
+gen-2000013-trap,NO_APPLICABLE_TABLE,states_why_rules_do_not_determine,There is no rate table for the calendar year 2024 under Nordmark (NRD-§4.2).,,1
+gen-2000013-trap,NO_APPLICABLE_TABLE,actionable_for_operator,There is no rate table for the calendar year 2024 under Nordmark (NRD-§4.2).,,1
+gen-2000016-trap,UNSUPPORTED_CURRENCY,names_the_input,The salary currency CHF is unsupported and has no FX rate in the exchange rate table under GEN-§9.4.,,1
+gen-2000016-trap,UNSUPPORTED_CURRENCY,states_why_rules_do_not_determine,The salary currency CHF is unsupported and has no FX rate in the exchange rate table under GEN-§9.4.,,1
+gen-2000016-trap,UNSUPPORTED_CURRENCY,actionable_for_operator,The salary currency CHF is unsupported and has no FX rate in the exchange rate table under GEN-§9.4.,,1
+gen-2000021-trap,CONFLICTING_RECORDS,names_the_input,Conflicting records between HR record and employment contract regarding monthly_salary (VAL-§2.3 / GEN-§9.2).,,1
+gen-2000021-trap,CONFLICTING_RECORDS,states_why_rules_do_not_determine,Conflicting records between HR record and employment contract regarding monthly_salary (VAL-§2.3 / GEN-§9.2).,,1
+gen-2000021-trap,CONFLICTING_RECORDS,actionable_for_operator,Conflicting records between HR record and employment contract regarding monthly_salary (VAL-§2.3 / GEN-§9.2).,,1
+gen-2000063-trap,MISSING_INPUT,names_the_input,"The salary currency is missing from the employment contract and HR record, violating GEN-§2.1 and VAL-§1.2.",,1
+gen-2000063-trap,MISSING_INPUT,states_why_rules_do_not_determine,"The salary currency is missing from the employment contract and HR record, violating GEN-§2.1 and VAL-§1.2.",,0
+gen-2000063-trap,MISSING_INPUT,actionable_for_operator,"The salary currency is missing from the employment contract and HR record, violating GEN-§2.1 and VAL-§1.2.",,1
+gen-2000035-trap,NO_APPLICABLE_TABLE,names_the_input,"The pay period is January 2027 (2027-01), but the Nordmark rate table only covers years 2025 and 2026 under GEN-§4.2 and GEN-§9.3.",,1
+gen-2000035-trap,NO_APPLICABLE_TABLE,states_why_rules_do_not_determine,"The pay period is January 2027 (2027-01), but the Nordmark rate table only covers years 2025 and 2026 under GEN-§4.2 and GEN-§9.3.",,1
+gen-2000035-trap,NO_APPLICABLE_TABLE,actionable_for_operator,"The pay period is January 2027 (2027-01), but the Nordmark rate table only covers years 2025 and 2026 under GEN-§4.2 and GEN-§9.3.",,0
+gen-2000057-trap,UNSUPPORTED_CURRENCY,names_the_input,The salary currency 'SEK' is not supported in the FX table per GEN-§8.2.,,1
+gen-2000057-trap,UNSUPPORTED_CURRENCY,states_why_rules_do_not_determine,The salary currency 'SEK' is not supported in the FX table per GEN-§8.2.,,1
+gen-2000057-trap,UNSUPPORTED_CURRENCY,actionable_for_operator,The salary currency 'SEK' is not supported in the FX table per GEN-§8.2.,,1
+gen-2000078-trap,CONFLICTING_RECORDS,names_the_input,"The HR record and the employment contract state conflicting values for the monthly salary (4,070.00 NMK vs 4,930.00). Under GEN-§9.2, this makes the payslip undetermined.",,1
+gen-2000078-trap,CONFLICTING_RECORDS,states_why_rules_do_not_determine,"The HR record and the employment contract state conflicting values for the monthly salary (4,070.00 NMK vs 4,930.00). Under GEN-§9.2, this makes the payslip undetermined.",,1
+gen-2000078-trap,CONFLICTING_RECORDS,actionable_for_operator,"The HR record and the employment contract state conflicting values for the monthly salary (4,070.00 NMK vs 4,930.00). Under GEN-§9.2, this makes the payslip undetermined.",,0
+gen-2000069-trap,MISSING_INPUT,names_the_input,The required input `ytd_contributory_earnings` is missing for jurisdiction KES in a non-January pay period under clause KES-§1.2.,,1
+gen-2000069-trap,MISSING_INPUT,states_why_rules_do_not_determine,The required input `ytd_contributory_earnings` is missing for jurisdiction KES in a non-January pay period under clause KES-§1.2.,,1
+gen-2000069-trap,MISSING_INPUT,actionable_for_operator,The required input `ytd_contributory_earnings` is missing for jurisdiction KES in a non-January pay period under clause KES-§1.2.,,1
+gen-2000065-trap,NO_APPLICABLE_TABLE,names_the_input,There is no rate table for the pay period's calendar year (2027) in Nordmark under GEN-§4.2.,,1
+gen-2000065-trap,NO_APPLICABLE_TABLE,states_why_rules_do_not_determine,There is no rate table for the pay period's calendar year (2027) in Nordmark under GEN-§4.2.,,1
+gen-2000065-trap,NO_APPLICABLE_TABLE,actionable_for_operator,There is no rate table for the pay period's calendar year (2027) in Nordmark under GEN-§4.2.,,1
+gen-2000059-trap,UNSUPPORTED_CURRENCY,names_the_input,"The salary currency 'SEK' is not listed in the FX table for 2025, violating GEN-§8.2 and GEN-§9.4.",,1
+gen-2000059-trap,UNSUPPORTED_CURRENCY,states_why_rules_do_not_determine,"The salary currency 'SEK' is not listed in the FX table for 2025, violating GEN-§8.2 and GEN-§9.4.",,1
+gen-2000059-trap,UNSUPPORTED_CURRENCY,actionable_for_operator,"The salary currency 'SEK' is not listed in the FX table for 2025, violating GEN-§8.2 and GEN-§9.4.",,1
+gen-2000005-trap,CONFLICTING_RECORDS,names_the_input,"The HR record and employment contract state conflicting values for the monthly_salary input (VAL-§2.2, GEN-§9.2).",,1
+gen-2000005-trap,CONFLICTING_RECORDS,states_why_rules_do_not_determine,"The HR record and employment contract state conflicting values for the monthly_salary input (VAL-§2.2, GEN-§9.2).",,1
+gen-2000005-trap,CONFLICTING_RECORDS,actionable_for_operator,"The HR record and employment contract state conflicting values for the monthly_salary input (VAL-§2.2, GEN-§9.2).",,1
+gen-2000004-trap,MISSING_INPUT,names_the_input,The required input ytd_contributory_earnings is missing for Kestrel Isles in June 2026 under KES-§1.2.,,1
+gen-2000004-trap,MISSING_INPUT,states_why_rules_do_not_determine,The required input ytd_contributory_earnings is missing for Kestrel Isles in June 2026 under KES-§1.2.,,1
+gen-2000004-trap,MISSING_INPUT,actionable_for_operator,The required input ytd_contributory_earnings is missing for Kestrel Isles in June 2026 under KES-§1.2.,,1
+gen-2000066-trap,NO_APPLICABLE_TABLE,names_the_input,There is no rate table for the pay period's calendar year (2027) in Kestrel Isles under GEN-§4.2.,,1
+gen-2000066-trap,NO_APPLICABLE_TABLE,states_why_rules_do_not_determine,There is no rate table for the pay period's calendar year (2027) in Kestrel Isles under GEN-§4.2.,,1
+gen-2000066-trap,NO_APPLICABLE_TABLE,actionable_for_operator,There is no rate table for the pay period's calendar year (2027) in Kestrel Isles under GEN-§4.2.,,1

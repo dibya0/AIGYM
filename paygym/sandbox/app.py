@@ -176,14 +176,25 @@ def submit(request: Request, body: Submission):
         breakdown = {c.name: c.score for c in score.components}
         if task.ground_truth.kind == "refusal" and score.decision == "refuse" and "judge_flag_quality" not in breakdown and score.gate is None:
             breakdown["judge_flag_quality"] = "deferred"  # judge unavailable or caller's judge budget used up
+        clauses = list(score.driving_clauses)
+        if task.ground_truth.kind == "refusal" and score.gate is not None:
+            # On a trap not refused for the right reason, the specific clause (GEN-§9.1-9.4) IS the expected reason
+            # code. Returning it let a caller probe once and resubmit the same public seed with the right codes
+            # (found in a manual test, 2026-10-22). The general refusal clause still says which rule drove the mark.
+            clauses = ["GEN-§9"]
         per_task.append({"id": task_id, "tier": task.difficulty, "score": round(score.total, 4), "breakdown": breakdown,
-                         "clause": score.driving_clauses[0] if score.driving_clauses else None,
-                         "clauses": score.driving_clauses, "gate": score.gate, "answered": task_id in answers})
+                         "clause": clauses[0] if clauses else None,
+                         "clauses": clauses, "gate": score.gate, "answered": task_id in answers})
     response = {"run_id": body.run_id, "ruleset_version": spec.ruleset_version, "seed": spec.seed, "tier_mix": spec.tier_mix,
                 "n_tasks": len(tasks), "n_answered": len(set(answers) & set(tasks)), "unknown_ids": unknown,
                 "mean_reward": round(total / len(tasks), 4) if tasks else None, "per_task": per_task}
+    # The same public seed regenerates the same tasks (comparability), so per-task feedback from one run could steer a
+    # second run on that seed. A repeat is still scored, but marked, so the external leaderboard shows it.
+    seed_key = f"seed:{spec.seed}:{spec.tier_mix}:{spec.n}"
+    repeat_seed = store.incr_window(seed_key, 60 * 60 * 24 * 30) > 1
+    response["repeat_seed"] = repeat_seed
     summary = {"run_id": body.run_id, "ruleset_version": spec.ruleset_version, "seed": spec.seed, "tier_mix": spec.tier_mix,
-               "n_tasks": len(tasks), "mean_reward": response["mean_reward"], "external": True,
+               "n_tasks": len(tasks), "mean_reward": response["mean_reward"], "external": True, "repeat_seed": repeat_seed,
                "submitted_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")}
     if not store.put_run_once(body.run_id, {"response": response, "summary": summary, "answers": answers,
                                             "scored_at": time.time()}):

@@ -29,3 +29,6 @@ wandb/
 
 # Local free-tier request ledger (per machine, per day)
 results/.request_ledger.json
+
+# LibreOffice / office lock files
+.~lock.*#

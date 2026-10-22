@@ -28,12 +28,40 @@ def load_items(items_path: Path, tasks: dict[str, Task]) -> list[tuple[Task, str
     return items
 
 
-def repeat_disagreement(items: list[tuple[Task, str]], repeats: int = 3, judge: GeminiJudge | None = None) -> dict:
+def _progress_key(task: Task, criterion: str, explanation: str, i: int) -> str:
+    import hashlib
+
+    return hashlib.sha256(json.dumps([prompt_hash(), task.id, criterion, explanation.strip(), i]).encode()).hexdigest()
+
+
+def repeat_disagreement(items: list[tuple[Task, str]], repeats: int = 3, judge: GeminiJudge | None = None,
+                        progress_path: Path | None = None) -> dict:
+    """Each verdict is appended to ``progress_path`` as soon as it arrives, and a re-run skips verdicts already
+    there. (2026-10-20: the first run held everything in memory, and a burst of 503s from the provider after ~244
+    requests lost all of it.)"""
+    done: dict[str, bool] = {}
+    if progress_path and progress_path.exists():
+        for line in progress_path.read_text().splitlines():
+            if line.strip():
+                row = json.loads(line)
+                done[row["key"]] = row["pass"]
     judge = judge or GeminiJudge(use_cache=False)
+
+    def verdict(task: Task, criterion: str, explanation: str, i: int) -> bool:
+        key = _progress_key(task, criterion, explanation, i)
+        if key not in done:
+            done[key] = judge.judge_criterion(task, criterion, explanation)["pass"]
+            if progress_path:
+                progress_path.parent.mkdir(parents=True, exist_ok=True)
+                with progress_path.open("a") as fh:
+                    fh.write(json.dumps({"key": key, "task": task.id, "criterion": criterion, "repeat": i,
+                                         "pass": done[key]}) + "\n")
+        return done[key]
+
     pairs, split = [], 0
     for task, explanation in items:
         for criterion in CRITERIA:
-            verdicts = [judge.judge_criterion(task, criterion, explanation)["pass"] for _ in range(repeats)]
+            verdicts = [verdict(task, criterion, explanation, i) for i in range(repeats)]
             unanimous = len(set(verdicts)) == 1
             split += not unanimous
             pairs.append({"task": task.id, "criterion": criterion, "verdicts": verdicts})
@@ -120,10 +148,24 @@ def extract_items(run_dirs: list[Path]) -> list[dict]:
     return items
 
 
-def items_from_file(path: Path) -> list[tuple[Task, str]]:
+def items_from_file(path: Path, max_items: int | None = None) -> list[tuple[Task, str]]:
     out = []
     for line in path.read_text().splitlines():
         if line.strip():
             row = json.loads(line)
             out.append((Task.model_validate_json(row["task_json"]), row["explanation"]))
+    return stratified(out, max_items) if max_items else out
+
+
+def stratified(items: list[tuple[Task, str]], n: int) -> list[tuple[Task, str]]:
+    """At most ``n`` items, taken round-robin over reason codes (file order within each), so a cap made to fit
+    a daily free-tier quota still covers every trap type instead of only the first run's items."""
+    groups: dict[str, list[tuple[Task, str]]] = {}
+    for item in items:
+        groups.setdefault(item[0].ground_truth.reason_code, []).append(item)
+    out: list[tuple[Task, str]] = []
+    while len(out) < n and any(groups.values()):
+        for code in sorted(groups):
+            if groups[code] and len(out) < n:
+                out.append(groups[code].pop(0))
     return out

@@ -143,5 +143,5 @@
     "prompt_too_long": 1
   },
   "parse_fail_rate": 0.5291,
-  "wall_clock_s": 511.6
+  "wall_clock_s": 0.1
 }

@@ -1,0 +1,551 @@
+{
+  "judge_model": "gemini-3.1-flash-lite",
+  "judge_prompt_hash": "d0691c1328f8ba86",
+  "repeats": 3,
+  "items": 20,
+  "pairs": 60,
+  "non_unanimous_pairs": 0,
+  "disagreement_rate": 0.0,
+  "detail": [
+    {
+      "task": "gen-2000005-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000005-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000005-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000004-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000004-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000004-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000013-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000013-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000013-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000016-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000016-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000016-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000021-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000021-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000021-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000063-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000063-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "task": "gen-2000063-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000035-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000035-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000035-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "task": "gen-2000057-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000057-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000057-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000078-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000078-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000078-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "task": "gen-2000069-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000069-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000069-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000065-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000065-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000065-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000059-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000059-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000059-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000005-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000005-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000005-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000004-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000004-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000004-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000066-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000066-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000066-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000016-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000016-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000016-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000021-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000021-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000021-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "task": "gen-2000030-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000030-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000030-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000013-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000013-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000013-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000057-trap",
+      "criterion": "names_the_input",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000057-trap",
+      "criterion": "states_why_rules_do_not_determine",
+      "verdicts": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "task": "gen-2000057-trap",
+      "criterion": "actionable_for_operator",
+      "verdicts": [
+        false,
+        false,
+        false
+      ]
+    }
+  ]
+}

@@ -71,7 +71,7 @@ curl -s https://aigym-alpha.vercel.app/quickstart.py | python3 - https://aigym-a
 
 ## 9:15–10:00: what the gym says, and what's next (45 s)
 
-> "The commercial answer the gym gives: no model here computes payroll reliably. Gemini Flash-Lite gets net pay exactly right on 6 of 210 payslips; a script that ignores ceilings gets 111. LLMs win on decisions and lose on arithmetic, so decide with the model and compute with a calculator. For small models, the cheapest scaffold, putting the rules in the prompt, gives most of the gain.
+> "The commercial answer the gym gives: arithmetic is what separates models. Gemini Flash-Lite gets net pay exactly right on 6 of 210 payslips; a script that ignores ceilings gets 111. On the same four subset payslips, Gemini 3.8 Flash gets 11 of 12, but that's four tasks, because its free tier allows 20 requests a day. So: a cheap model decides and a calculator computes; a strong reasoning model is the candidate for end-to-end, after a full eval, and the gym is how you'd check it. For small models, the cheapest scaffold, putting the rules in the prompt, gives most of the gain.
 >
 > Next: a 1.5B policy to see whether trap discrimination becomes learnable, and turning the three exploits into permanent baselines."
 

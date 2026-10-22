@@ -60,7 +60,7 @@
     "num_turns": 1.0,
     "parse_failed": 0.3833,
     "paygym_reward": -0.5262,
-    "refused": 0.1333,
+    "refused": 0.1,
     "tool_errors": 0.0,
     "trap_decision": -0.1567,
     "value_exact": 0.0
@@ -825,7 +825,7 @@
         "value_exact": 0.0,
         "format_valid": 0.0,
         "judge_flag_quality": 0.0,
-        "refused": 1.0,
+        "refused": 0.0,
         "parse_failed": 1.0,
         "tool_errors": 0.0,
         "num_turns": 1.0

@@ -90,14 +90,15 @@ def _cmd_judge(args: argparse.Namespace) -> int:
         out.write_text("".join(json.dumps(i) + "\n" for i in items))
         print(f"{len(items)} correctly-refused trap explanations -> {out}")
     elif args.action == "repeat":
-        report = jr.repeat_disagreement(jr.items_from_file(Path(args.items)), repeats=args.repeats)
+        report = jr.repeat_disagreement(jr.items_from_file(Path(args.items), args.max_items), repeats=args.repeats,
+                                           progress_path=Path("results/judge/repeat_progress.jsonl"))
         out = Path(args.out or "results/judge/reliability_repeat.json")
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(report, indent=2))
         print(f"disagreement rate {report['disagreement_rate']} over {report['pairs']} (output, criterion) pairs -> {out}")
     elif args.action == "labels":
         out = Path(args.out or "docs/judge_labels.csv")
-        n = jr.write_label_sheet(jr.items_from_file(Path(args.items)), out)
+        n = jr.write_label_sheet(jr.items_from_file(Path(args.items), args.max_items), out)
         print(f"{n} rows to label (fill human_pass with 1/0 before looking at judge_pass) -> {out}")
     elif args.action == "agreement":
         report = jr.agreement(Path(args.labels))
@@ -151,6 +152,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--items", default="results/judge/items.jsonl")
     p.add_argument("--labels", default="docs/judge_labels.csv")
     p.add_argument("--repeats", type=int, default=3)
+    p.add_argument("--max-items", type=int, default=None,
+                   help="cap items, balanced over reason codes (requests = items x 3 criteria x repeats)")
     p.add_argument("--out")
     p.set_defaults(func=_cmd_judge)
 
@@ -171,6 +174,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.command is None:
         parser.print_help()
         return 0
+    try:  # same convenience as `python -m paygym.eval`: `paygym judge` needs GEMINI_API_KEY from .env (2026-10-20)
+        from dotenv import load_dotenv
+
+        load_dotenv()
+    except ImportError:
+        pass
     return args.func(args)
 
 

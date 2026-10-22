@@ -89,7 +89,9 @@
         "format_valid": 1.0,
         "line_accuracy": 0.8429,
         "net_pay_exact": 0.5286,
+        "parse_failed": 0.0,
         "paygym_reward": 0.2486,
+        "refused": 0.0,
         "trap_decision": -1.0,
         "value_exact": 0.05
       },
@@ -140,7 +142,9 @@
         "format_valid": 1.0,
         "line_accuracy": 0.6043,
         "net_pay_exact": 0.0,
+        "parse_failed": 0.0,
         "paygym_reward": -0.0273,
+        "refused": 0.0,
         "trap_decision": -1.0,
         "value_exact": 0.05
       },
@@ -191,7 +195,9 @@
         "format_valid": 1.0,
         "line_accuracy": 0.1857,
         "net_pay_exact": 0.0,
+        "parse_failed": 0.0,
         "paygym_reward": -0.0945,
+        "refused": 0.0,
         "trap_decision": -1.0,
         "value_exact": 0.05
       },
@@ -242,7 +248,9 @@
         "format_valid": 1.0,
         "line_accuracy": 0.1814,
         "net_pay_exact": 0.0,
+        "parse_failed": 0.0,
         "paygym_reward": -0.1039,
+        "refused": 0.0,
         "trap_decision": -1.0,
         "value_exact": 0.0
       },
@@ -463,7 +471,9 @@
         "format_valid": 1.0,
         "line_accuracy": 0.0,
         "net_pay_exact": 0.0,
+        "parse_failed": 0.0,
         "paygym_reward": -0.8584,
+        "refused": 1.0,
         "trap_decision": 0.5947,
         "value_exact": 0.0
       },
@@ -860,48 +870,48 @@
       "group": "subset:eval_core10|single|None|42b009c25d689c46|1.4",
       "subset": "eval_core10",
       "ruleset_version": "1.0",
-      "status": "unavailable",
+      "status": "completed",
       "rollouts": 3,
       "tasks": 10,
-      "rollouts_ok": 20,
-      "rollouts_failed": 10,
-      "mean_reward": 0.5663,
-      "run_sd": 0.2135,
-      "rollout_sd": 0.0989,
-      "disagreement_rate": 0.25,
+      "rollouts_ok": 30,
+      "rollouts_failed": 0,
+      "mean_reward": 0.665,
+      "run_sd": 0.1002,
+      "rollout_sd": 0.1544,
+      "disagreement_rate": 0.4,
       "by_tier": {
         "1": 1.0,
-        "2": 0.2771,
+        "2": 0.4416,
         "3": 1.0
       },
-      "twins": 0.3438,
+      "twins": 0.7083,
       "by_component": {
         "format_valid": 1.0,
         "judge_flag_quality": 0.2,
-        "line_accuracy": 0.39,
-        "net_pay_exact": 0.25,
+        "line_accuracy": 0.4267,
+        "net_pay_exact": 0.3333,
         "num_turns": 1.0,
-        "parse_failed": 0.5,
-        "paygym_reward": 0.5975,
+        "parse_failed": 0.0,
+        "paygym_reward": 0.665,
         "refused": 0.3,
         "tool_errors": 0.0,
         "trap_decision": 0.2,
         "value_exact": 0.2
       },
       "gates": {
-        "none": 13,
-        "refused_determinable": 2,
+        "none": 22,
+        "refused_determinable": 3,
         "wrong_net_capped": 5
       },
-      "cost_list_usd": 0.0213,
+      "cost_list_usd": 0.0315,
       "cost_actual_usd": 0.0,
       "latency_s": {
-        "mean": 2.01,
-        "p50": 1.9779999999999998,
-        "p95": 3.363400000000002
+        "mean": 1.854,
+        "p50": 1.7355,
+        "p95": 3.5292499999999984
       },
       "tool_calls_mean": 0,
-      "parse_fail_rate": 0.5
+      "parse_fail_rate": 0.0
     },
     {
       "run": "gemini__gemini-3.5-flash-lite/eval-single@eval_core10",
@@ -991,6 +1001,8 @@
         "line_accuracy": 0.9,
         "format_valid": 1.0,
         "paygym_reward": 0.255,
+        "refused": 0.0,
+        "parse_failed": 0.0,
         "value_exact": 0.0,
         "trap_decision": -1.0
       },
@@ -1043,6 +1055,8 @@
         "line_accuracy": 0.6,
         "format_valid": 1.0,
         "paygym_reward": -0.07,
+        "refused": 0.0,
+        "parse_failed": 0.0,
         "value_exact": 0.0,
         "trap_decision": -1.0
       },
@@ -1094,6 +1108,8 @@
         "line_accuracy": 0.1667,
         "format_valid": 1.0,
         "paygym_reward": -0.135,
+        "refused": 0.0,
+        "parse_failed": 0.0,
         "value_exact": 0.0,
         "trap_decision": -1.0
       },
@@ -1145,6 +1161,8 @@
         "line_accuracy": 0.1667,
         "format_valid": 1.0,
         "paygym_reward": -0.135,
+        "refused": 0.0,
+        "parse_failed": 0.0,
         "value_exact": 0.0,
         "trap_decision": -1.0
       },
@@ -1367,6 +1385,8 @@
         "line_accuracy": 0.0,
         "format_valid": 1.0,
         "paygym_reward": -0.74,
+        "refused": 1.0,
+        "parse_failed": 0.0,
         "value_exact": 0.0,
         "trap_decision": 0.3
       },
@@ -1835,6 +1855,8 @@
         "line_accuracy": 0.8455,
         "format_valid": 1.0,
         "paygym_reward": 0.1613,
+        "refused": 0.0,
+        "parse_failed": 0.0,
         "value_exact": 0.25,
         "trap_decision": -1.0
       },
@@ -1887,6 +1909,8 @@
         "line_accuracy": 0.6,
         "format_valid": 1.0,
         "paygym_reward": -0.0825,
+        "refused": 0.0,
+        "parse_failed": 0.0,
         "value_exact": 0.25,
         "trap_decision": -1.0
       },
@@ -1939,6 +1963,8 @@
         "line_accuracy": 0.1727,
         "format_valid": 1.0,
         "paygym_reward": -0.1412,
+        "refused": 0.0,
+        "parse_failed": 0.0,
         "value_exact": 0.25,
         "trap_decision": -1.0
       },
@@ -1991,6 +2017,8 @@
         "line_accuracy": 0.1727,
         "format_valid": 1.0,
         "paygym_reward": -0.1888,
+        "refused": 0.0,
+        "parse_failed": 0.0,
         "value_exact": 0.0,
         "trap_decision": -1.0
       },
@@ -2213,6 +2241,8 @@
         "line_accuracy": 0.0,
         "format_valid": 1.0,
         "paygym_reward": -0.7833,
+        "refused": 1.0,
+        "parse_failed": 0.0,
         "value_exact": 0.0,
         "trap_decision": 0.58
       },
@@ -2612,44 +2642,45 @@
       "ruleset_version": "1.0",
       "status": "completed",
       "rollouts": 3,
-      "tasks": 4,
-      "rollouts_ok": 6,
-      "rollouts_failed": 12,
-      "mean_reward": 1.0,
-      "run_sd": 0.0,
-      "rollout_sd": 0.0,
-      "disagreement_rate": 0.0,
+      "tasks": 6,
+      "rollouts_ok": 18,
+      "rollouts_failed": 0,
+      "mean_reward": 0.8852,
+      "run_sd": 0.1624,
+      "rollout_sd": 0.1624,
+      "disagreement_rate": 0.3333,
       "by_tier": {
         "1": 1.0,
-        "2": 1.0,
-        "3": 1.0
+        "2": 0.8333,
+        "3": 0.9778
       },
       "twins": 1.0,
       "by_component": {
-        "format_valid": 1.0,
-        "judge_flag_quality": 0.1667,
-        "line_accuracy": 0.5,
-        "net_pay_exact": 0.5,
+        "format_valid": 0.9444,
+        "judge_flag_quality": 0.1482,
+        "line_accuracy": 0.6111,
+        "net_pay_exact": 0.6111,
         "num_turns": 1.0,
-        "parse_failed": 0.0,
-        "paygym_reward": 1.0,
+        "parse_failed": 0.0556,
+        "paygym_reward": 0.8852,
         "refused": 0.1667,
         "tool_errors": 0.0,
         "trap_decision": 0.1667,
-        "value_exact": 0.3333
+        "value_exact": 0.1667
       },
       "gates": {
-        "none": 6
+        "none": 17,
+        "unparseable": 1
       },
-      "cost_list_usd": 0.0103,
+      "cost_list_usd": 0.033,
       "cost_actual_usd": 0.0,
       "latency_s": {
-        "mean": 137.023,
-        "p50": 136.4365,
-        "p95": 158.7165
+        "mean": 103.103,
+        "p50": 102.97749999999999,
+        "p95": 148.16249999999997
       },
       "tool_calls_mean": 0,
-      "parse_fail_rate": 0.0
+      "parse_fail_rate": 0.0556
     },
     {
       "run": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
@@ -2663,48 +2694,48 @@
       "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
       "subset": "eval_core6",
       "ruleset_version": "1.0",
-      "status": "unavailable",
+      "status": "completed",
       "rollouts": 3,
       "tasks": 6,
-      "rollouts_ok": 11,
+      "rollouts_ok": 18,
       "rollouts_failed": 7,
-      "mean_reward": 0.4646,
-      "run_sd": 0.0267,
-      "rollout_sd": 0.0875,
-      "disagreement_rate": 0.2,
+      "mean_reward": 0.5319,
+      "run_sd": 0.1123,
+      "rollout_sd": 0.1296,
+      "disagreement_rate": 0.3333,
       "by_tier": {
         "1": 1.0,
-        "2": 0.1969,
+        "2": 0.2979,
         "3": 1.0
       },
-      "twins": 0.5625,
+      "twins": 0.7083,
       "by_component": {
-        "paygym_reward": 0.4159,
-        "net_pay_exact": 0.2727,
-        "line_accuracy": 0.4273,
-        "trap_decision": 0.1818,
-        "value_exact": 0.0909,
+        "paygym_reward": 0.5319,
+        "net_pay_exact": 0.3333,
+        "line_accuracy": 0.4278,
+        "trap_decision": 0.1667,
+        "value_exact": 0.1667,
         "format_valid": 1.0,
-        "judge_flag_quality": 0.1818,
-        "refused": 0.3636,
-        "parse_failed": 0.5455,
+        "judge_flag_quality": 0.1667,
+        "refused": 0.3333,
+        "parse_failed": 0.0,
         "tool_errors": 0.0,
         "num_turns": 1.0
       },
       "gates": {
-        "none": 6,
-        "refused_determinable": 2,
+        "none": 12,
+        "refused_determinable": 3,
         "wrong_net_capped": 3
       },
-      "cost_list_usd": 0.0213,
+      "cost_list_usd": 0.0315,
       "cost_actual_usd": 0.0,
       "latency_s": {
-        "mean": 2.01,
-        "p50": 1.9779999999999998,
-        "p95": 3.363400000000002
+        "mean": 1.854,
+        "p50": 1.7355,
+        "p95": 3.5292499999999984
       },
       "tool_calls_mean": 0,
-      "parse_fail_rate": 0.5,
+      "parse_fail_rate": 0.0,
       "subset_view_of": "groq__openai__gpt-oss-120b/core10-single"
     },
     {
@@ -2794,6 +2825,8 @@
         "value_exact": 0.0,
         "format_valid": 1.0,
         "paygym_reward": 0.25,
+        "refused": 0.0,
+        "parse_failed": 0.0,
         "net_pay_exact": 0.5,
         "line_accuracy": 0.85,
         "trap_decision": -1.0
@@ -2846,6 +2879,8 @@
         "value_exact": 0.0,
         "format_valid": 1.0,
         "paygym_reward": -0.025,
+        "refused": 0.0,
+        "parse_failed": 0.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.6,
         "trap_decision": -1.0
@@ -2897,6 +2932,8 @@
         "value_exact": 0.0,
         "format_valid": 1.0,
         "paygym_reward": -0.0958,
+        "refused": 0.0,
+        "parse_failed": 0.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.175,
         "trap_decision": -1.0
@@ -2948,6 +2985,8 @@
         "value_exact": 0.0,
         "format_valid": 1.0,
         "paygym_reward": -0.0958,
+        "refused": 0.0,
+        "parse_failed": 0.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.175,
         "trap_decision": -1.0
@@ -3111,6 +3150,8 @@
         "value_exact": 0.0,
         "format_valid": 1.0,
         "paygym_reward": -0.7833,
+        "refused": 1.0,
+        "parse_failed": 0.0,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 0.3
@@ -4055,10 +4096,10 @@
       "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
       "a": "gemini__gemini-3.8-flash/core6-single",
       "b": "baseline__always_abstain/eval-single@eval_core6",
-      "tasks": 4,
-      "mean_diff": 1.675,
+      "tasks": 6,
+      "mean_diff": 1.6685,
       "ci95": [
-        1.025,
+        1.2278,
         2.0
       ],
       "distinguishable": true
@@ -4067,11 +4108,11 @@
       "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
       "a": "gemini__gemini-3.8-flash/core6-single",
       "b": "baseline__format_only/eval-single@eval_core6",
-      "tasks": 4,
-      "mean_diff": 1.1938,
+      "tasks": 6,
+      "mean_diff": 0.981,
       "ci95": [
-        0.9125,
-        1.7312
+        0.5833,
+        1.4472
       ],
       "distinguishable": true
     },
@@ -4079,11 +4120,11 @@
       "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
       "a": "gemini__gemini-3.8-flash/core6-single",
       "b": "baseline__gross_as_net/eval-single@eval_core6",
-      "tasks": 4,
-      "mean_diff": 1.1375,
+      "tasks": 6,
+      "mean_diff": 0.9102,
       "ci95": [
-        0.8,
-        1.7
+        0.4917,
+        1.3889
       ],
       "distinguishable": true
     },
@@ -4091,11 +4132,11 @@
       "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
       "a": "gemini__gemini-3.8-flash/core6-single",
       "b": "baseline__modal_answer/eval-single@eval_core6",
-      "tasks": 4,
-      "mean_diff": 1.1938,
+      "tasks": 6,
+      "mean_diff": 0.981,
       "ci95": [
-        0.9125,
-        1.7312
+        0.5833,
+        1.4472
       ],
       "distinguishable": true
     },
@@ -4103,11 +4144,11 @@
       "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
       "a": "gemini__gemini-3.8-flash/core6-single",
       "b": "baseline__naive_no_ceiling/eval-single@eval_core6",
-      "tasks": 4,
-      "mean_diff": 0.9313,
+      "tasks": 6,
+      "mean_diff": 0.6352,
       "ci95": [
-        0.2375,
-        1.6938
+        0.1472,
+        1.2653
       ],
       "distinguishable": true
     },
@@ -4115,35 +4156,35 @@
       "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
       "a": "gemini__gemini-3.8-flash/core6-single",
       "b": "gemini__gemini-3.5-flash-lite/eval-single@eval_core6",
-      "tasks": 4,
-      "mean_diff": 0.4062,
+      "tasks": 6,
+      "mean_diff": 0.6227,
       "ci95": [
-        0.0,
-        0.8125
+        0.2546,
+        0.9903
       ],
-      "distinguishable": false
+      "distinguishable": true
     },
     {
       "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
       "a": "gemini__gemini-3.8-flash/core6-single",
       "b": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
-      "tasks": 4,
-      "mean_diff": 0.3031,
+      "tasks": 6,
+      "mean_diff": 0.3532,
       "ci95": [
-        0.0,
-        0.6062
+        0.0412,
+        0.7639
       ],
-      "distinguishable": false
+      "distinguishable": true
     },
     {
       "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
       "a": "gemini__gemini-3.8-flash/core6-single",
       "b": "local__qwen2.5-0.5b/eval-single@eval_core6",
-      "tasks": 4,
-      "mean_diff": 1.4583,
+      "tasks": 6,
+      "mean_diff": 1.5241,
       "ci95": [
-        0.9167,
-        2.0
+        1.1556,
+        1.8852
       ],
       "distinguishable": true
     },
@@ -4151,11 +4192,11 @@
       "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
       "a": "gemini__gemini-3.8-flash/core6-single",
       "b": "local__qwen2.5-0.5b-grpo-b0.04/eval-single@eval_core6",
-      "tasks": 4,
-      "mean_diff": 1.4521,
+      "tasks": 6,
+      "mean_diff": 1.1449,
       "ci95": [
-        0.9042,
-        2.0
+        0.6625,
+        1.6259
       ],
       "distinguishable": true
     },
@@ -4163,11 +4204,11 @@
       "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
       "a": "gemini__gemini-3.8-flash/core6-single",
       "b": "local__qwen2.5-3b/trackc-S1@eval_core6",
-      "tasks": 4,
-      "mean_diff": 1.75,
+      "tasks": 6,
+      "mean_diff": 1.7185,
       "ci95": [
-        1.25,
-        2.0
+        1.3889,
+        1.9963
       ],
       "distinguishable": true
     },
@@ -4236,10 +4277,10 @@
       "a": "baseline__always_abstain/eval-single@eval_core6",
       "b": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
       "tasks": 6,
-      "mean_diff": -1.2479,
+      "mean_diff": -1.3153,
       "ci95": [
-        -1.7812,
-        -0.6542
+        -1.8278,
+        -0.6972
       ],
       "distinguishable": true
     },
@@ -4332,10 +4373,10 @@
       "a": "baseline__format_only/eval-single@eval_core6",
       "b": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
       "tasks": 6,
-      "mean_diff": -0.5604,
+      "mean_diff": -0.6278,
       "ci95": [
-        -1.2917,
-        0.2146
+        -1.3194,
+        0.1653
       ],
       "distinguishable": false
     },
@@ -4416,10 +4457,10 @@
       "a": "baseline__gross_as_net/eval-single@eval_core6",
       "b": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
       "tasks": 6,
-      "mean_diff": -0.4896,
+      "mean_diff": -0.5569,
       "ci95": [
-        -1.2542,
-        0.3042
+        -1.275,
+        0.2486
       ],
       "distinguishable": false
     },
@@ -4488,10 +4529,10 @@
       "a": "baseline__modal_answer/eval-single@eval_core6",
       "b": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
       "tasks": 6,
-      "mean_diff": -0.5604,
+      "mean_diff": -0.6278,
       "ci95": [
-        -1.2917,
-        0.2146
+        -1.3194,
+        0.1653
       ],
       "distinguishable": false
     },
@@ -4548,10 +4589,10 @@
       "a": "baseline__naive_no_ceiling/eval-single@eval_core6",
       "b": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
       "tasks": 6,
-      "mean_diff": -0.2146,
+      "mean_diff": -0.2819,
       "ci95": [
-        -1.0687,
-        0.5271
+        -1.0931,
+        0.4625
       ],
       "distinguishable": false
     },
@@ -4596,12 +4637,12 @@
       "a": "gemini__gemini-3.5-flash-lite/eval-single@eval_core6",
       "b": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
       "tasks": 6,
-      "mean_diff": -0.2021,
+      "mean_diff": -0.2694,
       "ci95": [
-        -0.4729,
-        0.0083
+        -0.5333,
+        -0.0389
       ],
-      "distinguishable": false
+      "distinguishable": true
     },
     {
       "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
@@ -4644,10 +4685,10 @@
       "a": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
       "b": "local__qwen2.5-0.5b/eval-single@eval_core6",
       "tasks": 6,
-      "mean_diff": 1.1035,
+      "mean_diff": 1.1708,
       "ci95": [
-        0.416,
-        1.7493
+        0.5042,
+        1.7736
       ],
       "distinguishable": true
     },
@@ -4656,10 +4697,10 @@
       "a": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
       "b": "local__qwen2.5-0.5b-grpo-b0.04/eval-single@eval_core6",
       "tasks": 6,
-      "mean_diff": 0.7243,
+      "mean_diff": 0.7917,
       "ci95": [
-        -0.1174,
-        1.5535
+        -0.05,
+        1.5778
       ],
       "distinguishable": false
     },
@@ -4668,10 +4709,10 @@
       "a": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
       "b": "local__qwen2.5-3b/trackc-S1@eval_core6",
       "tasks": 6,
-      "mean_diff": 1.2979,
+      "mean_diff": 1.3653,
       "ci95": [
-        0.6667,
-        1.8708
+        0.7306,
+        1.9139
       ],
       "distinguishable": true
     },
@@ -4716,10 +4757,10 @@
       "a": "groq__openai__gpt-oss-120b/core10-single",
       "b": "baseline__always_abstain/eval-single@eval_core10",
       "tasks": 10,
-      "mean_diff": 1.3062,
+      "mean_diff": 1.405,
       "ci95": [
-        0.895,
-        1.69
+        0.9742,
+        1.8092
       ],
       "distinguishable": true
     },
@@ -4728,10 +4769,10 @@
       "a": "groq__openai__gpt-oss-120b/core10-single",
       "b": "baseline__format_only/eval-single@eval_core10",
       "tasks": 10,
-      "mean_diff": 0.7013,
+      "mean_diff": 0.8,
       "ci95": [
-        0.1575,
-        1.23
+        0.265,
+        1.2758
       ],
       "distinguishable": true
     },
@@ -4740,10 +4781,10 @@
       "a": "groq__openai__gpt-oss-120b/core10-single",
       "b": "baseline__gross_as_net/eval-single@eval_core10",
       "tasks": 10,
-      "mean_diff": 0.6362,
+      "mean_diff": 0.735,
       "ci95": [
-        0.0675,
-        1.19
+        0.1775,
+        1.2417
       ],
       "distinguishable": true
     },
@@ -4752,10 +4793,10 @@
       "a": "groq__openai__gpt-oss-120b/core10-single",
       "b": "baseline__modal_answer/eval-single@eval_core10",
       "tasks": 10,
-      "mean_diff": 0.7013,
+      "mean_diff": 0.8,
       "ci95": [
-        0.1575,
-        1.23
+        0.265,
+        1.2758
       ],
       "distinguishable": true
     },
@@ -4764,10 +4805,10 @@
       "a": "groq__openai__gpt-oss-120b/core10-single",
       "b": "baseline__naive_no_ceiling/eval-single@eval_core10",
       "tasks": 10,
-      "mean_diff": 0.3112,
+      "mean_diff": 0.41,
       "ci95": [
-        -0.325,
-        0.9912
+        -0.1958,
+        1.0408
       ],
       "distinguishable": false
     },
@@ -4776,10 +4817,10 @@
       "a": "groq__openai__gpt-oss-120b/core10-single",
       "b": "gemini__gemini-3.5-flash-lite/eval-single@eval_core10",
       "tasks": 10,
-      "mean_diff": 0.1882,
+      "mean_diff": 0.2869,
       "ci95": [
-        0.0108,
-        0.3875
+        0.0994,
+        0.4775
       ],
       "distinguishable": true
     },
@@ -4788,10 +4829,10 @@
       "a": "groq__openai__gpt-oss-120b/core10-single",
       "b": "local__qwen2.5-0.5b/eval-single@eval_core10",
       "tasks": 10,
-      "mean_diff": 1.2063,
+      "mean_diff": 1.305,
       "ci95": [
-        0.6937,
-        1.7033
+        0.8125,
+        1.7633
       ],
       "distinguishable": true
     },
@@ -4800,10 +4841,10 @@
       "a": "groq__openai__gpt-oss-120b/core10-single",
       "b": "local__qwen2.5-0.5b-grpo-b0.04/eval-single@eval_core10",
       "tasks": 10,
-      "mean_diff": 0.9096,
+      "mean_diff": 1.0083,
       "ci95": [
-        0.255,
-        1.5067
+        0.365,
+        1.5892
       ],
       "distinguishable": true
     },
@@ -4812,10 +4853,10 @@
       "a": "groq__openai__gpt-oss-120b/core10-single",
       "b": "local__qwen2.5-3b/trackc-S1@eval_core10",
       "tasks": 10,
-      "mean_diff": 1.1362,
+      "mean_diff": 1.235,
       "ci95": [
-        0.6825,
-        1.6075
+        0.7642,
+        1.6917
       ],
       "distinguishable": true
     },
@@ -5843,30 +5884,6 @@
     },
     {
       "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
-      "a": "gemini__gemini-3.8-flash/core6-single",
-      "b": "gemini__gemini-3.5-flash-lite/eval-single@eval_core6",
-      "tasks": 4,
-      "mean_diff": 0.4062,
-      "ci95": [
-        0.0,
-        0.8125
-      ],
-      "distinguishable": false
-    },
-    {
-      "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
-      "a": "gemini__gemini-3.8-flash/core6-single",
-      "b": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
-      "tasks": 4,
-      "mean_diff": 0.3031,
-      "ci95": [
-        0.0,
-        0.6062
-      ],
-      "distinguishable": false
-    },
-    {
-      "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
       "a": "baseline__always_abstain/eval-single@eval_core6",
       "b": "baseline__format_only/eval-single@eval_core6",
       "tasks": 6,
@@ -5966,10 +5983,10 @@
       "a": "baseline__format_only/eval-single@eval_core6",
       "b": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
       "tasks": 6,
-      "mean_diff": -0.5604,
+      "mean_diff": -0.6278,
       "ci95": [
-        -1.2917,
-        0.2146
+        -1.3194,
+        0.1653
       ],
       "distinguishable": false
     },
@@ -6002,10 +6019,10 @@
       "a": "baseline__gross_as_net/eval-single@eval_core6",
       "b": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
       "tasks": 6,
-      "mean_diff": -0.4896,
+      "mean_diff": -0.5569,
       "ci95": [
-        -1.2542,
-        0.3042
+        -1.275,
+        0.2486
       ],
       "distinguishable": false
     },
@@ -6026,10 +6043,10 @@
       "a": "baseline__modal_answer/eval-single@eval_core6",
       "b": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
       "tasks": 6,
-      "mean_diff": -0.5604,
+      "mean_diff": -0.6278,
       "ci95": [
-        -1.2917,
-        0.2146
+        -1.3194,
+        0.1653
       ],
       "distinguishable": false
     },
@@ -6062,22 +6079,10 @@
       "a": "baseline__naive_no_ceiling/eval-single@eval_core6",
       "b": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
       "tasks": 6,
-      "mean_diff": -0.2146,
+      "mean_diff": -0.2819,
       "ci95": [
-        -1.0687,
-        0.5271
-      ],
-      "distinguishable": false
-    },
-    {
-      "group": "subset:eval_core6|single|None|42b009c25d689c46|1.4",
-      "a": "gemini__gemini-3.5-flash-lite/eval-single@eval_core6",
-      "b": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
-      "tasks": 6,
-      "mean_diff": -0.2021,
-      "ci95": [
-        -0.4729,
-        0.0083
+        -1.0931,
+        0.4625
       ],
       "distinguishable": false
     },
@@ -6098,10 +6103,10 @@
       "a": "groq__openai__gpt-oss-120b/core10-single@eval_core6",
       "b": "local__qwen2.5-0.5b-grpo-b0.04/eval-single@eval_core6",
       "tasks": 6,
-      "mean_diff": 0.7243,
+      "mean_diff": 0.7917,
       "ci95": [
-        -0.1174,
-        1.5535
+        -0.05,
+        1.5778
       ],
       "distinguishable": false
     },
@@ -6122,10 +6127,10 @@
       "a": "groq__openai__gpt-oss-120b/core10-single",
       "b": "baseline__naive_no_ceiling/eval-single@eval_core10",
       "tasks": 10,
-      "mean_diff": 0.3112,
+      "mean_diff": 0.41,
       "ci95": [
-        -0.325,
-        0.9912
+        -0.1958,
+        1.0408
       ],
       "distinguishable": false
     },

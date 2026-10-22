@@ -605,6 +605,14 @@ def rescore(run_dir: Path, force: bool = False) -> dict:
             changed += 1
             continue
         score = score_answer(task, completion_text(row.get("completion")))
+        # The monitor columns come from the parser, not the rubric version, so they are refreshed on every row.
+        # (Before 2026-10-20 they were not: rows recorded before the 2026-10-19 bare-JSON parser fix kept
+        # parse_failed=1 after `rescore --force`, and Groq core10 reported a 33 % parse-fail rate that was 0 %.)
+        monitors = {"refused": 1.0 if score.decision == "refuse" else 0.0,
+                    "parse_failed": 1.0 if score.parse_error is not None else 0.0}
+        if any((row.get("metrics") or {}).get(k) != v for k, v in monitors.items()):
+            row["metrics"] = {**(row.get("metrics") or {}), **monitors}
+            changed += 1
         if task.ground_truth.kind == "refusal" and score.gate is None:
             continue  # correct refusal: its recorded score carries the judge's verdict
         if abs((row.get("reward") or 0.0) - score.total) > 1e-9:

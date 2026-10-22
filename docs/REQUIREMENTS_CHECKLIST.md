@@ -24,8 +24,8 @@ Status: ☐ not started · ◐ partly met · ☑ met (with evidence). Every row 
 | P02.1 | Seed → N instances; GT computed by an independent Python reference implementation, never an LLM | 4, 6 | ☑ (tests pass) | `paygym/generator.py`; GT via `paygym/truth.py` → reference only |
 | P02.2 | Deterministic and reproducible; seed recorded in every result file | 6, 14 | ☑ (tests pass) | PCG64 per task seed; task seeds + taskset hash in every `config.json` |
 | P02.3 | Difficulty knobs as parameters (interacting rules, irrelevant input, lookups, absent values; payroll: jurisdictions, mid-period change, proration, retro, currency mix, ceilings) | 6 | ☑ (tests pass) | `Knobs` in `paygym/generator.py`; `test_knob_controls_*` |
-| P02.4 | ≥100 instances; non-degenerate score distribution | 6, 15 | ◐ (instances ☑: 529 generated; distribution in Step 15) | ≥100 tested; score distribution in Step 15 |
-| P02.5 | Unit tests on the reference implementation | 4 | ☑ | `tests/test_reference.py` (16 hand-computed) + `tests/test_reference_properties.py` (Hypothesis); mutation-checked (PROGRESS Step 4) |
+| P02.4 | ≥100 instances; non-degenerate score distribution | 6, 15 | ☑ | 529 instances generated (eval 109, held-out 109/124, train, val); score distribution spans −1…+1 for every model, 0–35 % of tasks at 1.0, 14–83 % at ≤ 0 (EVAL_REPORT 'Score distribution'; dashboard distribution chart) |
+| P02.5 | Unit tests on the reference implementation | 4 | ☑ | `tests/test_reference.py` (hand-computed) + `tests/test_reference_properties.py` (Hypothesis, 1,050 cases); one manual mutation check during development: deleting the ceiling failed 5 tests (PROGRESS Step 4); no automated mutation testing |
 | P02.6 | README states where the "reference = verifier" approach breaks down in the domain | 22 | ☑ | README §'Where the reference is the verifier breaks down' |
 
 ## Phase 03: Environment (p.8–9)
@@ -38,7 +38,7 @@ Status: ☐ not started · ◐ partly met · ☑ met (with evidence). Every row 
 | P03.4 | In tool mode, tools are the only source of reference data | 9, 12 | ☑ (tests pass) | tools read only the rollout's task; tool-mode prompt carries just the employee id (`paygym/prompting.py::tool_turn_messages`) |
 | P03.5 | Enforce `max_turns` and a per-rollout timeout | 12 | ☑ (tests pass) | `max_turns=8`, `timeout_seconds=120` (verifiers `asyncio.wait_for`) |
 | P03.6 | Structured output contract with our own parser | 9 | ☑ (tests pass) | `paygym/prompting.py` contract + `paygym/parser.py` |
-| P03.7 | Runs against any OpenAI-compatible endpoint; model is a CLI flag | 12, 14 | ◐ (run pending) | `--model` CLI flag; any OpenAI-compatible endpoint via `--base-url`/`--api-key-var` |
+| P03.7 | Runs against any OpenAI-compatible endpoint; model is a CLI flag | 12, 14 | ☑ | `--model` prefix routing (`gemini/`, `groq/`, `local/` vLLM, `baseline/`) or any endpoint via `--base-url`/`--api-key-var`; real runs on Gemini, Groq and local vLLM (`results/`) |
 | P03.E1 | Edge: malformed or truncated JSON | 9 | ☑ (tests pass) | named parser errors; `tests/test_parser_tools.py` |
 | P03.E2 | Edge: invalid tool arguments; looping tool calls | 9 | ☑ (tests pass) | structured tool errors + `tool_errors` metric + `tool_loop_detected` stop |
 | P03.E3 | Edge: tool raises or times out, recorded loudly, never a silent 0 | 9 | ☑ (tests pass) | tool exceptions become error tool messages (StatefulToolEnv) counted by `tool_errors`; judge failure raises |
@@ -48,16 +48,16 @@ Status: ☐ not started · ◐ partly met · ☑ met (with evidence). Every row 
 
 | ID | Requirement | Step | Status | Evidence |
 |---|---|---|---|---|
-| P04.1 | Rule set pinned and versioned as its own artifact, separate from code; version in every result file; written as prose before implementation | 2, 3, 14 | ◐ | `ruleset/v1.0/RULESET.md` + `rules.yaml`, prose-vs-YAML test, fingerprint (`paygym/ruleset.py`); recorded in result files from Step 14 |
+| P04.1 | Rule set pinned and versioned as its own artifact, separate from code; version in every result file; written as prose before implementation | 2, 3, 14 | ☑ | `ruleset/v1.0/RULESET.md` (prose, written first) + `rules.yaml`; prose-vs-YAML test; `ruleset_version` + fingerprint `42b009c25d689c46` in every `config.json`/`scores.json`/`metrics.json` |
 | P04.2 | Reference implementation faithful to the rule set; every rule in code cites its clause | 4, 13 | ☑ (tests pass) | `@cites` on every step; test asserts every cited clause exists in RULESET.md; fidelity audit in Step 13 |
 | P04.3 | ≥1 programmatic verifier with zero LLM involvement; tolerance justified by the rule set | 10 | ☑ (tests pass) | `net_pay_exact`, tolerance = one minor unit per GEN-§1.4 (`test_tolerance_is_one_minor_unit_from_the_rule_set`) |
 | P04.4 | Each reward function returns the clause(s) that drove the score | 10 | ☑ (tests pass) | `RewardResult.clauses` + `Score.driving_clauses`; first wrong line → its clauses |
 | P04.5 | Each score level defined in terms of the rule set; partial credit gated | 10 | ☑ (tests pass) | score-level table in `paygym/rubric.py` docstring; cap tests |
 | P04.6 | ≥1 graded partial-credit reward | 10 | ☑ (tests pass) | `line_accuracy` (10 lines) |
-| P04.7 | ≥1 LLM-judge reward; criteria from the rule set; prompt versioned; reliability measured (3-run disagreement and/or 15 hand labels) | 11 | ◐ (run pending) | `paygym/judge.py` (GEN-§9-derived pass/fail criteria, versioned prompt hash); both reliability measures in `paygym/judge_reliability.py`; numbers after Step 15 |
+| P04.7 | ≥1 LLM-judge reward; criteria from the rule set; prompt versioned; reliability measured (3-run disagreement and/or 15 hand labels) | 11 | ☑ | `paygym/judge.py` (3 GEN-§9 pass/fail criteria, pinned model, prompt hash `d0691c1328f8ba86`); **3-repeat disagreement 0/60** on 20 real explanations (`results/judge/reliability_repeat.json`); hand-label agreement scoped down (TRADEOFFS), sheet prepared |
 | P04.8 | Calibration reward; reason recorded for every trap; abstaining on determined tasks penalised like a wrong answer | 5, 10 | ☑ (tests pass) | trap ladder (−1 / 0.3 / 0.8 / +0.2 judge); refusal on a determinable case = wrong-answer path |
-| P04.9 | Rule-set fidelity audit: ≥10 generated tasks hand-checked; divergence rate reported | 13 | ☑ (2026-10-19; user review pending) | `docs/FIDELITY_AUDIT.md`: 10 tasks, 0/50 divergences, coverage gaps and limits stated |
-| P04.10 | Weights documented and defended | 10, 22 | ◐ (run pending) | weights + rationale in `paygym/rubric.py`; README in Step 22 |
+| P04.9 | Rule-set fidelity audit: ≥10 generated tasks hand-checked; divergence rate reported | 13 | ☑ (user review pending) | `docs/FIDELITY_AUDIT.md`: 10 tasks, 0/50 divergences, coverage gaps and limits stated |
+| P04.10 | Weights documented and defended | 10, 22 | ☑ | weights 0.70/0.25/0.05 + rationale in `paygym/rubric.py` docstring and README; ranking unchanged under 4 alternative weightings, Kendall τ = 1.0 (`results/weight_sensitivity.json`) |
 | P04.11 | Adversarial / hand-written baselines probe the reward (p.12, p.11) | 10 | ☑ (tests pass) | 5 baselines with floors (`paygym/baselines.py`, `tests/test_rubric.py`) |
 
 ## Phase 05: Eval harness and runner (p.10)
@@ -65,8 +65,8 @@ Status: ☐ not started · ◐ partly met · ☑ met (with evidence). Every row 
 | ID | Requirement | Step | Status | Evidence |
 |---|---|---|---|---|
 | P05.1 | One command runs an evaluation | 14 | ☑ (real runs 2026-10-19: Groq + Gemini) | `python -m paygym.eval --model … --tier all --rollouts 3 --seed 7 --max-cost 2.00` |
-| P05.2 | ≥3 model configs incl. one frontier and one small/cheap | 15 | ☐ | |
-| P05.3 | ≥3 rollouts per task at non-zero temperature; mean ± SD | 14, 15 | ◐ (run pending) | `--rollouts 3 --temperature 1.0`; `paygym/eval/stats.py` (mean, run SD, rollout SD) |
+| P05.2 | ≥3 model configs incl. one frontier and one small/cheap | 15 | ☑ | Gemini 3.5 Flash-Lite + 3.8 Flash (frontier lab), gpt-oss-120b (large open), Qwen2.5-3B, Qwen2.5-0.5B base + GRPO (small), Gemini 3.1 Flash-Lite tool mode, 5 baselines (`results/leaderboard.json`) |
+| P05.3 | ≥3 rollouts per task at non-zero temperature; mean ± SD | 14, 15 | ☑ | every run 3 rollouts at temperature 1.0; mean ± run SD, rollout SD and disagreement rate per run (`scores.json`, EVAL_REPORT) |
 | P05.4 | Per run: `config.json`, `transcript.jsonl`, `metrics.json` (tokens, latency, cost, tool calls), `scores.json` | 14 | ☑ (real runs 2026-10-19; transcript JSON fix) | `paygym/eval/runner.py` writes config/transcript/metrics/scores; `test_baseline_run_writes_the_four_files` |
 | P05.5 | Hard `--max-cost` cap that aborts cleanly with partial results | 14 | ☑ (tests pass) | `--max-cost` (list price) → `aborted_cost`; `test_cost_cap_aborts_cleanly_with_partial_results` |
 | P05.6 | Bounded-concurrency worker pool; actual spend reported | 14 | ☑ (tests pass) | semaphore `--concurrency` + rate limiter; `metrics.json` list vs actual cost |
@@ -91,16 +91,16 @@ Status: ☐ not started · ◐ partly met · ☑ met (with evidence). Every row 
 
 | ID | Requirement | Step | Status | Evidence |
 |---|---|---|---|---|
-| P07.1 | Policy-gradient method chosen and defended; objective written in README | 17, 22 | ◐ (run pending) | objective + justification in README and `docs/RL_REPORT.md` A1 |
-| P07.2 | Open-weight model trainable on available compute (0.5–2B suggested) | 8, 17 | ◐ (run pending) | Qwen2.5-0.5B + LoRA on local GPU; pilot + presets |
-| P07.3 | Reward from our own Phase 04 rubric | 17 | ◐ (run pending) | `paygym/training_reward.py` wraps `paygym.rubric` |
-| P07.4 | Frozen reference model with explicit KL penalty; β, estimator reported; KL logged every step | 8, 17 | ◐ (smoke 2026-10-19: KL logged every step, 0 → 0.0015 at β=0.04; real runs Step 17) | `train/grpo_train.py`: β>0 enforced, LoRA adapter-off reference, TRL k3 KL logged per step to `metrics.csv` (API verified in TRL 1.14.1 source) |
-| P07.5 | Held-out split; disjoint generator seeds; before/after on never-trained tasks | 6, 18 | ◐ (split ☑ 2026-10-19; before/after Step 18) | disjoint `SPLITS` + content-disjointness test (Step 6); before/after in Step 18 |
-| P07.6 | ≥4 completions per prompt; fraction of all-identical groups reported | 17 | ◐ (run pending) | G≥4 enforced; `frac_reward_zero_std` logged per step |
-| P07.7 | Log and plot reward, KL, entropy, completion length, per-tier pass rate, all on the dashboard | 17, 21 | ◐ (run pending) | TRL metrics + monitors → `metrics.csv`; dashboard RL section |
-| P07.8 | KL sweep ≥2 values, one deliberately too low; β recommendation | 17, 18 | ◐ (run pending) | β ∈ {0.001, 0.04} pre-registered (RL_REPORT A3) |
-| P07.9 | ≥1 documented instance of reward gaming with transcripts and the fix, or documentation of what was searched | 18 | ☐ | |
-| P07.E1 | Edges: entropy collapse, KL blow-up, length hacking, format collapse, degenerate groups, split leakage, checkpointing | 6, 17 | ◐ (run pending) | monitors + safety stops (`ValidationAndSafety`), split-disjoint test, checkpoints every 25 + `--resume` |
+| P07.1 | Policy-gradient method chosen and defended; objective written in README | 17, 22 | ☑ | GRPO (TRL 1.14.1), Dr. GRPO loss, no std scaling, k3 KL; objective + justification in README and `docs/RL_REPORT.md` A1 |
+| P07.2 | Open-weight model trainable on available compute (0.5–2B suggested) | 8, 17 | ☑ | Qwen2.5-0.5B-Instruct + LoRA r16 on the local RTX 5070 Ti; difficulty pilot + `easy` preset (RL_REPORT A10–A13) |
+| P07.3 | Reward from our own Phase 04 rubric | 17 | ☑ | `paygym/training_reward.py::rubric_reward` calls `paygym.rubric.score_answer` (judge weight 0) |
+| P07.4 | Frozen reference model with explicit KL penalty; β, estimator reported; KL logged every step | 8, 17 | ☑ | β ∈ {0.001, 0.04} > 0 enforced; reference = base with the LoRA adapter disabled; TRL k3 KL logged every step (`results/train/*/metrics.csv`) |
+| P07.5 | Held-out split; disjoint generator seeds; before/after on never-trained tasks | 6, 18 | ☑ | disjoint seed ranges + content-disjointness test; held-out before/after scored once: heldout_easy **+0.338 [+0.232, +0.442]**, heldout **+0.304 [+0.201, +0.411]** (RL_REPORT B5) |
+| P07.6 | ≥4 completions per prompt; fraction of all-identical groups reported | 17 | ☑ | G = 8; `frac_reward_zero_std` logged every step (`metrics.csv`, RL_REPORT B7) |
+| P07.7 | Log and plot reward, KL, entropy, completion length, per-tier pass rate, all on the dashboard | 17, 21 | ☑ | `metrics.csv` (reward, KL, entropy, completion length, per-tier pass rate + monitors) → dashboard RL section (live) |
+| P07.8 | KL sweep ≥2 values, one deliberately too low; β recommendation | 17, 18 | ☑ | β = 0.001 (too low: KL ~0.15, learned the 'reject' exploit) vs 0.04 (KL ~0.02, honest gain); recommendation β ≥ 0.04 (RL_REPORT B3) |
+| P07.9 | ≥1 documented instance of reward gaming with transcripts and the fix, or documentation of what was searched | 18 | ☑ | **three** learned exploits with transcripts and fixes: refuse-everything (rubric 1.2), broken JSON (1.3), invalid decision word (1.4), each verified offline on the real outputs (RL_REPORT B6; `results/train/*/val_samples.jsonl`) |
+| P07.E1 | Edges: entropy collapse, KL blow-up, length hacking, format collapse, degenerate groups, split leakage, checkpointing | 6, 17 | ☑ | monitors + relative safety stops (`ValidationAndSafety`), split-disjoint test, checkpoints + `--resume`; the step-14 attention OOM fixed with an exact chunked fallback (RL_REPORT, PROGRESS) |
 
 ## Phase 08: Agent sandbox (p.13–14)
 
@@ -119,53 +119,53 @@ Status: ☐ not started · ◐ partly met · ☑ met (with evidence). Every row 
 | P08.E2 | Edge: caller asks for 10,000 tasks / submits in a tight loop | 19 | ☑ (tests pass; verified live 2026-10-19) | cap + rate limit tests |
 | P08.E3 | Edge: two runs writing to the same store at once | 19 | ☑ (tests pass; verified live 2026-10-19) | atomic set-if-absent per run_id; idempotent resubmission |
 | P08.E4 | Edge: version skew, never silently compared across rule-set versions | 19 | ☑ (tests pass; verified live 2026-10-19) | 409 on rule-set mismatch (test) |
-| P08.E5 | Edge: cold start documented in README | 19 | ◐ (run/deploy pending) | `/api/health` wait in quickstart; README note (Step 22) |
+| P08.E5 | Edge: cold start documented in README | 19 | ☑ | README 'Cold start' note; quickstart polls `/api/health` first |
 
 ## §7 Advanced track C: scaffold comparison (p.15)
 
 | ID | Requirement | Step | Status | Evidence |
 |---|---|---|---|---|
-| ADV.1 | Model held constant; vary prompt structure, tool availability, self-check step | 20 | ◐ (run pending) | `SCAFFOLDS` S0–S4 in the same environment; `--scaffold` |
-| ADV.2 | Show whether scaffold matters more than model choice | 20 | ◐ (run pending) | `scripts/track_c.py` scaffold vs model effect |
+| ADV.1 | Model held constant; vary prompt structure, tool availability, self-check step | 20 | ☑ | `SCAFFOLDS` S0–S4 in the same environment; Qwen-3B and 0.5B through all five (`results/local__qwen2.5-*/trackc-*`) |
+| ADV.2 | Show whether scaffold matters more than model choice | 20 | ☑ | `docs/TRACK_C.md`: scaffold worth +0.21 for the 3B; the model effect changes sign with the scaffold |
 
 ## §8 Compute and budget (p.15–16)
 
 | ID | Requirement | Step | Status | Evidence |
 |---|---|---|---|---|
-| CMP.1 | Report models chosen and roughly what was spent | 15, 22 | ☐ | |
+| CMP.1 | Report models chosen and roughly what was spent | 15, 22 | ☑ | EVAL_REPORT 'Compute spend': $0.00 actual, ≈ $0.86 list-price equivalent, local GPU ~6–9 h; models listed in EVAL_REPORT 'Setup' |
 
 ## §9 Deliverables (p.16)
 
 | # | Deliverable | Step | Status | Evidence |
 |---|---|---|---|---|
-| D1 | GitHub repo; runs from a clean clone (`uv sync` / `pip install -e .`, `.env.example`) | 1, 23 | ◐ | `uv sync` + `pytest` pass, `uv.lock` resolves all extras (PROGRESS Step 1); clean-clone test in Step 23 |
-| D2 | Deployed dashboard (live URL, real results) | 16, 21 | ☐ | |
-| D3 | Live agent sandbox + two-minute quickstart | 19 | ☐ | |
+| D1 | GitHub repo; runs from a clean clone (`uv sync` / `pip install -e .`, `.env.example`) | 1, 23 | ◐ (clean-clone test ⏳) | `uv sync` + 237 tests pass; `.env.example`; CI green; fresh-clone run still to do |
+| D2 | Deployed dashboard (live URL, real results) | 16, 21 | ☑ | https://aigym-alpha.vercel.app (all Phase 06 sections, RL curves, Track C) |
+| D3 | Live agent sandbox + two-minute quickstart | 19 | ☑ | https://aigym-alpha.vercel.app/docs; `curl -s https://aigym-alpha.vercel.app/quickstart.py | python3 - https://aigym-alpha.vercel.app` verified live 2026-10-19 |
 | D4 | Loom, 8–12 min: ≥3 min reward design, ≥1 min reading a failure transcript, live sandbox request | 24 | ◐ (recording pending) | `docs/LOOM_SCRIPT.md` |
-| D5 | README / architecture doc: stack, architecture, task schema, reward functions and weights, how to run, what next | 22 | ◐ (URLs pending) | `README.md` (stack, architecture, schema, rewards + weights, how to run, next) |
-| D6 | Eval report: 3+ configs, 3+ rollouts, mean ± SD, tier breakdown, adversarial baselines, judge reliability, fidelity divergence rate, total spend | 22 | ◐ (results pending) | `docs/EVAL_REPORT.md` template covers every §9 #6 item |
-| D7 | RL report: curves (reward, KL, entropy, length, per-tier pass rate), held-out before/after, KL sweep, gaming instance | 18 | ◐ (results pending) | `docs/RL_REPORT.md` Part A pre-registered; Part B after runs |
-| D8 | Failure analysis: 5–10 transcripts read by hand, categorised with counts | 22 | ◐ (results pending) | `docs/FAILURE_ANALYSIS.md` template |
-| D9 | Advanced-track write-up | 20 | ◐ (results pending) | `docs/TRACK_C.md` template |
+| D5 | README / architecture doc: stack, architecture, task schema, reward functions and weights, how to run, what next | 22 | ☑ | `README.md`: live links, stack, architecture, schema, rewards + weights, RL objective, how to run, cold start, what next |
+| D6 | Eval report: 3+ configs, 3+ rollouts, mean ± SD, tier breakdown, adversarial baselines, judge reliability, fidelity divergence rate, total spend | 22 | ☑ | `docs/EVAL_REPORT.md`: 7 configs × 3 rollouts, mean ± SD, tiers, baselines + floors, paired CIs, judge 0/60, fidelity 0/50, spend |
+| D7 | RL report: curves (reward, KL, entropy, length, per-tier pass rate), held-out before/after, KL sweep, gaming instance | 18 | ☑ | `docs/RL_REPORT.md` Part A (pre-registration + amendments A9–A16) and Part B (curves, held-out, β sweep, 3 gaming instances) |
+| D8 | Failure analysis: 5–10 transcripts read by hand, categorised with counts | 22 | ☑ (user review pending) | `docs/FAILURE_ANALYSIS.md`: 13 transcripts read, 7 categories, each counted across all rollouts |
+| D9 | Advanced-track write-up | 20 | ☑ | `docs/TRACK_C.md` |
 | D10 | Edge-cases document: top 5 and how each was handled | 22 | ☑ | `docs/EDGE_CASES.md` |
-| D11 | Assumptions and trade-offs: ≥3 deliberate trade-offs (mocked, simplified, cut) | 22 | ☑ | `docs/TRADEOFFS.md` (8 trade-offs) |
+| D11 | Assumptions and trade-offs: ≥3 deliberate trade-offs (mocked, simplified, cut) | 22 | ☑ | `docs/TRADEOFFS.md` (12 trade-offs, what we mocked, what we cut) |
 | D12 | AI usage disclosure | 22 | ☑ | `docs/AI_USAGE.md` |
 
 ## §10 Evaluation criteria and anti-goals (p.17–18)
 
 | ID | Criterion / anti-goal | Step | Status | Evidence |
 |---|---|---|---|---|
-| EV.1 | Same environment serves the eval, the trainer, and the sandbox | 12, 14, 19 | ◐ (run/deploy pending) | env dataset → trainer; env rollouts → eval; sandbox parity test |
-| EV.2 | Failures, retries, checkpoints and costs handled rather than ignored | 9, 14, 17 | ☐ | |
-| EV.3 | Reward attacked by ourselves and fixed | 10, 18 | ◐ (run pending) | baseline attack suite (Step 10); RL attack in Step 18 |
-| AG.1 | Not a gym where everything scores 100% | 15 | ☐ | |
-| AG.2 | No GT generated by the evaluated model | 4, 6 | ◐ (run pending) | GT only from `compute_payslip` / rule tables (seed + generator) |
-| AG.3 | No single-rollout leaderboard | 15 | ☐ | |
+| EV.1 | Same environment serves the eval, the trainer, and the sandbox | 12, 14, 19 | ☑ | trainer data = `load_environment(...).get_dataset()`; eval rollouts = `env.run_rollout`; sandbox = same `score_answer`; parity test API == rubric == env |
+| EV.2 | Failures, retries, checkpoints and costs handled rather than ignored | 9, 14, 17 | ☑ | retries + `retried` flag, resume, cost cap, daily quota ledger, `unavailable` status, training checkpoints/resume, judge failures raise (PROGRESS: every failure and fix logged) |
+| EV.3 | Reward attacked by ourselves and fixed | 10, 18 | ☑ | 5 adversarial baselines under floors + 3 exploits found by the optimiser and closed (RL_REPORT B6) |
+| AG.1 | Not a gym where everything scores 100% | 15 | ☑ | no model or baseline at 100 %: full-eval best +0.314; distribution −1…+1 |
+| AG.2 | No GT generated by the evaluated model | 4, 6 | ☑ | GT only from `compute_payslip` / rule tables; `paygym validate` recomputes it |
+| AG.3 | No single-rollout leaderboard | 15 | ☑ | 3 rollouts per task everywhere |
 | AG.4 | Depth over breadth (one slice) | 2 | ☑ | One slice: gross-to-net (`ruleset/v1.0/RULESET.md`) |
-| AG.5 | No rising reward curve without held-out evaluation | 18 | ☐ | |
-| AG.6 | No training without a reference model / KL term | 17 | ◐ (run pending) | β>0 enforced; adapter-off reference |
-| AG.7 | Transcripts, not just a final number | 16, 18 | ☐ | |
-| AG.8 | Training run finished (scale chosen to fit compute) | 8, 17 | ◐ (run pending) | 0.5B, ≤150 steps, pilot first |
+| AG.5 | No rising reward curve without held-out evaluation | 18 | ☑ | held-out before/after scored once (RL_REPORT B5); validation split used for selection |
+| AG.6 | No training without a reference model / KL term | 17 | ☑ | β > 0 enforced (`train/grpo_train.py`), KL logged every step |
+| AG.7 | Transcripts, not just a final number | 16, 18 | ☑ | every rollout's transcript in `transcript.jsonl` + dashboard transcript viewer; FAILURE_ANALYSIS reads 13 |
+| AG.8 | Training run finished (scale chosen to fit compute) | 8, 17 | ☑ | β 0.04 and 0.001 runs finished 60 steps each; best-validation checkpoint selected (RL_REPORT A16) |
 | AG.9 | Sandbox does not return expected answers | 19 | ☑ (tests pass) | leak fuzz test |
 | AG.10 | Sandbox scores with the same logic as the dashboard | 19 | ☑ (tests pass) | parity test |
 
@@ -175,7 +175,7 @@ Status: ☐ not started · ◐ partly met · ☑ met (with evidence). Every row 
 |---|---|---|---|---|
 | R.1 | Built solo; assignment not shared | all | ☑ | Solo build |
 | R.2 | AI tools used and disclosed | 22 | ☑ | `docs/AI_USAGE.md` |
-| R.3 | No real customer or personal data; synthetic and fictional only | 2, 6 | ☐ | |
-| R.4 | No paid infrastructure required | 1 | ◐ | Free tiers only (`.env.example`); confirmed at deploy |
+| R.3 | No real customer or personal data; synthetic and fictional only | 2, 6 | ☑ | fictional jurisdictions, synthetic employees (`paygym/generator.py`); no real data anywhere |
+| R.4 | No paid infrastructure required | 1 | ☑ | free tiers only: Google AI Studio, Groq, Vercel Hobby, Upstash free; $0 spent |
 | R.5 | Mocking documented: what, why, real implementation | 22 | ☑ | `docs/TRADEOFFS.md` §What we mocked |
-| R.6 | Scope down loudly: cuts and "two more days" written down | 22 | ◐ (final pass) | `docs/TRADEOFFS.md`; RL_REPORT B8 'two more days' |
+| R.6 | Scope down loudly: cuts and "two more days" written down | 22 | ☑ | `docs/TRADEOFFS.md` (scoped-down items, 'two more days'); RL_REPORT B8 |

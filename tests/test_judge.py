@@ -73,3 +73,41 @@ def test_agreement_reads_label_sheet(tmp_path):
             w.writerow([tid, "MISSING_INPUT", crit, "e", human, judge])
     report = agreement(path)
     assert report["labelled_rows"] == 2 and report["agreement"] == pytest.approx(0.5)
+
+
+def test_stratified_cap_covers_every_reason_code():
+    from paygym.generator import generate_split
+    from paygym.judge_reliability import stratified
+
+    traps = [(t, "x") for t in generate_split("eval", 95) if t.difficulty == 3]
+    picked = stratified(traps, 8)
+    assert len(picked) == 8 and len({t.ground_truth.reason_code for t, _ in picked}) == 4
+    assert len(stratified(traps, 10_000)) == len(traps)  # a cap above the count keeps everything
+
+
+def test_repeat_run_resumes_after_a_crash_without_repeating_requests(tmp_path):
+    from paygym.generator import generate_split
+    from paygym.judge_reliability import repeat_disagreement
+
+    items = [(t, "the start date differs between documents") for t in generate_split("eval", 95) if t.difficulty == 3][:2]
+
+    class FlakyJudge:
+        model = "fake"
+
+        def __init__(self, fail_after=None):
+            self.calls, self.fail_after = 0, fail_after
+
+        def judge_criterion(self, task, criterion, explanation):
+            if self.fail_after is not None and self.calls >= self.fail_after:
+                raise RuntimeError("503 UNAVAILABLE")
+            self.calls += 1
+            return {"pass": True}
+
+    progress = tmp_path / "progress.jsonl"
+    first = FlakyJudge(fail_after=7)
+    with pytest.raises(RuntimeError):
+        repeat_disagreement(items, judge=first, progress_path=progress)
+    second = FlakyJudge()
+    report = repeat_disagreement(items, judge=second, progress_path=progress)
+    assert first.calls + second.calls == 2 * 3 * 3  # 2 items x 3 criteria x 3 repeats, none asked twice
+    assert report["pairs"] == 6 and report["disagreement_rate"] == 0.0

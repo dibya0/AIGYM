@@ -183,7 +183,8 @@ document.getElementById('meta').textContent = `Rule set v${D.ruleset.version} ($
   try {
     const res = await fetch(D.sandbox_url.replace(/\/$/, '') + '/api/leaderboard'); const data = await res.json(); box.textContent = '';
     box.append(el('p', { class: 'muted' }, 'Runs submitted by outside agents via the sandbox, scored by the same rubric, labelled external.'));
-    box.append(table(['Run', 'Ruleset', 'Tier mix', 'Tasks', 'Mean reward', 'Submitted'], (data.runs || []).map(r => [r.run_id.slice(0, 10) + '…', r.ruleset_version, JSON.stringify(r.tier_mix), r.n_tasks, fmt(r.mean_reward), r.submitted_at])));
+    box.append(el('p', { class: 'muted' }, '“Repeat seed” marks a run on a public seed already submitted: it could have been steered by the earlier run’s feedback.'));
+    box.append(table(['Run', 'Ruleset', 'Tier mix', 'Tasks', 'Mean reward', 'Seed', 'Repeat seed', 'Submitted'], (data.runs || []).map(r => [r.run_id.slice(0, 10) + '…', r.ruleset_version, JSON.stringify(r.tier_mix), r.n_tasks, fmt(r.mean_reward), r.seed, r.repeat_seed ? 'yes' : (r.repeat_seed === false ? 'no' : '—'), r.submitted_at])));
   } catch (e) { box.textContent = 'Could not reach the sandbox: ' + e; }
 })();
 

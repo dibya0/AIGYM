@@ -15,34 +15,35 @@
   "rubric_version": "1.4",
   "schema_version": "1.0",
   "summary": {
-    "tasks": 4,
-    "rollouts_ok": 6,
-    "rollouts_failed": 12,
-    "mean_reward": 1.0,
-    "run_sd": 0.0,
-    "rollout_sd": 0.0,
-    "disagreement_rate": 0.0
+    "tasks": 6,
+    "rollouts_ok": 18,
+    "rollouts_failed": 0,
+    "mean_reward": 0.8852,
+    "run_sd": 0.1624,
+    "rollout_sd": 0.1624,
+    "disagreement_rate": 0.3333
   },
   "by_tier": {
     "1": 1.0,
-    "2": 1.0,
-    "3": 1.0
+    "2": 0.8333,
+    "3": 0.9778
   },
   "by_component": {
-    "format_valid": 1.0,
-    "judge_flag_quality": 0.1667,
-    "line_accuracy": 0.5,
-    "net_pay_exact": 0.5,
+    "format_valid": 0.9444,
+    "judge_flag_quality": 0.1482,
+    "line_accuracy": 0.6111,
+    "net_pay_exact": 0.6111,
     "num_turns": 1.0,
-    "parse_failed": 0.0,
-    "paygym_reward": 1.0,
+    "parse_failed": 0.0556,
+    "paygym_reward": 0.8852,
     "refused": 0.1667,
     "tool_errors": 0.0,
     "trap_decision": 0.1667,
-    "value_exact": 0.3333
+    "value_exact": 0.1667
   },
   "gates": {
-    "none": 6
+    "none": 17,
+    "unparseable": 1
   },
   "per_task": {
     "gen-2000025": {
@@ -51,16 +52,18 @@
       "task_seed": 2000025,
       "rewards": [
         1.0,
+        1.0,
         1.0
       ],
       "gates": [
+        null,
         null,
         null
       ],
       "statuses": [
         "ok",
         "ok",
-        "error"
+        "ok"
       ],
       "components": {
         "paygym_reward": 1.0,
@@ -83,25 +86,64 @@
       "kind": "refusal",
       "task_seed": 2000065,
       "rewards": [
+        1.0,
+        0.9333333333333333,
         1.0
       ],
       "gates": [
+        null,
+        null,
         null
       ],
       "statuses": [
         "ok",
-        "error",
-        "error"
+        "ok",
+        "ok"
       ],
       "components": {
-        "paygym_reward": 1.0,
+        "paygym_reward": 0.9778,
         "net_pay_exact": 0.0,
         "line_accuracy": 0.0,
         "trap_decision": 1.0,
         "value_exact": 0.0,
         "format_valid": 1.0,
-        "judge_flag_quality": 1.0,
+        "judge_flag_quality": 0.8889,
         "refused": 1.0,
+        "parse_failed": 0.0,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.9778,
+      "sd": 0.0314
+    },
+    "gen-2000048": {
+      "difficulty": 2,
+      "kind": "payslip",
+      "task_seed": 2000048,
+      "rewards": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "gates": [
+        null,
+        null,
+        null
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 1.0,
+        "net_pay_exact": 1.0,
+        "line_accuracy": 1.0,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 1.0,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
         "parse_failed": 0.0,
         "tool_errors": 0.0,
         "num_turns": 1.0
@@ -109,50 +151,59 @@
       "mean": 1.0,
       "sd": 0.0
     },
-    "gen-2000048": {
-      "difficulty": 2,
-      "kind": "payslip",
-      "task_seed": 2000048,
-      "rewards": [],
-      "gates": [],
-      "statuses": [
-        "error",
-        "error",
-        "error"
-      ],
-      "components": {},
-      "mean": null,
-      "sd": null
-    },
     "gen-2000049": {
       "difficulty": 2,
       "kind": "payslip",
       "task_seed": 2000049,
-      "rewards": [],
-      "gates": [],
-      "statuses": [
-        "error",
-        "error",
-        "error"
+      "rewards": [
+        1.0,
+        -1.0,
+        1.0
       ],
-      "components": {},
-      "mean": null,
-      "sd": null
+      "gates": [
+        null,
+        "unparseable",
+        null
+      ],
+      "statuses": [
+        "ok",
+        "ok",
+        "ok"
+      ],
+      "components": {
+        "paygym_reward": 0.3333,
+        "net_pay_exact": 0.6667,
+        "line_accuracy": 0.6667,
+        "trap_decision": 0.0,
+        "value_exact": 0.0,
+        "format_valid": 0.6667,
+        "judge_flag_quality": 0.0,
+        "refused": 0.0,
+        "parse_failed": 0.3333,
+        "tool_errors": 0.0,
+        "num_turns": 1.0
+      },
+      "mean": 0.3333,
+      "sd": 0.9428
     },
     "gen-2000065-twin": {
       "difficulty": 2,
       "kind": "payslip",
       "task_seed": 2000065,
       "rewards": [
+        1.0,
+        1.0,
         1.0
       ],
       "gates": [
+        null,
+        null,
         null
       ],
       "statuses": [
-        "error",
         "ok",
-        "error"
+        "ok",
+        "ok"
       ],
       "components": {
         "paygym_reward": 1.0,
@@ -176,14 +227,16 @@
       "task_seed": 2000090,
       "rewards": [
         1.0,
+        1.0,
         1.0
       ],
       "gates": [
         null,
+        null,
         null
       ],
       "statuses": [
-        "error",
+        "ok",
         "ok",
         "ok"
       ],
