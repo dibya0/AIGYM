@@ -7,7 +7,6 @@ A verifiable evaluation **and** reinforcement-learning environment for AI agents
 | **Dashboard** | **https://aigym-alpha.vercel.app** |
 | **Sandbox API** | `https://aigym-alpha.vercel.app/tasks`, `/submit`, `/runs/<id>` · interactive docs: **https://aigym-alpha.vercel.app/docs** |
 | **Two-minute quickstart** | `curl -s https://aigym-alpha.vercel.app/quickstart.py \| python3 - https://aigym-alpha.vercel.app` |
-| **Status** | [docs/STATUS.md](docs/STATUS.md) |
 | **Reports** | [Eval](docs/EVAL_REPORT.md) · [RL training](docs/RL_REPORT.md) · [Failure analysis](docs/FAILURE_ANALYSIS.md) · [Track C](docs/TRACK_C.md) · [Edge cases](docs/EDGE_CASES.md) · [Trade-offs](docs/TRADEOFFS.md) · [Fidelity audit](docs/FIDELITY_AUDIT.md) · [AI usage](docs/AI_USAGE.md) · [Research notes](docs/RESEARCH_NOTES.md) |
 | **Requirement status** | [docs/REQUIREMENTS_CHECKLIST.md](docs/REQUIREMENTS_CHECKLIST.md) (every brief requirement → evidence) |
 

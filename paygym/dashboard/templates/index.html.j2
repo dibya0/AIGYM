@@ -87,9 +87,11 @@ document.getElementById('meta').textContent = `Rule set v${D.ruleset.version} ($
   if (!v || !v.models) { box.textContent = 'No model runs yet.'; return; }
   box.append(el('p', {}, `Best overall: ${short(v.best_overall.model)} (mean reward ${fmt(v.best_overall.score)}). `,
     'Best by tier: ', ...Object.entries(v.best_by_tier).map(([t, b]) => el('span', { class: 'tag' }, `Tier ${t}: ${short(b.model)} ${fmt(b.score)}`))));
-  box.append(table(['Model', 'Mean reward', 'Payslips exactly right', 'Traps answered (should refuse)', 'Twin score (over-refusal check)', 'Cost / correct payslip (list $)', 'Where it hurts: top failure clauses'],
-    v.models.map(m => [short(m.model), fmt(m.mean_reward), fmt(m.payslip_pass_rate, 2), fmt(m.trap_answered_rate, 2), fmt(m.twin_score), m.cost_per_correct_payslip_list_usd === null ? '—' : '$' + fmt(m.cost_per_correct_payslip_list_usd, 5),
-      (m.top_failure_clauses || []).map(([c, n]) => `${c} ×${n}`).join(', ') || '—'])));
+  box.append(el('p', { class: 'muted' }, 'How to read the scores: each task scores from −1 to +1. +1 = a payslip that would pass payroll review (or a trap refused for the right reason, ≈ 0.8–1.0); a wrong net pay scores at most 0.25, however many other lines are right; −1 = a wrong decision (computing a payslip the rules do not determine, or refusing one they do) or an unreadable answer. Mean reward = the average over all tasks, each task averaged over its 3 attempts.'));
+  const pct = (n, total) => total ? `${Math.round(100 * n / total)}% (${n} / ${total})` : '—';
+  box.append(table(['Model', 'Mean reward (−1 … +1)', 'Payslips exactly right', 'Traps answered (should refuse)', 'Twin score (over-refusal check, −1 … +1)', 'Cost / correct payslip (list $)', 'Where it hurts: cause of the failed payslips (first wrong line)'],
+    v.models.map(m => [short(m.model), fmt(m.mean_reward), pct(m.payslips_correct, m.payslips_total), pct(m.traps_answered, m.traps_total), fmt(m.twin_score), m.cost_per_correct_payslip_list_usd === null ? '—' : '$' + fmt(m.cost_per_correct_payslip_list_usd, 3),
+      (m.where_it_hurts || []).map(h => `${h.topic}: ${Math.round(100 * h.share)}% (${h.clause})`).join(' · ') || '—'])));
   box.append(el('p', { class: 'muted' }, 'Actual spend for every run: $0 (free tiers and a local GPU). List-price cost shows what a paid run would cost.'));
 })();
 

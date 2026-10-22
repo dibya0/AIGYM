@@ -32,3 +32,6 @@ results/.request_ledger.json
 
 # LibreOffice / office lock files
 .~lock.*#
+
+# Personal working notes (Loom script, status, walkthroughs, defense prep): not part of the submission
+notes/

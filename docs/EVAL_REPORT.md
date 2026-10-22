@@ -58,7 +58,7 @@
 | gpt-oss-120b − naive_no_ceiling | core10 | +0.410 | [−0.196, +1.041] | **no** |
 | gpt-oss-120b − Qwen-0.5B trained | core6 | +0.792 | [−0.050, +1.578] | **no** (6 tasks) |
 
-**Read these with the sample size in mind:** core6 has 6 tasks, 4 of them payslips. A 6-task interval is wide, and one model's lead on 6 tasks is a signal to test, not a ranking.
+**Read these with the sample size in mind:** core6 has 6 tasks, 4 of them payslips. **Both subset traps are the same type, `NO_APPLICABLE_TABLE`** (a 2027 period; core6 has one, core10 two). The stratified draw covers tiers, not trap types. So the subset models' Tier 3 ≈ 1.0 shows they spot a missing rate table, probably the easiest trap to see. It says nothing about missing inputs, conflicting records or unsupported currencies, which only the full-eval models are tested on. A 6-task interval is wide, and one model's lead on 6 tasks is a signal to test, not a ranking.
 
 **What went wrong in these two runs, read from the transcripts:**
 - **Gemini 3.8 Flash, the one −1 (`gen-2000049`, rollout 1):** the answer is cut off before its closing brace. It is `is_truncated`, at 160 visible tokens of a 4,096 budget, and the cut-off text already holds the correct net pay (5,659). Most likely hidden reasoning used up the budget: about 103 s per rollout, and the usage field counts visible tokens only. It is scored −1 under the rubric (no usable answer) and was not re-run with a larger budget, which would mix settings in one run.

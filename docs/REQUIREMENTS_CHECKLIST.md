@@ -56,7 +56,7 @@ Status: ☐ not started · ◐ partly met · ☑ met (with evidence). Every row 
 | P04.6 | ≥1 graded partial-credit reward | 10 | ☑ (tests pass) | `line_accuracy` (10 lines) |
 | P04.7 | ≥1 LLM-judge reward; criteria from the rule set; prompt versioned; reliability measured (3-run disagreement and/or 15 hand labels) | 11 | ☑ | `paygym/judge.py` (3 GEN-§9 pass/fail criteria, pinned model, prompt hash `d0691c1328f8ba86`); **3-repeat disagreement 0/60** on 20 real explanations (`results/judge/reliability_repeat.json`); hand-label agreement scoped down (TRADEOFFS), sheet prepared |
 | P04.8 | Calibration reward; reason recorded for every trap; abstaining on determined tasks penalised like a wrong answer | 5, 10 | ☑ (tests pass) | trap ladder (−1 / 0.3 / 0.8 / +0.2 judge); refusal on a determinable case = wrong-answer path |
-| P04.9 | Rule-set fidelity audit: ≥10 generated tasks hand-checked; divergence rate reported | 13 | ☑ (user review pending) | `docs/FIDELITY_AUDIT.md`: 10 tasks, 0/50 divergences, coverage gaps and limits stated |
+| P04.9 | Rule-set fidelity audit: ≥10 generated tasks hand-checked; divergence rate reported | 13 | ☑ (independent re-check not done; limit stated in the audit) | `docs/FIDELITY_AUDIT.md`: 10 tasks, 0/50 divergences, coverage gaps and limits stated |
 | P04.10 | Weights documented and defended | 10, 22 | ☑ | weights 0.70/0.25/0.05 + rationale in `paygym/rubric.py` docstring and README; ranking unchanged under 4 alternative weightings, Kendall τ = 1.0 (`results/weight_sensitivity.json`) |
 | P04.11 | Adversarial / hand-written baselines probe the reward (p.12, p.11) | 10 | ☑ (tests pass) | 5 baselines with floors (`paygym/baselines.py`, `tests/test_rubric.py`) |
 
@@ -85,7 +85,7 @@ Status: ☐ not started · ◐ partly met · ☑ met (with evidence). Every row 
 | P06.5 | Transcript viewer | 16 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | `paygym/dashboard/`: transcript viewer (tool calls, results, gate, clauses) |
 | P06.6 | Adversarial baselines on the same leaderboard | 16 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | `paygym/dashboard/`: baselines on the same leaderboard (grey) |
 | P06.7 | Cost and latency per model | 16 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | `paygym/dashboard/`: cost & latency table |
-| P06.8 | Answers: which model, for which tasks, where will it hurt us | 16, 21 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | `paygym/dashboard/`: verdict panel (best per tier, cost/correct payslip, top failure clauses, trap/twin rates) |
+| P06.8 | Answers: which model, for which tasks, where will it hurt us | 16, 21 | ☑ (live 2026-10-19: https://aigym-alpha.vercel.app) | `paygym/dashboard/`: verdict panel (best per tier, cost/correct payslip, failure causes in plain language with %, trap/twin rates, a how-to-read note) |
 
 ## Phase 07: RL training loop (p.11–13)
 
@@ -141,11 +141,11 @@ Status: ☐ not started · ◐ partly met · ☑ met (with evidence). Every row 
 | D1 | GitHub repo; runs from a clean clone (`uv sync` / `pip install -e .`, `.env.example`) | 1, 23 | ◐ (clean-clone test ⏳) | `uv sync` + 237 tests pass; `.env.example`; CI green; fresh-clone run still to do |
 | D2 | Deployed dashboard (live URL, real results) | 16, 21 | ☑ | https://aigym-alpha.vercel.app (all Phase 06 sections, RL curves, Track C) |
 | D3 | Live agent sandbox + two-minute quickstart | 19 | ☑ | https://aigym-alpha.vercel.app/docs; `curl -s https://aigym-alpha.vercel.app/quickstart.py | python3 - https://aigym-alpha.vercel.app` verified live 2026-10-19 |
-| D4 | Loom, 8–12 min: ≥3 min reward design, ≥1 min reading a failure transcript, live sandbox request | 24 | ◐ (recording pending) | `docs/LOOM_SCRIPT.md` |
+| D4 | Loom, 8–12 min: ≥3 min reward design, ≥1 min reading a failure transcript, live sandbox request | 24 | ◐ (recording pending) | the Loom link in the submission email |
 | D5 | README / architecture doc: stack, architecture, task schema, reward functions and weights, how to run, what next | 22 | ☑ | `README.md`: live links, stack, architecture, schema, rewards + weights, RL objective, how to run, cold start, what next |
 | D6 | Eval report: 3+ configs, 3+ rollouts, mean ± SD, tier breakdown, adversarial baselines, judge reliability, fidelity divergence rate, total spend | 22 | ☑ | `docs/EVAL_REPORT.md`: 7 configs × 3 rollouts, mean ± SD, tiers, baselines + floors, paired CIs, judge 0/60, fidelity 0/50, spend |
 | D7 | RL report: curves (reward, KL, entropy, length, per-tier pass rate), held-out before/after, KL sweep, gaming instance | 18 | ☑ | `docs/RL_REPORT.md` Part A (pre-registration + amendments A9–A16) and Part B (curves, held-out, β sweep, 3 gaming instances) |
-| D8 | Failure analysis: 5–10 transcripts read by hand, categorised with counts | 22 | ☑ (user review pending) | `docs/FAILURE_ANALYSIS.md`: 13 transcripts read, 7 categories, each counted across all rollouts |
+| D8 | Failure analysis: 5–10 transcripts read by hand, categorised with counts | 22 | ☑ (reviewed by the author 2026-10-22) | `docs/FAILURE_ANALYSIS.md`: 13 transcripts read, 7 categories, each counted across all rollouts |
 | D9 | Advanced-track write-up | 20 | ☑ | `docs/TRACK_C.md` |
 | D10 | Edge-cases document: top 5 and how each was handled | 22 | ☑ | `docs/EDGE_CASES.md` |
 | D11 | Assumptions and trade-offs: ≥3 deliberate trade-offs (mocked, simplified, cut) | 22 | ☑ | `docs/TRADEOFFS.md` (12 trade-offs, what we mocked, what we cut) |

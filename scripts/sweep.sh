@@ -76,7 +76,7 @@ ev --model "gemini/$TOOLM" $COMMON --ids tasks/subsets/eval_core6.txt --mode too
 
 echo "== local open-weight models (start the server first, one model at a time):"
 echo "   (Qwen-3B's leaderboard rows come from its Track C runs: S1 and S2 send exactly the default single/tool"
-echo "    prompts, so they are the same configuration; see docs/USER_ACTIONS.md Step 20)"
+echo "    prompts, so they are the same configuration; see docs/TRACK_C.md)"
 echo "   LLM_MODEL=Qwen/Qwen2.5-0.5B-Instruct LLM_SERVED_NAME=qwen2.5-0.5b docker compose --profile gpu up -d llm"
 ev --model local/qwen2.5-0.5b $COMMON --run-name eval-single --concurrency 8 $(resume local/qwen2.5-0.5b eval-single)
 

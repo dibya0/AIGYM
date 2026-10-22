@@ -216,7 +216,7 @@ Findings and fixes:
 
   These are covered by the per-clause unit and property tests (`tests/test_reference.py`, `tests/test_reference_properties.py`) and the hand-checked seed set (`tasks/seed_v1.jsonl`), but not by this audit.
 - **Limits of this audit:**
-  1. The same author (Claude) wrote `RULESET.md`, the reference and this hand check, so a misreading shared by all three would not show up. The user's own review of the working above (USER_ACTIONS §C) is the independent check.
+  1. The same author (Claude) wrote `RULESET.md`, the reference and this hand check, so a misreading shared by all three would not show up. An independent review of the working above, by someone other than the author, is the check this audit still needs.
   2. A sample of 10 bounds the divergence rate only loosely: 0/50 lines, but the tasks are not independent draws of every rule.
   3. The worksheet shows inputs already normalised. The raw prompts were checked for the three tasks where normalisation applies.
 

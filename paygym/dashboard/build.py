@@ -27,6 +27,25 @@ from paygym.ruleset import load_ruleset
 TEMPLATES = Path(__file__).parent / "templates"
 COMPONENTS = ("net_pay_exact", "line_accuracy", "trap_decision", "value_exact", "format_valid", "judge_flag_quality")
 
+# Plain-language topics for rule-set clauses, so "where it hurts" is readable without the rule book (brief P06: 90 s).
+_GEN_TOPICS = {"1": "rounding", "5": "social-insurance base or ceiling", "6": "earned salary (proration, salary changes)",
+               "7": "allowances (taxable vs exempt)", "8": "currency conversion", "9": "refused a payable payslip",
+               "11": "tax brackets"}
+_JUR_TOPICS = {"1": "day count or inputs", "2": "social insurance (rate or ceiling)", "3": "pension", "4": "income tax"}
+
+
+def clause_topic(clause: str) -> str:
+    """'GEN-§6.2' -> 'earned salary (proration, salary changes)'; unknown clauses are returned as they are."""
+    prefix, _, number = clause.partition("-§")
+    section = number.split(".")[0]
+    if prefix == "GEN" and number.startswith("10"):
+        return {"10.1": "unreadable or missing payslip lines", "10.2": "gross pay", "10.3": "net pay arithmetic"}.get(number, "payslip format")
+    if prefix == "GEN":
+        return _GEN_TOPICS.get(section, clause)
+    if prefix == "FX":
+        return "currency conversion"
+    return _JUR_TOPICS.get(section, clause)
+
 
 def _rows(run_dir: Path) -> list[dict]:
     path = run_dir / "transcript.jsonl"
@@ -91,16 +110,26 @@ def _verdict(runs: list[dict], rows_by_run: dict[str, list[dict]]) -> dict:
         correct = sum(1 for x in payslips if (x.get("metrics") or {}).get("net_pay_exact") == 1.0)
         traps = [x for x in rows if x["kind"] == "refusal"]
         failures = [x for x in payslips if (x.get("reward") or 0) < 0.95]
-        clauses = Counter(c for x in failures for c in (x.get("driving_clauses") or [])[:2])
+        # One cause per failed payslip: the first driving clause is the rule behind the first wrong line in
+        # computation order. (Before 2026-10-22 the top two clauses were both counted, so one failure appeared twice.)
+        firsts = [(x.get("driving_clauses") or [None])[0] for x in failures]
+        topics = Counter(clause_topic(c) for c in firsts if c)
+        examples = {}
+        for c in firsts:
+            if c:
+                examples.setdefault(clause_topic(c), c.split(".")[0])
+        hurts = [{"topic": t, "n": n, "share": round(n / len(failures), 4), "clause": examples[t]} for t, n in topics.most_common(3)]
         per_model.append({
             "model": r["model"],
             "mean_reward": r["mean_reward"],
             "payslip_pass_rate": round(correct / len(payslips), 4) if payslips else None,
+            "payslips_correct": correct, "payslips_total": len(payslips), "payslips_failed": len(failures),
             "trap_answered_rate": round(sum(1 for x in traps if x.get("gate") == "answered_trap") / len(traps), 4) if traps else None,
+            "traps_answered": sum(1 for x in traps if x.get("gate") == "answered_trap"), "traps_total": len(traps),
             "twin_score": r.get("twins"),
             "cost_per_correct_payslip_list_usd": round(r["cost_list_usd"] / correct, 5) if correct else None,
             "cost_actual_usd": r["cost_actual_usd"],
-            "top_failure_clauses": clauses.most_common(4),
+            "where_it_hurts": hurts,
         })
     return {"best_overall": {"model": best["model"], "score": best["mean_reward"]}, "best_by_tier": by_tier, "models": per_model}
 
