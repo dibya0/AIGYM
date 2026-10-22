@@ -9,12 +9,12 @@
   :root { --fg:#1d2433; --muted:#5b6475; --line:#e3e6ec; --bg:#fafbfc; --card:#fff; --accent:#3b5bdb; --bad:#c92a2a; --good:#2b8a3e; }
   * { box-sizing: border-box; }
   body { margin:0; font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:var(--fg); background:var(--bg); }
-  main { max-width:1180px; margin:0 auto; padding:24px 16px 64px; }
+  main { max-width:1360px; margin:0 auto; padding:24px 16px 64px; }
   h1 { font-size:22px; margin:0 0 4px; } h2 { font-size:17px; margin:28px 0 8px; } h3 { font-size:14px; margin:16px 0 6px; }
   .muted { color:var(--muted); } .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin:10px 0; }
   table { border-collapse:collapse; width:100%; font-size:13px; } th,td { border-bottom:1px solid var(--line); padding:5px 8px; text-align:left; vertical-align:top; }
   th { color:var(--muted); font-weight:600; } .num { text-align:right; font-variant-numeric:tabular-nums; }
-  .scroll { overflow-x:auto; } .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:12px; }
+  .scroll { overflow-x:auto; } .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:12px; } .grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(520px,1fr)); gap:12px; }
   .tag { display:inline-block; padding:1px 7px; border-radius:10px; background:#edf2ff; color:var(--accent); font-size:12px; margin-right:4px; }
   .baseline { color:var(--muted); font-style:italic; } select { font:inherit; padding:3px 6px; }
   pre { white-space:pre-wrap; word-break:break-word; background:#f4f5f7; padding:8px; border-radius:6px; font-size:12px; max-height:360px; overflow:auto; }
@@ -32,22 +32,22 @@
 
   <h2 id="leaderboard">Leaderboard</h2>
   <p class="muted">Mean reward over tasks (each task averaged over its rollouts). Error bars: SD across rollout passes. Adversarial baselines in grey: a reward that a cheap strategy can game would show up here.</p>
-  <div class="card"><div id="lb-chart" style="height:340px"></div><div class="scroll" id="lb-table"></div></div>
+  <div class="card"><div id="lb-chart" style="height:440px"></div><div class="scroll" id="lb-table"></div></div>
   <div class="card" id="indist"></div>
 
   <h2 id="breakdown">Breakdown</h2>
-  <div class="grid">
-    <div class="card"><h3>By difficulty tier</h3><div id="tier-chart" style="height:300px"></div>
+  <div>
+    <div class="card"><h3>By difficulty tier</h3><div id="tier-chart" style="height:460px"></div>
       <p class="muted">Tier 1 retrieval · Tier 2 computation · Tier 3 traps (refuse correctly = 0.8, +0.2 for a useful explanation; answering = −1).</p></div>
-    <div class="card"><h3>By reward function</h3><div id="comp-chart" style="height:300px"></div></div>
+    <div class="card"><h3>By reward function</h3><div id="comp-chart" style="height:460px"></div></div>
   </div>
-  <div class="card"><h3>Score distribution (per-task mean reward)</h3><div id="dist-chart" style="height:300px"></div>
+  <div class="card"><h3>Score distribution (per-task mean reward)</h3><div id="dist-chart" style="height:420px"></div>
     <p class="muted">A gym where every task scores 0 or every task scores 1 teaches nothing (and gives GRPO no gradient). The table shows each model's share of tasks fully passed and failed.</p><div id="dist-table"></div></div>
   <div class="card" id="sensitivity"></div>
 
   <h2 id="heatmap">Failure heatmap</h2>
   <p class="muted">Task × model mean reward (red = failed, green = passed). Tasks sorted by tier.</p>
-  <div class="card scroll"><div id="hm" style="height:420px;min-width:900px"></div></div>
+  <div class="card scroll"><div id="hm" style="height:560px;min-width:900px"></div></div>
 
   <h2 id="cost">Cost and latency</h2>
   <div class="card scroll" id="cost-table"></div>
@@ -107,20 +107,28 @@ document.getElementById('meta').textContent = `Rule set v${D.ruleset.version} ($
   const box = document.getElementById('indist');
   box.append(el('h3', {}, 'Where the gym cannot tell models apart'));
   if (!D.indistinguishable.length) box.append(el('p', { class: 'muted' }, 'Every pair of runs differs (paired bootstrap 95% CI excludes 0).'));
-  else box.append(table(['Run A', 'Run B', 'Mean diff (A−B)', '95% CI', 'Shared tasks'], D.indistinguishable.map(c => [c.a, c.b, fmt(c.mean_diff), `[${c.ci95.map(x => fmt(x)).join(', ')}]`, c.tasks])));
-  if (D.other_runs.length) document.getElementById('lb-table').append(el('p', { class: 'muted' }, `Other comparison groups (different mode, taskset or rule-set version; never mixed into this table): ${D.other_runs.map(r => short(r.model) + ' [' + r.mode + ']').join(', ')}`));
+  else {
+    const name = run => { const r = [...D.main_runs, ...D.other_runs].find(x => x.run === run); return r ? short(r.model) + (r.scaffold ? ` (${r.scaffold})` : '') : run; };
+    box.append(el('p', { class: 'muted' }, 'Pairs whose difference could be noise: the paired bootstrap 95% interval contains 0, so the gym does not claim either is better.'));
+    box.append(table(['Model A', 'Model B', 'Mean diff (A−B)', '95% CI', 'Shared tasks'], D.indistinguishable.map(c => [name(c.a), name(c.b), fmt(c.mean_diff), `[${c.ci95.map(x => fmt(x)).join(', ')}]`, c.tasks])));
+  }
+  if (D.other_runs.length) {
+    const subsets = [...new Set(D.other_runs.filter(r => r.subset).map(r => r.subset))];
+    const extra = [...new Set(D.other_runs.filter(r => !r.subset_view_of).map(r => short(r.model) + (r.subset ? ' on ' + r.subset.replace('eval_', '') : '') + ' [' + r.mode + (r.scaffold ? ' ' + r.scaffold : '') + ']'))];
+    document.getElementById('lb-table').append(el('p', { class: 'muted' }, `Not mixed into this table (different tasks or mode): runs on the fixed subsets ${subsets.map(x => x.replace('eval_', '')).join(', ')} (every model is re-scored on the same subset tasks for a paired comparison) and tool-mode / scaffold runs: ${extra.join(', ')}. Details: docs/EVAL_REPORT.md and the Track C section.`));
+  }
 })();
 
 // ---- breakdowns
 (() => {
   const runs = D.main_runs;
-  Plotly.newPlot('tier-chart', ['1', '2', '3'].map(t => ({ type: 'bar', name: 'Tier ' + t, x: runs.map(r => short(r.model)), y: runs.map(r => r.by_tier[t]) })), layout({ barmode: 'group', yaxis: { range: [-1, 1] } }), { displayModeBar: false, responsive: true });
-  Plotly.newPlot('comp-chart', D.components.map(c => ({ type: 'bar', name: c, x: runs.map(r => short(r.model)), y: runs.map(r => r.by_component[c] ?? null) })), layout({ barmode: 'group', yaxis: { range: [-1, 1] } }), { displayModeBar: false, responsive: true });
+  Plotly.newPlot('tier-chart', ['1', '2', '3'].map(t => ({ type: 'bar', name: 'Tier ' + t, x: runs.map(r => short(r.model)), y: runs.map(r => r.by_tier[t]) })), layout({ barmode: 'group', yaxis: { range: [-1, 1] }, margin: { l: 50, r: 10, t: 10, b: 130 } }), { displayModeBar: false, responsive: true });
+  Plotly.newPlot('comp-chart', D.components.map(c => ({ type: 'bar', name: c, x: runs.map(r => short(r.model)), y: runs.map(r => r.by_component[c] ?? null) })), layout({ barmode: 'group', yaxis: { range: [-1, 1] }, margin: { l: 50, r: 10, t: 10, b: 130 } }), { displayModeBar: false, responsive: true });
   const dist = D.distribution || {};
   const models = Object.keys(dist).filter(m => !m.startsWith('baseline/'));
   Plotly.newPlot('dist-chart', models.map(m => ({ type: 'histogram', name: short(m), x: dist[m].task_means, opacity: 0.6, xbins: { start: -1, end: 1.0001, size: 0.1 } })),
     layout({ barmode: 'overlay', xaxis: { title: 'per-task mean reward', range: [-1.05, 1.05] }, yaxis: { title: 'tasks' } }), { displayModeBar: false, responsive: true });
-  document.getElementById('dist-table').append(table(['Model', 'Share of tasks at 1.0', 'Share at ≤ 0'], Object.entries(dist).map(([m, d]) => [short(m), fmt(d.share_full, 2), fmt(d.share_zero_or_below, 2)])));
+  document.getElementById('dist-table').append(table(['Model', 'Share of tasks at 1.0', 'Share at ≤ 0'], Object.entries(dist).map(([m, d]) => [short(m), Math.round(100 * d.share_full) + '%', Math.round(100 * d.share_zero_or_below) + '%'])));
   const s = D.sensitivity, box = document.getElementById('sensitivity');
   box.append(el('h3', {}, 'Do the reward weights change the ranking?'));
   if (!s) { box.append(el('p', { class: 'muted' }, 'Run python -m paygym.eval.sensitivity.')); return; }
@@ -131,16 +139,16 @@ document.getElementById('meta').textContent = `Rule set v${D.ruleset.version} ($
 (() => {
   const h = D.heatmap;
   if (!h.models.length) return;
-  Plotly.newPlot('hm', [{ type: 'heatmap', z: h.z, x: h.tasks, y: h.models.map(short), zmin: -1, zmax: 1, colorscale: 'RdYlGn', hoverongaps: false,
+  Plotly.newPlot('hm', [{ type: 'heatmap', z: h.z, x: h.tasks, y: h.models.map(short), zmin: -1, zmax: 1, colorscale: [[0, '#b2182b'], [0.5, '#f7f7f7'], [1, '#1a9850']], hoverongaps: false,
     hovertemplate: '%{y}<br>%{x}<br>reward %{z}<extra></extra>' }], layout({ margin: { l: 210, r: 10, t: 10, b: 120 }, xaxis: { tickangle: -60, tickfont: { size: 9 } } }), { displayModeBar: false, responsive: true });
   document.getElementById('hm').on('plotly_click', ev => { const p = ev.points[0]; const run = D.main_runs.find(r => short(r.model) === p.y); if (run) openTranscript(run, p.x); });
 })();
 
 // ---- cost & latency
 (() => {
-  const all = [...D.main_runs, ...D.other_runs];
+  const all = [...D.main_runs, ...D.other_runs].filter(r => !r.subset_view_of);
   document.getElementById('cost-table').append(table(['Model', 'Mode', 'List-price cost ($)', 'Actual cost ($)', 'Latency mean / p95 (s)', 'Tool calls / rollout', 'Parse failures'],
-    all.map(r => [short(r.model), r.mode, fmt(r.cost_list_usd, 4), fmt(r.cost_actual_usd, 2), `${fmt(r.latency_s.mean, 2)} / ${fmt(r.latency_s.p95, 2)}`, fmt(r.tool_calls_mean, 2), fmt(r.parse_fail_rate, 2)])));
+    all.map(r => [short(r.model) + (r.subset ? ' (' + r.subset.replace('eval_', '') + ')' : '') + (r.scaffold ? ' ' + r.scaffold : ''), r.mode, fmt(r.cost_list_usd, 4), fmt(r.cost_actual_usd, 2), `${fmt(r.latency_s.mean, 2)} / ${fmt(r.latency_s.p95, 2)}`, fmt(r.tool_calls_mean, 2), fmt(r.parse_fail_rate, 2)])));
 })();
 
 // ---- RL
@@ -154,26 +162,31 @@ document.getElementById('meta').textContent = `Rule set v${D.ruleset.version} ($
       table(head, rowsS.map(([label, v]) => [label, fmt(v.mean_reward), fmt((v.by_tier || {})['2']), fmt((v.by_tier || {})['3']), fmt(v.trap_answered_rate),
         v.diff_vs_before ? `${fmt(v.diff_vs_before.mean_diff)} [${fmt(v.diff_vs_before.ci95[0])}, ${fmt(v.diff_vs_before.ci95[1])}]` : '']))));
   }
-  const vdiv = el('div', { style: 'height:260px' });
+  const vdiv = el('div', { style: 'height:380px' });
   box.append(el('div', { class: 'card' }, el('h3', {}, 'Validation reward (val_easy, greedy, never trained on): what model selection sees'), vdiv));
   Plotly.newPlot(vdiv, rl.runs.filter(r => r.validation && r.validation.step).map(r => ({ type: 'scatter', mode: 'lines+markers', name: r.label, x: r.validation.step, y: r.validation.val_reward })),
     layout({ margin: { l: 45, r: 10, t: 5, b: 30 }, showlegend: true }), { displayModeBar: false, responsive: true });
   if (rl.excluded && rl.excluded.length) box.append(el('p', { class: 'muted' }, 'Not plotted (smoke test, crashed or mis-configured runs, kept as evidence in results/train): ' + rl.excluded.join(', ')));
   const plots = [['reward', 'Mean reward'], ['kl', 'KL(π_θ‖π_ref), k3 estimator'], ['entropy', 'Policy entropy'], ['completions/mean_length', 'Mean completion length (tokens)'],
-    ['monitor/pass_rate_tier2', 'Pass rate, Tier 2'], ['monitor/pass_rate_tier3', 'Pass rate, Tier 3 (traps)'], ['frac_reward_zero_std', 'Groups with identical rewards (no gradient)'],
+    ['monitor/pass_rate_tier2', 'Pass rate, Tier 2 (exactly correct payslips; 0 throughout)'], ['monitor/pass_rate_tier3', 'Pass rate, Tier 3 (traps)'], ['frac_reward_zero_std', 'Groups with identical rewards (no gradient)'],
     ['monitor/twin_refusal_rate', 'Refusing determinable twins (collapse alarm)'], ['monitor/trap_answer_rate', 'Answering traps'], ['monitor/modal_net_share', 'Modal net-pay share (mode collapse)']];
-  const grid = el('div', { class: 'grid' }); box.append(grid);
-  for (const [key, title] of plots) {
-    const div = el('div', { style: 'height:240px' }); grid.append(el('div', { class: 'card' }, el('h3', {}, title), div));
-    Plotly.newPlot(div, rl.runs.map(r => ({ type: 'scatter', mode: 'lines', name: r.label || `${r.run} (β=${r.beta})`, x: r.series.step, y: r.series[key] })), layout({ margin: { l: 45, r: 10, t: 5, b: 30 }, showlegend: key === 'reward' }), { displayModeBar: false, responsive: true });
-  }
+  box.append(el('p', { class: 'muted' }, 'Per-step training curves below use the same colours as the validation chart above (one line per run).'));
+  const grid = el('div', { class: 'grid2' }); box.append(grid);
+  // All cards first, then the charts: a chart drawn while its card was still alone in the grid row took the
+  // whole row's width and overlapped its neighbours (seen in a headless render, 2026-10-22).
+  const cells = plots.map(([key, title]) => { const div = el('div', { style: 'height:340px' }); grid.append(el('div', { class: 'card' }, el('h3', {}, title), div)); return [key, div]; });
+  for (const [key, div] of cells)
+    Plotly.newPlot(div, rl.runs.map(r => ({ type: 'scatter', mode: 'lines', name: r.label || `${r.run} (β=${r.beta})`, x: r.series.step, y: r.series[key] })), layout({ margin: { l: 55, r: 15, t: 10, b: 45 }, showlegend: false, xaxis: { title: 'training step' } }), { displayModeBar: false, responsive: true });
 })();
 
 // ---- Track C
 (() => {
   const box = document.getElementById('trackc-body'), t = D.track_c;
   if (!t) { box.textContent = 'Track C results not yet run.'; return; }
-  box.append(table(Object.keys(t.rows[0]), t.rows.map(r => Object.values(r).map(v => typeof v === 'number' ? fmt(v) : String(v)))));
+  const pctOrDash = v => (v === null || v === undefined) ? '—' : Math.round(100 * v) + '%';
+  box.append(el('div', { style: 'overflow-x:auto' }, table(['Model', 'Scaffold', 'What changes', 'Mean reward ± SD', 'Payslips exact', 'Traps refused correctly', 'Twin score', 'Tokens / rollout', 'Tool calls / rollout'],
+    t.rows.map(r => [short(r.model), r.scaffold, r.scaffold_label, `${fmt(r.mean_reward)} ± ${fmt(r.run_sd)}`, pctOrDash(r.payslip_exact_rate), pctOrDash(r.trap_correct_rate), fmt(r.twin_score),
+      Math.round(r.tokens_per_rollout).toLocaleString('en-US'), fmt(r.tool_calls_per_rollout, 1)]))));
   if (t.finding) box.append(el('p', {}, t.finding));
 })();
 

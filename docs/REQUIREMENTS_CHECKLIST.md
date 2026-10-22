@@ -138,7 +138,7 @@ Status: ☐ not started · ◐ partly met · ☑ met (with evidence). Every row 
 
 | # | Deliverable | Step | Status | Evidence |
 |---|---|---|---|---|
-| D1 | GitHub repo; runs from a clean clone (`uv sync` / `pip install -e .`, `.env.example`) | 1, 23 | ◐ (clean-clone test ⏳) | `uv sync` + 237 tests pass; `.env.example`; CI green; fresh-clone run still to do |
+| D1 | GitHub repo; runs from a clean clone (`uv sync` / `pip install -e .`, `.env.example`) | 1, 23 | ☑ (clean clone 2026-10-22) | fresh `git clone` from GitHub → `uv sync --extra cpu` → **238 passed**, `paygym validate tasks/` 1,202 tasks OK, live quickstart scored; `.env.example`; CI green |
 | D2 | Deployed dashboard (live URL, real results) | 16, 21 | ☑ | https://aigym-alpha.vercel.app (all Phase 06 sections, RL curves, Track C) |
 | D3 | Live agent sandbox + two-minute quickstart | 19 | ☑ | https://aigym-alpha.vercel.app/docs; `curl -s https://aigym-alpha.vercel.app/quickstart.py | python3 - https://aigym-alpha.vercel.app` verified live 2026-10-19 |
 | D4 | Loom, 8–12 min: ≥3 min reward design, ≥1 min reading a failure transcript, live sandbox request | 24 | ◐ (recording pending) | the Loom link in the submission email |
